@@ -68,7 +68,7 @@ services:
       - ./next-app/public:/app/public
     restart: always
     ports:
-      - 3000:3000
+      - 3333:3000
     networks:
       - my_network
   # Add more containers below (nginx, postgres, etc.)
