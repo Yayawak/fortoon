@@ -24,7 +24,7 @@ services:
       - my-db:/var/lib/mysql
 
     env_file:
-      - .env
+      - ./next-app/.env
 
 
   next-app:
@@ -40,7 +40,7 @@ services:
 
     # Set environment variables based on the .env file
     env_file:
-      - .env
+      - ./next-app/.env
     volumes:
       - ./next-app/src:/app/src
       - ./next-app/public:/app/public
