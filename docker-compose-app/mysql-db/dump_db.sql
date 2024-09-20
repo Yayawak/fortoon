@@ -1,1 +1,0 @@
-mysqldump --host=127.0.0.1 --port=3366 -u root -p waffle_db > waffle_db_dump.sql
