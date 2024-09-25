@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 5.7.24, for osx11.1 (x86_64)
 --
--- Host: 127.0.0.1    Database: fortune_db
+-- Host: 127.0.0.1    Database: fortoon_db
 -- ------------------------------------------------------
--- Server version	8.3.0
+-- Server version	5.7.44
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -24,12 +24,12 @@ DROP TABLE IF EXISTS `Chapter`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Chapter` (
   `name` varchar(100) NOT NULL,
-  `cId` int unsigned NOT NULL AUTO_INCREMENT,
-  `storyId` int unsigned NOT NULL,
+  `cId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `storyId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`cId`),
   KEY `Chapter_Story_FK` (`storyId`),
   CONSTRAINT `Chapter_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -49,16 +49,16 @@ DROP TABLE IF EXISTS `ChapterImage`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ChapterImage` (
-  `ciId` int unsigned NOT NULL AUTO_INCREMENT,
-  `parentChapterImageId` int unsigned DEFAULT NULL,
+  `ciId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `parentChapterImageId` int(10) unsigned DEFAULT NULL,
   `url` varchar(200) NOT NULL,
-  `chapterId` int unsigned NOT NULL,
+  `chapterId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ciId`),
   KEY `ChapterImage_Chapter_FK` (`chapterId`),
   KEY `ChapterImage_ChapterImage_FK` (`parentChapterImageId`),
-  CONSTRAINT `ChapterImage_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`),
-  CONSTRAINT `ChapterImage_ChapterImage_FK` FOREIGN KEY (`parentChapterImageId`) REFERENCES `ChapterImage` (`ciId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+  CONSTRAINT `ChapterImage_ChapterImage_FK` FOREIGN KEY (`parentChapterImageId`) REFERENCES `ChapterImage` (`ciId`),
+  CONSTRAINT `ChapterImage_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -78,15 +78,15 @@ DROP TABLE IF EXISTS `Followership`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Followership` (
-  `fId` int unsigned NOT NULL AUTO_INCREMENT,
-  `userId` int unsigned NOT NULL,
-  `followerId` int unsigned NOT NULL,
+  `fId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `userId` int(10) unsigned NOT NULL,
+  `followerId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`fId`),
   KEY `Relationship_User_FK` (`userId`),
   KEY `Relationship_User_FK_1` (`followerId`),
   CONSTRAINT `Relationship_User_FK` FOREIGN KEY (`userId`) REFERENCES `User` (`uId`),
   CONSTRAINT `Relationship_User_FK_1` FOREIGN KEY (`followerId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -106,10 +106,10 @@ DROP TABLE IF EXISTS `Like`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Like` (
-  `lId` int unsigned NOT NULL AUTO_INCREMENT,
-  `userId` int unsigned NOT NULL,
-  `postId` int unsigned DEFAULT NULL,
-  `storyId` int unsigned DEFAULT NULL,
+  `lId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `userId` int(10) unsigned NOT NULL,
+  `postId` int(10) unsigned DEFAULT NULL,
+  `storyId` int(10) unsigned DEFAULT NULL,
   `isDislike` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`lId`),
   KEY `Like_User_FK` (`userId`),
@@ -118,7 +118,7 @@ CREATE TABLE `Like` (
   CONSTRAINT `Like_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `Like_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`),
   CONSTRAINT `Like_User_FK` FOREIGN KEY (`userId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -139,17 +139,17 @@ DROP TABLE IF EXISTS `Post`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Post` (
   `title` varchar(50) NOT NULL,
-  `pId` int unsigned NOT NULL AUTO_INCREMENT,
+  `pId` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `content` varchar(400) NOT NULL,
-  `parentPostId` int unsigned DEFAULT NULL,
-  `posterId` int unsigned NOT NULL,
+  `parentPostId` int(10) unsigned DEFAULT NULL,
+  `posterId` int(10) unsigned NOT NULL,
   `postedDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pId`),
   KEY `Post_Post_FK` (`parentPostId`),
   KEY `Post_User_FK` (`posterId`),
   CONSTRAINT `Post_Post_FK` FOREIGN KEY (`parentPostId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `Post_User_FK` FOREIGN KEY (`posterId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -169,16 +169,16 @@ DROP TABLE IF EXISTS `PostImage`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `PostImage` (
-  `piId` int unsigned NOT NULL AUTO_INCREMENT,
-  `parentPostImageId` int unsigned DEFAULT NULL,
-  `url` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `postId` int unsigned NOT NULL,
+  `piId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `parentPostImageId` int(10) unsigned DEFAULT NULL,
+  `url` varchar(200) NOT NULL,
+  `postId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`piId`),
   KEY `ChapterImage_ChapterImage_FK` (`parentPostImageId`) USING BTREE,
   KEY `ChapterImage_Chapter_FK` (`postId`) USING BTREE,
-  CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`),
-  CONSTRAINT `PostImage_PostImage_FK` FOREIGN KEY (`parentPostImageId`) REFERENCES `PostImage` (`piId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+  CONSTRAINT `PostImage_PostImage_FK` FOREIGN KEY (`parentPostImageId`) REFERENCES `PostImage` (`piId`),
+  CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -199,9 +199,9 @@ DROP TABLE IF EXISTS `Rank`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Rank` (
   `name` varchar(100) NOT NULL,
-  `rId` int unsigned NOT NULL AUTO_INCREMENT,
+  `rId` int(10) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`rId`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,18 +222,18 @@ DROP TABLE IF EXISTS `Story`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Story` (
-  `sId` int unsigned NOT NULL AUTO_INCREMENT,
+  `sId` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(100) NOT NULL,
   `introduction` varchar(500) NOT NULL,
   `postedDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `coverImageId` int unsigned NOT NULL,
-  `price` int unsigned NOT NULL DEFAULT '0',
-  `authorId` int unsigned NOT NULL,
+  `coverImageId` int(10) unsigned NOT NULL,
+  `price` int(10) unsigned NOT NULL DEFAULT '0',
+  `authorId` int(10) unsigned NOT NULL,
   `coverImageUrl` varchar(200) NOT NULL,
   PRIMARY KEY (`sId`),
   KEY `Story_User_FK` (`authorId`),
   CONSTRAINT `Story_User_FK` FOREIGN KEY (`authorId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -253,16 +253,21 @@ DROP TABLE IF EXISTS `User`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `User` (
-  `uId` int unsigned NOT NULL,
-  `age` int unsigned NOT NULL,
+  `uId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `age` int(10) unsigned NOT NULL,
   `sex` enum('m','f') NOT NULL DEFAULT 'm',
-  `credit` int unsigned NOT NULL DEFAULT '0',
-  `rankId` int unsigned NOT NULL,
+  `credit` int(10) unsigned NOT NULL DEFAULT '0',
+  `rankId` int(10) unsigned NOT NULL,
   `password` varchar(100) NOT NULL,
+  `username` varchar(100) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `registeredDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `displayName` varchar(100) NOT NULL,
+  `profilePicUrl` varchar(300) DEFAULT NULL,
   PRIMARY KEY (`uId`),
   KEY `User_Rank_FK` (`rankId`),
   CONSTRAINT `User_Rank_FK` FOREIGN KEY (`rankId`) REFERENCES `Rank` (`rId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -271,6 +276,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
+INSERT INTO `User` VALUES (1,22,'m',0,1,'kty','username','mailser','2024-09-20 15:12:45','kagi','activity library_65050988.png');
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -283,4 +289,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-20 21:56:08
+-- Dump completed on 2024-09-24 11:07:35

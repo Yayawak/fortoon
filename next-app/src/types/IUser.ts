@@ -6,9 +6,10 @@ export interface IUser {
     password : string
     displayName: string
     profilePicUrl?: string
+    age: number
     registeredDatetime: Date
     sex: TSex
     credit: number
     email: string
-    rankId: number
+    rankId: number,
 }

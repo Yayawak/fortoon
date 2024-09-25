@@ -1,5 +1,6 @@
 import { dbConnection } from "@/db/dbConnector";
 import { formDataToJsonObject } from "@/lib/parsers";
+import { postStoryScheme } from "@/schemes/story.scheme";
 import { postUserScheme } from "@/schemes/user.scheme";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { GenericRowDataPacket } from "@/types/IRowDataPacket";
@@ -11,7 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 export async function GET(req: Request) {
-    const [results, fs] = await dbConnection.query<GenericRowDataPacket<IUser>[]>(`select * from User`)
+    const [results, fs] = await dbConnection.query<GenericRowDataPacket<IUser>[]>(`select * from Story`)
 
 
     const stdRes: IStandardResponse = {
@@ -24,22 +25,15 @@ export async function GET(req: Request) {
 
 
 
-// const ReqPostUser : IUser = {
-//     uId: 0,
-//     username: 'username',
-// }
-
-// export async function POST(req: Request) {
 export async function POST(req: Request) {
 
     let stdRes: IStandardResponse = {
     }
 
+    // const storyData = postStoryScheme.safeParse(req.body)
+
     let parsed = null
     try {
-        // parsed = postUserScheme.safeParse(req.body)
-        // const body = await req.json()
-        // console.log(req.body)
         const formData = await req.formData()
         if (formData === undefined) {
             stdRes = {
@@ -49,16 +43,13 @@ export async function POST(req: Request) {
             return NextResponse.json(stdRes, {
                 status: 400
             })
-        } else {
-            // console.log("A")
-            // return
         }
         // console.log(typeof formData)
         // console.log(formData)
         // console.log(formData.get("age"))
         const jsonObject = formDataToJsonObject(formData)
-        // console.log(formData)
-        parsed = postUserScheme.parse(jsonObject)
+        console.log(jsonObject)
+        parsed = postStoryScheme.parse(jsonObject)
     } catch (error:any) {
         // console.error(error)
         stdRes = {
@@ -78,19 +69,10 @@ export async function POST(req: Request) {
     try {
         await dbConnection.execute(`
         insert into User (
-            username,
-            password,
-            displayName,
-            sex,
-            email
         )
             values
         (
-            '${parsed.username}',
-            '${parsed.password}',
-            '${parsed.displayName}',
-            '${parsed.sex}',
-            '${parsed.email}'
+            '${parsed.authorId}',
         );
     `)
         stdRes = {
