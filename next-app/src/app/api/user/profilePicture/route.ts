@@ -3,13 +3,14 @@ import { dbConnection } from "@/db/dbConnector";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { NextRequest, NextResponse } from "next/server";
 
-// curl -X PUT localhost:3000/api/user/profilePicture -d "{}"
+// curl -X PUT localhost:3733/api/user/profilePicture -d "{}"
 // only accept data as form-data
 export async function PUT(req: NextRequest) {
 
     let stdRes: IStandardResponse = {}
 
     const formData = await req.formData();
+    console.log(formData)
     let file = formData.get("file");
     const uId = formData.get("uId");
     
@@ -36,21 +37,50 @@ export async function PUT(req: NextRequest) {
     // Convert the file data to a Buffer
     // if file.slice()
     file = (file as File)
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const buffer =  Buffer.from(await file.arrayBuffer());
 
 
     // console.log(buffer)
 
+    console.log("ABC")
+    // console.log(AMAZON_BUCKET_URL)
+    // console.log(file.name)
+
     try {
-        const amzRes = await fetch(AMAZON_BUCKET_URL + file.name, {
-            method: 'put',
+        const url = AMAZON_BUCKET_URL + file.name
+        console.log(url)
+        // console.log(`url = ${url}`.blue)
+        const amzRes = await fetch(url, {
+            method: 'PUT',
             body: buffer
         })
-        console.log("successly send image to amazon s3".green)
-        console.log(amzRes)
+        if (amzRes.status !== 200) {
+            // console.error()
+            // console.error(await amzRes.json())
+            stdRes['msg'] = "can not upload file to amazon"
+            stdRes['msg2'] = await amzRes.json()
+            console.error(stdRes)
+            return NextResponse.json(stdRes, {
+                status: amzRes.status
+            })
+        }
+        else {
+            console.log("successly send image to amazon s3".green)
+            console.log()
+            // console.log(amzRes)
+            // stdRes['msg'] = "successly send image to amazon s3"
+            // stdRes['msg2'] = await amzRes.json()
+
+
+        }
     } catch (error) {
+        // console.error("Error on upload to amazon")
         console.error(`${error}`.red)
-        
+        console.log(error)
+        stdRes['msg'] = "error upload to amazon server"
+        stdRes['msg2'] = error
+
+
     }
     const profilePicUrl = file.name
 
