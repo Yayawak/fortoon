@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Search, Menu, LogOut, Settings, User as UserIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth'; 
-export function Navbar() {
+export default function Navbar() {
   const { user, signOut } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -22,6 +22,30 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Left section - User info or Login/Register */}
+          <div className="flex items-center space-x-2">
+            <span className="text-xl font-bold">Fortoon</span>
+            <img 
+              src="/logo.svg" 
+              alt="Fortoon Logo"
+              className="h-8 w-8"
+            />
+          </div>
+
+          {/* Middle section - Search bar */}
+          <div className="flex-1 max-w-2xl px-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input
+                type="search"
+                placeholder="Search..."
+                className="w-full pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Right section - Logo and website name */}
           <div className="flex items-center">
             {user ? (
               <DropdownMenu>
@@ -60,30 +84,6 @@ export function Navbar() {
                 </Link>
               </div>
             )}
-          </div>
-
-          {/* Middle section - Search bar */}
-          <div className="flex-1 max-w-2xl px-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-full pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Right section - Logo and website name */}
-          <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold">Fortoon</span>
-            <img 
-              src="/logo.svg" 
-              alt="Fortoon Logo"
-              className="h-8 w-8"
-            />
           </div>
         </div>
       </div>
