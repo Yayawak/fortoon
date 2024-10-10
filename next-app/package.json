@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3733",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -26,6 +26,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "colors": "^1.4.0",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.447.0",
     "mysql2": "^3.11.3",
     "next": "^14.2.12",
@@ -40,6 +41,7 @@
     "zod-form-data": "^2.0.2"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
     "@types/nprogress": "^0.2.3",
     "@types/react": "^18",
