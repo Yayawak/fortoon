@@ -98,4 +98,8 @@ docker kill $(docker ps -aq) && docker rm $(docker ps -aq)
 
 # Free space
 docker system prune -af --volumes
+
+
+ docker network create my_network; docker compose -f docker-compose.dev.yml build; docker compose -f docker-compose.dev.yml up 
 ```
+
