@@ -6,11 +6,14 @@ import mysql from "mysql2/promise"
 
 // console.log(process.env)
 // Create the connection to database
+const port =  Number.parseInt(process.env.DB_KMITL_PORT ?? "3306")
+
 const config : mysql.ConnectionOptions = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PW,
     database: process.env.DB_NAME,
+    port
 }
 // console.log(config)
 export const dbConnection = await mysql.createConnection(config);
