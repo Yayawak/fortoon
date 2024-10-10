@@ -1,20 +1,59 @@
-'use client'
-import { useState, useEffect } from "react";
+'use client';
+
+import { useState } from "react";
 import Link from "next/link";
 import { Search, Star, TrendingUp, Clock } from "lucide-react";
+import { useSettings } from "@/contexts/SettingsContext";
+import { MangaItem, TopManga } from "@/lib/types";
+import Slider from "react-slick";
+
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 
 export default function Home() {
+  const { t, theme } = useSettings();
   const [activeTab, setActiveTab] = useState('popular');
   
-  const featuredManga = {
-    title: "Attack on Titan",
-    description: "In a world where humanity lives inside cities surrounded by enormous walls due to the Titans, giant humanoid creatures who devour humans seemingly without reason...",
-    cover: "/api/placeholder/500/700",
-    rating: 4.8,
-    genres: ["Action", "Drama", "Fantasy"]
-  };
+  const topManga: TopManga[] = [
+    {
+      id: 1,
+      title: "Attack on Titan",
+      cover: "/api/placeholder/1200/600",
+      rating: 4.8,
+      description: "In a world where humanity lives inside cities surrounded by enormous walls due to the Titans, giant humanoid creatures who devour humans seemingly without reason...",
+    },
+    {
+      id: 2,
+      title: "One Piece",
+      cover: "/api/placeholder/1200/600",
+      rating: 4.9,
+      description: "Follow Monkey D. Luffy and his swashbuckling crew in their search for the ultimate treasure, One Piece.",
+    },
+    {
+      id: 3,
+      title: "Demon Slayer",
+      cover: "/api/placeholder/1200/600",
+      rating: 4.7,
+      description: "Tanjiro Kamado, a young boy who becomes a demon slayer after his family is slaughtered and his younger sister Nezuko is turned into a demon.",
+    },
+    {
+      id: 4,
+      title: "My Hero Academia",
+      cover: "/api/placeholder/1200/600",
+      rating: 4.6,
+      description: "In a world where people with superpowers known as 'Quirks' are the norm, Izuku Midoriya has dreams of one day becoming a Hero, despite being bullied for not having a Quirk.",
+    },
+    {
+      id: 5,
+      title: "Jujutsu Kaisen",
+      cover: "/api/placeholder/1200/600",
+      rating: 4.8,
+      description: "Yuji Itadori, a high schooler who joins a secret organization of Jujutsu Sorcerers in order to kill a powerful Curse named Ryomen Sukuna, of whom Yuji becomes the host.",
+    },
+  ];
 
-  const mangaList = [
+  const mangaList: MangaItem[] = [
     { 
       id: 1, 
       title: "One Piece", 
@@ -33,94 +72,111 @@ export default function Home() {
     },
   ];
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="relative h-[500px] bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="relative container mx-auto px-4 py-20 flex flex-col justify-center h-full text-white">
-          <h1 className="text-5xl font-bold mb-4">Discover Amazing Manga</h1>
-          <p className="text-xl mb-8 max-w-2xl">Read your favorite manga online with our extensive collection of titles across various genres.</p>
-          <div className="flex gap-4 max-w-2xl">
-            <div className="flex-1 relative">
-              <input 
-                type="text" 
-                placeholder="Search for manga..." 
-                className="w-full px-6 py-3 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-            <button className="px-8 py-3 bg-blue-500 rounded-full hover:bg-blue-600 transition-colors">
-              Browse All
-            </button>
-          </div>
-        </div>
-      </div>
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    arrows: true,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        }
+      }
+    ]
+  };
 
-      {/* Featured Manga */}
-      <div className="container mx-auto px-4 -mt-20">
-        <div className="bg-white rounded-xl shadow-xl p-6 flex gap-8">
-          <img 
-            src={featuredManga.cover} 
-            alt={featuredManga.title}
-            className="w-48 h-72 object-cover rounded-lg shadow-lg"
-          />
-          <div className="flex flex-col justify-center">
-            <div className="flex items-center gap-4 mb-2">
-              <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
-                Featured
-              </span>
-              <div className="flex items-center gap-1">
-                <Star className="w-5 h-5 fill-yellow-400 stroke-yellow-400" />
-                <span className="font-medium">{featuredManga.rating}</span>
+  return (
+    <div className={`min-h-screen ${
+      theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
+    }`}>
+      {/* Hero Section with Slider */}
+      <div className="relative h-[600px]">
+        <Slider {...sliderSettings}>
+          {topManga.map((manga) => (
+            <div key={manga.id}>
+              <div className="relative h-[600px]">
+                <img
+                  src={manga.cover}
+                  alt={manga.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-8">
+                  <div className="container mx-auto">
+                    <h2 className="text-4xl font-bold text-white mb-4">{manga.title}</h2>
+                    <div className="flex items-center text-white mb-4">
+                      <Star className="w-5 h-5 fill-yellow-400 stroke-yellow-400 mr-2" />
+                      <span className="text-lg">{manga.rating}</span>
+                    </div>
+                    <p className="text-gray-200 text-lg max-w-2xl">{manga.description}</p>
+                    <button className="mt-6 px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors">
+                      Read Now
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-            <h2 className="text-3xl font-bold mb-3">{featuredManga.title}</h2>
-            <p className="text-gray-600 mb-4 max-w-2xl">{featuredManga.description}</p>
-            <div className="flex gap-2 mb-6">
-              {featuredManga.genres.map((genre) => (
-                <span key={genre} className="px-3 py-1 bg-gray-100 rounded-full text-sm">
-                  {genre}
-                </span>
-              ))}
-            </div>
-            <Link 
-              href={`/manga/${featuredManga.title.toLowerCase().replace(/ /g, '-')}`}
-              className="self-start px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-            >
-              Read Now
-            </Link>
+          ))}
+        </Slider>
+      </div>
+
+      {/* Search Section */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex gap-4 max-w-2xl mx-auto">
+          <div className="flex-1 relative">
+            <input 
+              type="text" 
+              placeholder={t('searchPlaceholder')}
+              className={`w-full px-6 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+              }`}
+            />
+            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
+          <button className="px-8 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors">
+            {t('browseAll')}
+          </button>
         </div>
       </div>
 
       {/* Manga List Section */}
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold">Browse Manga</h2>
+          <h2 className="text-2xl font-bold">{t('browseManga')}</h2>
           <div className="flex gap-4">
             <button 
               onClick={() => setActiveTab('popular')}
               className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                activeTab === 'popular' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                activeTab === 'popular' 
+                  ? 'bg-blue-500 text-white' 
+                  : theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'
               }`}
             >
               <TrendingUp className="w-4 h-4" />
-              Popular
+              {t('popular')}
             </button>
             <button 
               onClick={() => setActiveTab('latest')}
               className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                activeTab === 'latest' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                activeTab === 'latest' 
+                  ? 'bg-blue-500 text-white' 
+                  : theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'
               }`}
             >
               <Clock className="w-4 h-4" />
-              Latest
+              {t('latest')}
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {mangaList.map((manga) => (
             <Link 
               key={manga.id} 
@@ -134,10 +190,14 @@ export default function Home() {
                   className="w-full h-[300px] object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                  <h3 className="text-white font-semibold mb-1">{manga.title}</h3>
-                  <div className="flex items-center justify-between text-sm text-gray-300">
-                    <span>Ch. {manga.chapter}</span>
-                    <span>{manga.views} views</span>
+                  <h3 className="text-white font-semibold">{manga.title}</h3>
+                  <div className="flex items-center text-sm text-gray-300">
+                    <Star className="w-4 h-4 fill-yellow-400 stroke-yellow-400 mr-1" />
+                    <span>{manga.rating}</span>
+                    <span className="ml-auto">{manga.views}</span>
+                  </div>
+                  <div className="text-gray-400 text-xs">
+                    {t('chapter')} {manga.chapter}
                   </div>
                 </div>
               </div>

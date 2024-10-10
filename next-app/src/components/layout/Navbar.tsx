@@ -23,12 +23,16 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Left section - User info or Login/Register */}
           <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold">Fortoon</span>
+            <Link href="/">
+              <Button>
+              <span className="text-xl font-bold">Fortoon</span>
             <img 
               src="/logo.svg" 
               alt="Fortoon Logo"
               className="h-8 w-8"
             />
+              </Button>
+            </Link>
           </div>
 
           {/* Middle section - Search bar */}
@@ -81,6 +85,9 @@ export default function Navbar() {
                 </Link>
                 <Link href="/register">
                   <Button>Register</Button>
+                </Link>
+                <Link href="/community">
+                  <Button>Community</Button>
                 </Link>
               </div>
             )}
