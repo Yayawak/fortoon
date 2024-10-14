@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.24, for osx11.1 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.44, for Linux (x86_64)
 --
--- Host: 161.246.127.24    Database: fortoon_db
+-- Host: db    Database: fortoon_db
 -- ------------------------------------------------------
--- Server version	8.0.39
+-- Server version	5.7.44
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -24,14 +24,14 @@ DROP TABLE IF EXISTS `Chapter`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Chapter` (
   `name` varchar(100) NOT NULL,
-  `cId` int unsigned NOT NULL AUTO_INCREMENT,
-  `storyId` int unsigned NOT NULL,
-  `chapterSequence` int unsigned NOT NULL,
-  `price` int unsigned NOT NULL DEFAULT '0',
+  `cId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `storyId` int(10) unsigned NOT NULL,
+  `chapterSequence` int(10) unsigned NOT NULL,
+  `price` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`cId`),
   KEY `Chapter_Story_FK` (`storyId`),
   CONSTRAINT `Chapter_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `Chapter` (
 
 LOCK TABLES `Chapter` WRITE;
 /*!40000 ALTER TABLE `Chapter` DISABLE KEYS */;
-INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,3,0);
+INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,0),('ราตรีแสนสุข',15,23,1,0);
 /*!40000 ALTER TABLE `Chapter` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -52,16 +52,16 @@ DROP TABLE IF EXISTS `ChapterImage`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ChapterImage` (
-  `ciId` int unsigned NOT NULL AUTO_INCREMENT,
-  `parentChapterImageId` int unsigned DEFAULT NULL,
+  `ciId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `imageSequenceNumber` int(10) unsigned DEFAULT NULL,
   `url` varchar(200) NOT NULL,
-  `chapterId` int unsigned NOT NULL,
+  `chapterId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ciId`),
   KEY `ChapterImage_Chapter_FK` (`chapterId`),
-  KEY `ChapterImage_ChapterImage_FK` (`parentChapterImageId`),
-  CONSTRAINT `ChapterImage_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`),
-  CONSTRAINT `ChapterImage_ChapterImage_FK` FOREIGN KEY (`parentChapterImageId`) REFERENCES `ChapterImage` (`ciId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+  KEY `ChapterImage_ChapterImage_FK` (`imageSequenceNumber`),
+  CONSTRAINT `ChapterImage_ChapterImage_FK` FOREIGN KEY (`imageSequenceNumber`) REFERENCES `ChapterImage` (`ciId`),
+  CONSTRAINT `ChapterImage_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,6 +70,7 @@ CREATE TABLE `ChapterImage` (
 
 LOCK TABLES `ChapterImage` WRITE;
 /*!40000 ALTER TABLE `ChapterImage` DISABLE KEYS */;
+INSERT INTO `ChapterImage` VALUES (1,1,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQj7baCv9LCHVq-33z-xZov8d3YknQSnEsSQ&s',13),(2,2,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQj7baCv9LCHVq-33z-xZov8d3YknQSnEsSQ&s',13),(3,3,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQj7baCv9LCHVq-33z-xZov8d3YknQSnEsSQ&s',13),(4,4,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQj7baCv9LCHVq-33z-xZov8d3YknQSnEsSQ&s',13);
 /*!40000 ALTER TABLE `ChapterImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -81,15 +82,15 @@ DROP TABLE IF EXISTS `Followership`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Followership` (
-  `fId` int unsigned NOT NULL AUTO_INCREMENT,
-  `userId` int unsigned NOT NULL,
-  `followerId` int unsigned NOT NULL,
+  `fId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `userId` int(10) unsigned NOT NULL,
+  `followerId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`fId`),
   KEY `Relationship_User_FK` (`userId`),
   KEY `Relationship_User_FK_1` (`followerId`),
   CONSTRAINT `Relationship_User_FK` FOREIGN KEY (`userId`) REFERENCES `User` (`uId`),
   CONSTRAINT `Relationship_User_FK_1` FOREIGN KEY (`followerId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -109,10 +110,10 @@ DROP TABLE IF EXISTS `Like`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Like` (
-  `lId` int unsigned NOT NULL AUTO_INCREMENT,
-  `userId` int unsigned NOT NULL,
-  `postId` int unsigned DEFAULT NULL,
-  `storyId` int unsigned DEFAULT NULL,
+  `lId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `userId` int(10) unsigned NOT NULL,
+  `postId` int(10) unsigned DEFAULT NULL,
+  `storyId` int(10) unsigned DEFAULT NULL,
   `isDislike` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`lId`),
   KEY `Like_User_FK` (`userId`),
@@ -121,7 +122,7 @@ CREATE TABLE `Like` (
   CONSTRAINT `Like_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `Like_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`),
   CONSTRAINT `Like_User_FK` FOREIGN KEY (`userId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -142,17 +143,17 @@ DROP TABLE IF EXISTS `Post`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Post` (
   `title` varchar(50) NOT NULL,
-  `pId` int unsigned NOT NULL AUTO_INCREMENT,
+  `pId` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `content` varchar(400) NOT NULL,
-  `parentPostId` int unsigned DEFAULT NULL,
-  `posterId` int unsigned NOT NULL,
+  `parentPostId` int(10) unsigned DEFAULT NULL,
+  `posterId` int(10) unsigned NOT NULL,
   `postedDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`pId`),
   KEY `Post_Post_FK` (`parentPostId`),
   KEY `Post_User_FK` (`posterId`),
   CONSTRAINT `Post_Post_FK` FOREIGN KEY (`parentPostId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `Post_User_FK` FOREIGN KEY (`posterId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -172,16 +173,16 @@ DROP TABLE IF EXISTS `PostImage`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `PostImage` (
-  `piId` int unsigned NOT NULL AUTO_INCREMENT,
-  `parentPostImageId` int unsigned DEFAULT NULL,
+  `piId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `parentPostImageId` int(10) unsigned DEFAULT NULL,
   `url` varchar(200) NOT NULL,
-  `postId` int unsigned NOT NULL,
+  `postId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`piId`),
   KEY `ChapterImage_ChapterImage_FK` (`parentPostImageId`) USING BTREE,
   KEY `ChapterImage_Chapter_FK` (`postId`) USING BTREE,
-  CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`),
-  CONSTRAINT `PostImage_PostImage_FK` FOREIGN KEY (`parentPostImageId`) REFERENCES `PostImage` (`piId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+  CONSTRAINT `PostImage_PostImage_FK` FOREIGN KEY (`parentPostImageId`) REFERENCES `PostImage` (`piId`),
+  CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -202,9 +203,9 @@ DROP TABLE IF EXISTS `Rank`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Rank` (
   `name` varchar(100) NOT NULL,
-  `rId` int unsigned NOT NULL AUTO_INCREMENT,
+  `rId` int(10) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`rId`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -225,17 +226,17 @@ DROP TABLE IF EXISTS `Story`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Story` (
-  `sId` int unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `sId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) NOT NULL,
   `introduction` varchar(500) NOT NULL,
   `postedDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `authorId` int unsigned NOT NULL,
+  `authorId` int(10) unsigned NOT NULL,
   `coverImageUrl` varchar(200) NOT NULL,
   PRIMARY KEY (`sId`),
   UNIQUE KEY `title` (`title`),
   KEY `Story_User_FK` (`authorId`),
   CONSTRAINT `Story_User_FK` FOREIGN KEY (`authorId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -244,8 +245,36 @@ CREATE TABLE `Story` (
 
 LOCK TABLES `Story` WRITE;
 /*!40000 ALTER TABLE `Story` DISABLE KEYS */;
-INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'www.xxx.com'),(18,'demon sliyeh','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 09:08:14',2,'dragon.jpg');
+INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'rj6vt7hdrcdd83kappog'),(23,'demon sliyehe','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'dragon.jpg'),(25,'tatake','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-14 09:15:39',2,'dragon.jpg');
 /*!40000 ALTER TABLE `Story` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `StoryChapterPermission`
+--
+
+DROP TABLE IF EXISTS `StoryChapterPermission`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `StoryChapterPermission` (
+  `scpId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `chapterId` int(10) unsigned NOT NULL,
+  `userId` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`scpId`),
+  KEY `StoryChapterPermission_Chapter_FK` (`chapterId`),
+  KEY `StoryChapterPermission_User_FK` (`userId`),
+  CONSTRAINT `StoryChapterPermission_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`),
+  CONSTRAINT `StoryChapterPermission_User_FK` FOREIGN KEY (`userId`) REFERENCES `User` (`uId`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `StoryChapterPermission`
+--
+
+LOCK TABLES `StoryChapterPermission` WRITE;
+/*!40000 ALTER TABLE `StoryChapterPermission` DISABLE KEYS */;
+/*!40000 ALTER TABLE `StoryChapterPermission` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -256,11 +285,11 @@ DROP TABLE IF EXISTS `User`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `User` (
-  `uId` int unsigned NOT NULL AUTO_INCREMENT,
-  `age` int unsigned NOT NULL,
+  `uId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `age` int(10) unsigned NOT NULL,
   `sex` enum('m','f') NOT NULL DEFAULT 'm',
-  `credit` int unsigned NOT NULL DEFAULT '0',
-  `rankId` int unsigned NOT NULL,
+  `credit` int(10) unsigned NOT NULL DEFAULT '0',
+  `rankId` int(10) unsigned NOT NULL DEFAULT '1',
   `password` varchar(100) NOT NULL,
   `username` varchar(100) NOT NULL,
   `email` varchar(150) NOT NULL,
@@ -268,9 +297,10 @@ CREATE TABLE `User` (
   `displayName` varchar(100) NOT NULL,
   `profilePicUrl` varchar(300) DEFAULT NULL,
   PRIMARY KEY (`uId`),
+  UNIQUE KEY `username` (`username`),
   KEY `User_Rank_FK` (`rankId`),
   CONSTRAINT `User_Rank_FK` FOREIGN KEY (`rankId`) REFERENCES `Rank` (`rId`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -279,7 +309,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,22,'m',0,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','cog.png'),(2,22,'m',0,1,'yone','yone','mailser','2024-09-20 15:12:45','yone','cog.png');
+INSERT INTO `User` VALUES (1,22,'m',0,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png'),(2,22,'m',0,1,'yone','yone','mailser','2024-09-20 15:12:45','yone','cog.png'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png');
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -292,4 +322,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-12 17:10:30
+-- Dump completed on 2024-10-14 12:07:20

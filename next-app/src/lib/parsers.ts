@@ -18,3 +18,5 @@ export const numericString = (schema: ZodTypeAny) => z.preprocess((a) => {
         return undefined;
     }
 }, schema);
+
+// export const hasBodyRequest

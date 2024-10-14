@@ -2,10 +2,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, Star, TrendingUp, Clock } from "lucide-react";
+import { CldImage } from 'next-cloudinary';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('popular');
-  
+
   const featuredManga = {
     title: "Attack on Titan",
     description: "In a world where humanity lives inside cities surrounded by enormous walls due to the Titans, giant humanoid creatures who devour humans seemingly without reason...",
@@ -15,17 +16,17 @@ export default function Home() {
   };
 
   const mangaList = [
-    { 
-      id: 1, 
-      title: "One Piece", 
+    {
+      id: 1,
+      title: "One Piece",
       cover: "/api/placeholder/300/400",
       rating: 4.9,
       chapter: 1089,
       views: "1.2M"
     },
-    { 
-      id: 2, 
-      title: "Jujutsu Kaisen", 
+    {
+      id: 2,
+      title: "Jujutsu Kaisen",
       cover: "/api/placeholder/300/400",
       rating: 4.7,
       chapter: 235,
@@ -43,9 +44,9 @@ export default function Home() {
           <p className="text-xl mb-8 max-w-2xl">Read your favorite manga online with our extensive collection of titles across various genres.</p>
           <div className="flex gap-4 max-w-2xl">
             <div className="flex-1 relative">
-              <input 
-                type="text" 
-                placeholder="Search for manga..." 
+              <input
+                type="text"
+                placeholder="Search for manga..."
                 className="w-full px-6 py-3 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -60,8 +61,8 @@ export default function Home() {
       {/* Featured Manga */}
       <div className="container mx-auto px-4 -mt-20">
         <div className="bg-white rounded-xl shadow-xl p-6 flex gap-8">
-          <img 
-            src={featuredManga.cover} 
+          <img
+            src={featuredManga.cover}
             alt={featuredManga.title}
             className="w-48 h-72 object-cover rounded-lg shadow-lg"
           />
@@ -84,7 +85,7 @@ export default function Home() {
                 </span>
               ))}
             </div>
-            <Link 
+            <Link
               href={`/manga/${featuredManga.title.toLowerCase().replace(/ /g, '-')}`}
               className="self-start px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
             >
@@ -99,20 +100,18 @@ export default function Home() {
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold">Browse Manga</h2>
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={() => setActiveTab('popular')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                activeTab === 'popular' ? 'bg-blue-500 text-white' : 'bg-gray-100'
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full ${activeTab === 'popular' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                }`}
             >
               <TrendingUp className="w-4 h-4" />
               Popular
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('latest')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                activeTab === 'latest' ? 'bg-blue-500 text-white' : 'bg-gray-100'
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full ${activeTab === 'latest' ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                }`}
             >
               <Clock className="w-4 h-4" />
               Latest
@@ -120,19 +119,31 @@ export default function Home() {
           </div>
         </div>
 
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {mangaList.map((manga) => (
-            <Link 
-              key={manga.id} 
+            <Link
+              key={manga.id}
               href={`/manga/${manga.id}`}
               className="group"
             >
               <div className="relative overflow-hidden rounded-lg shadow-lg">
-                <img 
-                  src={manga.cover} 
-                  alt={manga.title}
+                <div
+                  // src={manga.cover}
+                  // alt={manga.title}
                   className="w-full h-[300px] object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                >
+                  <CldImage
+                    src="wn70o4bjjurvs6fwftnm" // Use this sample image or upload your own via the Media Explorer
+                    width="500" // Transform the image: auto-crop to square aspect_ratio
+                    height="500"
+                    alt="555"
+                    crop={{
+                      type: 'auto',
+                      source: true
+                    }}
+                  />
+                </div>
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                   <h3 className="text-white font-semibold mb-1">{manga.title}</h3>
                   <div className="flex items-center justify-between text-sm text-gray-300">

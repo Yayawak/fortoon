@@ -1,113 +1,83 @@
-import { AMAZON_BUCKET_URL } from "@/constant/constants";
 import { dbConnection } from "@/db/dbConnector";
+import { verifyToken } from "@/lib/auth";
+import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
+import { formDataToJsonObject } from "@/lib/parsers";
+import { putUserProfilePic } from "@/schemes/user.profilePic.scheme";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { NextRequest, NextResponse } from "next/server";
 
 // curl -X PUT localhost:3733/api/user/profilePicture -d "{}"
 // only accept data as form-data
+
 export async function PUT(req: NextRequest) {
-
-    let stdRes: IStandardResponse = {}
-
-    const formData = await req.formData();
-    console.log(formData)
-    let file = formData.get("file");
-    const uId = formData.get("uId");
-    
-
-    if (!uId) {
-        stdRes = {
-            msg: "need 'uId'"
-        }
-        return NextResponse.json(stdRes, {
-            status: 400
-        })
+    const verifiedRes = await verifyToken(req)
+    if (verifiedRes.status != 200) {
+        // console.log(verifiedRes)
+        return NextResponse.json({
+            msg: verifiedRes.msg
+        }, { status: verifiedRes.status });
     }
+    const userIdFromCookie = verifiedRes.data.uId
 
-    console.log(file)
-    if (!file) {
-        // If no file is received, return a JSON response with an error and a 400 status code
-        stdRes = {
-            msg: "No files received."
-        }
-        return NextResponse.json(stdRes, { status: 400 });
-    }
-
-    // const f = file as File
-    // Convert the file data to a Buffer
-    // if file.slice()
-    file = (file as File)
-    const buffer =  Buffer.from(await file.arrayBuffer());
-
-
-    // console.log(buffer)
-
-    console.log("ABC")
-    // console.log(AMAZON_BUCKET_URL)
-    // console.log(file.name)
+    let stdRes: IStandardResponse = {};
+    let parsed = null;
 
     try {
-        const url = AMAZON_BUCKET_URL + file.name
-        console.log(url)
-        // console.log(`url = ${url}`.blue)
-        const amzRes = await fetch(url, {
-            method: 'PUT',
-            body: buffer
-        })
-        if (amzRes.status !== 200) {
-            // console.error()
-            // console.error(await amzRes.json())
-            stdRes['msg'] = "can not upload file to amazon"
-            stdRes['msg2'] = await amzRes.json()
-            console.error(stdRes)
-            return NextResponse.json(stdRes, {
-                status: amzRes.status
-            })
+        const formData = await req.formData();
+
+        if (!formData) {
+            stdRes = { msg: "need formData" };
+            return NextResponse.json(stdRes, { status: 400 });
         }
-        else {
-            console.log("successly send image to amazon s3".green)
-            console.log()
-            // console.log(amzRes)
-            // stdRes['msg'] = "successly send image to amazon s3"
-            // stdRes['msg2'] = await amzRes.json()
 
+        // Convert formData to a JSON object
+        const jsonObject = formDataToJsonObject(formData);
 
-        }
-    } catch (error) {
-        // console.error("Error on upload to amazon")
-        console.error(`${error}`.red)
-        console.log(error)
-        stdRes['msg'] = "error upload to amazon server"
-        stdRes['msg2'] = error
+        // Validate and parse the data using Zod schema
+        parsed = putUserProfilePic.parse(jsonObject);
 
-
+    } catch (error: any) {
+        stdRes = {
+            msg: "fail parse data",
+            msg2: error.message || error,
+        };
+        return NextResponse.json(stdRes, { status: 500 });
     }
-    const profilePicUrl = file.name
+
+    // If parsing failed, don't proceed
+    if (!parsed) {
+        return NextResponse.json({ msg: "Invalid data provided." }, { status: 400 });
+    }
+
+    const curr = new Date();
+    const filename = `user-${curr.toISOString()}-${parsed.profilePic?.name}`;
+
+    if (!parsed.profilePic) {
+        return NextResponse.json({ msg: "Requred profilePic To Edit." }, { status: 400 });
+    }
+
+
+    // Upload the image
+    const uploadResponse = await uploadImage(parsed.profilePic, filename);
+    if (uploadResponse.status !== 200) {
+        return NextResponse.json(uploadResponse, { status: uploadResponse.status });
+    }
+
+    // const profilePicUrl = uploadResponse.data.secure_url; // Get the URL from the upload response
 
     try {
-        dbConnection.execute(`update User set profilePicUrl = '${profilePicUrl}' where uId = ${uId}`)
+        await dbConnection.execute(`
+            UPDATE User SET profilePicUrl = '${filename}' WHERE uId = ${userIdFromCookie}
+        `);
 
-        stdRes = {
-            msg: "success edited profile picture."
-        }
-        return NextResponse.json(stdRes, {
-            status: 200
-        })
+        stdRes = { msg: "successfully edited profile picture." };
+        return NextResponse.json(stdRes, { status: 200 });
 
     } catch (error) {
-        console.error(error)
-
-        stdRes = {
-            msg: "unhandled sql error",
-            msg2: error
-        }
-        return NextResponse.json(stdRes, {
-            status: 500
-        })
-
+        console.error(error);
+        stdRes = { msg: "unhandled SQL error", msg2: error };
+        return NextResponse.json(stdRes, { status: 500 });
     }
-
-
 }
 
 

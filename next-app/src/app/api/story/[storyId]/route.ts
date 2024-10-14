@@ -11,12 +11,15 @@ export async function GET(req: Request, { params }: { params: { storyId: string 
     }
 
     const [rs, fs] = await dbConnection.query<RowDataPacket[]>(`
-        select * from 
+        select 
+            s.*,
+            u.displayName as authorDisplayName
+        from 
         User u 
         join
         Story s
         on u.uId = s.authorId
-        where u.uId = ${storyId}
+        where s.sId = ${storyId}
     `)
     if (rs.length == 0) {
         stdRes.msg = "Story not found"
@@ -26,10 +29,38 @@ export async function GET(req: Request, { params }: { params: { storyId: string 
         })
     }
 
+
+    // Fetch chapters for the current story
+    let [chapterRs,] = await dbConnection.query<RowDataPacket[]>(
+        `
+            SELECT * 
+            FROM Chapter c
+            WHERE c.storyId = ${storyId}  
+            `
+    );
+
+    const chaptersWithImages = await Promise.all(chapterRs.map(async (chap) => {
+        const chapterId = chap.cId
+        let [images, ] = await dbConnection.query<RowDataPacket[]>(
+            `
+                SELECT imageSequenceNumber, url
+                FROM ChapterImage ci
+                WHERE ci.chapterId = ${chapterId}  
+                `
+        );
+        return {
+            ...chap,
+            images
+        }
+    }))
+
     console.log(rs)
     // Simulate fetching author data
 
-    const data = rs
+    const data = {
+        ...rs[0],
+        chapters: chaptersWithImages
+    }
     // stdRes.data = 
 
 
@@ -43,52 +74,3 @@ export async function GET(req: Request, { params }: { params: { storyId: string 
         status: 200,
     });
 }
-
-// export async function POST(req: Request, { params }: { params: { storyId: string } }) {
-//     const { storyId } = params;
-    
-//     let stdRes = { message: 'Author data sent successfully', id };
-
-//     try {
-//         const body = await req.json();
-//         // Assuming 'body' contains the new data to save, e.g., author details.
-//         console.log("Author POST data:", body);
-
-//         stdRes = {
-//             id,
-//             ...body,
-//             message: 'Author data successfully received and processed',
-//         };
-
-//         return NextResponse.json(stdRes, { status: 200 });
-
-//     } catch (error) {
-//         return NextResponse.json({ message: 'Error processing request', error }, { status: 500 });
-//     }
-// }
-
-// export async function PUT(req: Request, { params }: { params: { id: string } }) {
-//     const { id } = params;
-    
-//     let stdRes = { message: 'Author data updated successfully', id };
-
-//     try {
-//         const body = await req.json();
-//         console.log("Author PUT data:", body);
-//         // Process the update logic here
-
-//         return NextResponse.json(stdRes, { status: 200 });
-
-//     } catch (error) {
-//         return NextResponse.json({ message: 'Error updating author', error }, { status: 500 });
-//     }
-// }
-
-// export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-//     const { id } = params;
-
-//     // Simulate deleting the author
-//     const stdRes = { message: 'Author data deleted successfully', id };
-
-//     return NextResponse.json(stdRes, { status: 200 });
-// }

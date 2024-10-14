@@ -54,14 +54,18 @@ services:
     networks:
       - my_network
 
-    # network_mode: "service:db"
 
-
-
-  # Add more containers below (nginx, postgres, etc.)
-
-
-
+  db-backup:
+      image: mysql:5.7
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: ${DB_PW}
+      volumes:
+        - my-db:/var/lib/mysql
+        - ./backups:/backups  # Mount a directory for backup storage
+      entrypoint: /bin/sh -c "sleep 10; while :; do mysqldump -h db -u root -p${DB_PW} ${DB_NAME} > /backups/sql_dump.sql; sleep 1200; done"
+      networks:
+        - my_network
 
     # Define a network, which allows containers to communicate
     # with each other, by using their container name as a hostname
