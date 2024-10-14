@@ -102,25 +102,25 @@ export default function Profile() {
                   >
                     Quick View My Manga
                   </Button>
-                  <Link href="/manga-dashboard">
+                  <Link href="/mymanga">
                     <Button 
                       className="bg-gradient-to-r from-blue-500 to-teal-500 text-white hover:from-blue-600 hover:to-teal-600 transition-all duration-300"
                     >
                       Go to Manga Dashboard
                     </Button>
                   </Link>
-                  <Button 
+                  {/* <Button 
                     className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 transition-all duration-300"
                   >
                     View Portfolio
-                  </Button>
+                  </Button> */}
                 </div>
               </>
             ) : (
               <>
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-2xl font-bold text-purple-800">My Manga Series</h3>
-                  <Link href="/manga-dashboard">
+                  <Link href="/mymanga">
                     <Button 
                       className="bg-gradient-to-r from-blue-500 to-teal-500 text-white hover:from-blue-600 hover:to-teal-600 transition-all duration-300"
                     >
