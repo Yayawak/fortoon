@@ -1,5 +1,6 @@
 import { dbConnection } from '@/db/dbConnector';
 import { verifyToken } from '@/lib/auth';
+import { uploadImage } from '@/lib/image_uploading/image_upload.lib';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { MissingSlotContext } from 'next/dist/shared/lib/app-router-context.shared-runtime';
@@ -45,7 +46,8 @@ export async function POST(req: NextRequest, { params }: TReqParams ) {
         formData = await req.formData()
     } catch (error) {
         stdRes.msg = `Content-Type was not one of "multipart/form-data" or "application/x-www-form-urlencoded`
-        console.error(stdRes.msg)
+        stdRes.msg2 = error
+        console.error(stdRes)
         return NextResponse.json(stdRes, { status: 400 });
     }
     const images = formData.getAll("imageChapterFiles")
@@ -119,12 +121,49 @@ export async function POST(req: NextRequest, { params }: TReqParams ) {
             WHERE c.storyId = ${storyId}
         ` 
     )
-    // rs.affectedRows > 0
+    const chapterId = rs.insertId;  // Get the newly created chapter's ID
+    try {
+        const curr = new Date()
+
+        // await uploadImage(parsed.coverImage, filename)
+        // Prepare values for bulk insert
+        // const chapterImageValues = images.map(
+        
+
+        const chapterImageValues = await Promise.all(images.map(async (img, index) => {
+            // return  `(${chapterId}, ${index + 1}), {}`
+            const file = img as File
+            const imageName = `chapter-img-${curr.toString()}-${file.name}`
+
+            // const file 
+            // const x = img as File
+            // x.streamo
+            // const file = img as File
 
 
-    // stdRes.msg = `Welcome ${verifiedRes.data.username}, you will be create new chapter`
-    stdRes.msg = `Create Chapter ${chapterName} in Story ${storyId}, number of chapterImages is ${images.length}`
 
-    return NextResponse.json(stdRes, { status: 200 });
+            const xStdRes = await uploadImage(file, imageName)
+                // (_, index) => 
+
+            return `(${chapterId}, ${index + 1}, '${imageName}')`; // Assuming uploadResult has a `url` property
+        }))
+    
+        // Perform the batch insert
+        const [rsChapterImage] = await dbConnection.query<ResultSetHeader>(`
+            INSERT INTO ChapterImage (chapterId, imageSequenceNumber, url)
+            VALUES ${chapterImageValues}
+        `);
+        console.log(rsChapterImage)
+    
+        stdRes.msg = `Chapter '${chapterName}' created in Story ${storyId} with ${images.length} images.`;
+        return NextResponse.json(stdRes, { status: 200 });
+    } catch (error:any) {
+        // Catch any errors that occur during the insertion
+        console.error(error)
+        stdRes.msg = `Error while inserting chapter images: ${error.message}`;
+        console.error("Error during ChapterImage insert:", error);
+    
+        return NextResponse.json(stdRes, { status: 500 });
+    }
 
 }

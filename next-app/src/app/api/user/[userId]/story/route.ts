@@ -1,6 +1,6 @@
 import { dbConnection } from "@/db/dbConnector";
-import { uploadFileToAmazonS3 } from "@/lib/image_uploading/amazon.lib";
 import { verifyToken } from "@/lib/auth";
+import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
 import { formDataToJsonObject } from "@/lib/parsers";
 import { postStoryScheme } from "@/schemes/story.scheme";
 import { postUserScheme } from "@/schemes/user.scheme";
@@ -74,7 +74,8 @@ export async function POST(req: NextRequest) {
 
         let filename = coverImageFile.name
         
-        await uploadFileToAmazonS3(coverImageFile, filename)
+        // await uploadFileToAmazonS3(coverImageFile, filename)
+        await uploadImage(coverImageFile, coverImageFile.name)
 
         try {
             await dbConnection.execute(`

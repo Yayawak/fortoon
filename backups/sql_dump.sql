@@ -31,7 +31,7 @@ CREATE TABLE `Chapter` (
   PRIMARY KEY (`cId`),
   KEY `Chapter_Story_FK` (`storyId`),
   CONSTRAINT `Chapter_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `Chapter` (
 
 LOCK TABLES `Chapter` WRITE;
 /*!40000 ALTER TABLE `Chapter` DISABLE KEYS */;
-INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,0),('ราตรีแสนสุข',15,23,1,0);
+INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,0),('ราตรีแสนสุข',15,23,1,0),('i\'am solo',16,1,2,0),('i\'am solo',17,1,3,0),('i\'am solo',18,1,4,0),('i\'am solo',19,1,5,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0);
 /*!40000 ALTER TABLE `Chapter` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -61,7 +61,7 @@ CREATE TABLE `ChapterImage` (
   KEY `ChapterImage_ChapterImage_FK` (`imageSequenceNumber`),
   CONSTRAINT `ChapterImage_ChapterImage_FK` FOREIGN KEY (`imageSequenceNumber`) REFERENCES `ChapterImage` (`ciId`),
   CONSTRAINT `ChapterImage_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,7 +70,7 @@ CREATE TABLE `ChapterImage` (
 
 LOCK TABLES `ChapterImage` WRITE;
 /*!40000 ALTER TABLE `ChapterImage` DISABLE KEYS */;
-INSERT INTO `ChapterImage` VALUES (1,1,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQj7baCv9LCHVq-33z-xZov8d3YknQSnEsSQ&s',13),(2,2,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQj7baCv9LCHVq-33z-xZov8d3YknQSnEsSQ&s',13),(3,3,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQj7baCv9LCHVq-33z-xZov8d3YknQSnEsSQ&s',13),(4,4,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQj7baCv9LCHVq-33z-xZov8d3YknQSnEsSQ&s',13);
+INSERT INTO `ChapterImage` VALUES (1,1,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(2,2,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(3,3,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(4,4,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(5,1,'chapter-img-Mon Oct 14 2024 16:35:30 GMT+0000 (Coordinated Universal Time)-[object File]',18),(6,1,'chapter-img-Mon Oct 14 2024 16:41:31 GMT+0000 (Coordinated Universal Time)-[object File]',19),(22,1,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-0.jpg',23),(23,2,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-1.jpg',23),(24,3,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-2.jpg',23),(25,4,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-3.jpg',23),(26,5,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-4.jpg',23);
 /*!40000 ALTER TABLE `ChapterImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -236,7 +236,7 @@ CREATE TABLE `Story` (
   UNIQUE KEY `title` (`title`),
   KEY `Story_User_FK` (`authorId`),
   CONSTRAINT `Story_User_FK` FOREIGN KEY (`authorId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -245,7 +245,7 @@ CREATE TABLE `Story` (
 
 LOCK TABLES `Story` WRITE;
 /*!40000 ALTER TABLE `Story` DISABLE KEYS */;
-INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'rj6vt7hdrcdd83kappog'),(23,'demon sliyehe','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'dragon.jpg'),(25,'tatake','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-14 09:15:39',2,'dragon.jpg');
+INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'rj6vt7hdrcdd83kappog'),(23,'demon sliyehe','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'dragon.jpg'),(25,'tatake','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-14 09:15:39',2,'dragon.jpg'),(26,'record of ragnarock','กพันปีเทพเจ้าจะมาประชุมลงมติอารยธรรมของมนุษยชาติจะดำรงอยู่ต่อหรือไม่ เหล่าเจ้าเทพเจ้าลงมติเป็นเสียงเดียวกันถึงเวลาที่อารยธรรมของมนุษย์ต้องจบเพียงเท่านี้ แต่วัลคีรีสาว Brunhild ไม่เห็นด้วย จึงเกิดเป็นศึกที่ไม่เคยเกิดขึ้นมาก่อน ตัวแทนจากประวัติศาสตร์มนุษยชาติจะต้องลงสังเวียนประลองยุทธกับเทพในการต่อสู้ตัวต่อตัวใน 13 ศึกเพื่อตัดสินชะตาของมวลมนุษยชาติ','2024-10-14 16:54:02',2,'cover.jpg');
 /*!40000 ALTER TABLE `Story` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -296,6 +296,7 @@ CREATE TABLE `User` (
   `registeredDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `displayName` varchar(100) NOT NULL,
   `profilePicUrl` varchar(300) DEFAULT NULL,
+  `bgUrl` varchar(300) DEFAULT NULL,
   PRIMARY KEY (`uId`),
   UNIQUE KEY `username` (`username`),
   KEY `User_Rank_FK` (`rankId`),
@@ -309,7 +310,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,22,'m',0,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png'),(2,22,'m',0,1,'yone','yone','mailser','2024-09-20 15:12:45','yone','cog.png'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png');
+INSERT INTO `User` VALUES (1,22,'m',0,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',0,1,'yone','yone','mailser','2024-09-20 15:12:45','yone','profilePic-yone-image.png',NULL),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -322,4 +323,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-14 12:07:20
+-- Dump completed on 2024-10-14 18:03:01

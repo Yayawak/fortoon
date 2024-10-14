@@ -1,3 +1,4 @@
+import { putUserBackground, putuserBackgroundScheme } from './../../../../schemes/user.background.scheme';
 import { dbConnection } from "@/db/dbConnector";
 import { verifyToken } from "@/lib/auth";
 import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
@@ -35,7 +36,7 @@ export async function PUT(req: NextRequest) {
         const jsonObject = formDataToJsonObject(formData);
 
         // Validate and parse the data using Zod schema
-        parsed = putUserProfilePic.parse(jsonObject);
+        parsed = putUserBackground.parse(jsonObject)
 
     } catch (error: any) {
         stdRes = {
@@ -50,12 +51,15 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ msg: "Invalid data provided." }, { status: 400 });
     }
 
-    const profilePic = formData.get("profilePic") as File
+    const background = formData.get("background") as File
+
     const curr = new Date();
-    const filename = `user-${curr.toISOString()}-${profilePic.name}`;
+    const filename = `userbg-${curr.toISOString()}-${background.name}`;
+
+
 
     // Upload the image
-    const uploadResponse = await uploadImage(profilePic, filename);
+    const uploadResponse = await uploadImage(background, filename);
     if (uploadResponse.status !== 200) {
         return NextResponse.json(uploadResponse, { status: uploadResponse.status });
     }
@@ -64,10 +68,10 @@ export async function PUT(req: NextRequest) {
 
     try {
         await dbConnection.execute(`
-            UPDATE User SET profilePicUrl = '${filename}' WHERE uId = ${userIdFromCookie}
+            UPDATE User SET bgUrl = '${filename}' WHERE uId = ${userIdFromCookie}
         `);
 
-        stdRes = { msg: "successfully edited profile picture." };
+        stdRes = { msg: "successfully edited background image." };
         return NextResponse.json(stdRes, { status: 200 });
 
     } catch (error) {
@@ -98,10 +102,10 @@ export async function DELETE(req: Request) {
 
 
         try {
-            dbConnection.execute(`update User set profilePicUrl = null where uId = ${uId}`)
+            dbConnection.execute(`update User set bgUrl = null where uId = ${uId}`)
 
             stdRes = {
-                msg: "success deleted profile picture."
+                msg: "success deleted bgUrl"
             }
             return NextResponse.json(stdRes, {
                 status: 200

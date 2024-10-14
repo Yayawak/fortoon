@@ -41,6 +41,7 @@ export async function GET(req: Request, { params }: { params: { storyId: string 
 
     const chaptersWithImages = await Promise.all(chapterRs.map(async (chap) => {
         const chapterId = chap.cId
+        console.log(`chap id = ${chapterId}`)
         let [images, ] = await dbConnection.query<RowDataPacket[]>(
             `
                 SELECT imageSequenceNumber, url

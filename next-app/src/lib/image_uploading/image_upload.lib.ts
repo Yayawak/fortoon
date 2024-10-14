@@ -1,12 +1,12 @@
 import { IStandardResponse } from '@/types/IApiCommunication';
-import { File } from 'buffer';
 import { v2 as cloudinary } from 'cloudinary';
 
 // Configuration
+// console.log(process.env)
 cloudinary.config({
-    cloud_name: 'da9a5vaz8',
-    api_key: '894758581668446',
-    api_secret: 'M7-9ZZp_pxHi_3DhAD-6pKYtEg4'
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 export const uploadImage = async (file: File, filename: string): Promise<IStandardResponse> => {

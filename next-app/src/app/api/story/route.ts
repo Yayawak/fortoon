@@ -53,7 +53,6 @@ export async function GET(req: NextRequest) {
 
     // const authorId = fs.
 
-    console.log('a')
 
     const stdRes: IStandardResponse = {
         data: ret
@@ -73,8 +72,9 @@ export async function POST(req: Request) {
     // const storyData = postStoryScheme.safeParse(req.body)
 
     let parsed = null
+    let formData : FormData
     try {
-        const formData = await req.formData()
+        formData = await req.formData()
         if (formData === undefined) {
             stdRes = {
                 msg: "need formData"
@@ -97,10 +97,11 @@ export async function POST(req: Request) {
 
         // let filename = coverImageFile.name
            // const file: File = parsed.profilePic as unknown as File;
+        const coverImage = formData.get("coverImage") as File
         const curr = new Date()
-        const filename = `storyCover-${curr.toString()}-${parsed.coverImage.name}`
+        const filename = `storyCover-${curr.toString()}-${coverImage.name}`
 
-        await uploadImage(parsed.coverImage, filename)
+        await uploadImage(coverImage, filename)
 
         try {
             await dbConnection.execute(`
