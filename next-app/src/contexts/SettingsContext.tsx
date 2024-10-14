@@ -1,0 +1,63 @@
+'use client'
+
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Language, Theme, FontSize } from '@/lib/types';
+import { translations } from '@/lib/translations';
+
+interface SettingsContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  fontSize: FontSize;
+  setFontSize: (size: FontSize) => void;
+  t: (key: keyof typeof translations.en) => string;
+}
+
+const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+
+export function SettingsProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguage] = useState<Language>('en');
+  const [theme, setTheme] = useState<Theme>('system');
+  const [fontSize, setFontSize] = useState<FontSize>('medium');
+
+  useEffect(() => {
+    // Load settings from localStorage
+    const savedSettings = localStorage.getItem('mangaAppSettings');
+    if (savedSettings) {
+      const { language: savedLang, theme: savedTheme, fontSize: savedSize } = JSON.parse(savedSettings);
+      setLanguage(savedLang);
+      setTheme(savedTheme);
+      setFontSize(savedSize);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Save settings to localStorage
+    localStorage.setItem('mangaAppSettings', JSON.stringify({ language, theme, fontSize }));
+    
+    // Apply theme
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.classList.toggle('dark', systemTheme === 'dark');
+    } else {
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+    }
+  }, [language, theme, fontSize]);
+
+  const t = (key: keyof typeof translations.en) => translations[language][key];
+
+  return (
+    <SettingsContext.Provider value={{ language, setLanguage, theme, setTheme, fontSize, setFontSize, t }}>
+      {children}
+    </SettingsContext.Provider>
+  );
+}
+
+export const useSettings = () => {
+  const context = useContext(SettingsContext);
+  if (context === undefined) {
+    throw new Error('useSettings must be used within a SettingsProvider');
+  }
+  return context;
+};
