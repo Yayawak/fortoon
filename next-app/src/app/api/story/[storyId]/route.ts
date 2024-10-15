@@ -1,77 +1,75 @@
 import { dbConnection } from '@/db/dbConnector';
+import { verifyToken } from '@/lib/auth';
+import { hasReadPermission } from '@/lib/story/chapter_permission.lib';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { RowDataPacket } from 'mysql2';
-import { MissingSlotContext } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: Request, { params }: { params: { storyId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: { storyId: string } }) {
     const { storyId } = params;
 
-    const stdRes : IStandardResponse = {
-    }
+    const stdRes: IStandardResponse = {};
 
-    const [rs, fs] = await dbConnection.query<RowDataPacket[]>(`
-        select 
+    // Verify the user's token
+    const verifiedRes = await verifyToken(req);
+    const userId = verifiedRes.status === 200 ? verifiedRes.data.uId : null; // Get userId only if verified
+
+    const [rs] = await dbConnection.query<RowDataPacket[]>(`
+        SELECT 
             s.*,
-            u.displayName as authorDisplayName
-        from 
-        User u 
-        join
-        Story s
-        on u.uId = s.authorId
-        where s.sId = ${storyId}
-    `)
-    if (rs.length == 0) {
-        stdRes.msg = "Story not found"
+            u.displayName AS authorDisplayName
+        FROM 
+            User u 
+        JOIN
+            Story s ON u.uId = s.authorId
+        WHERE 
+            s.sId = ?
+    `, [storyId]);
 
-        return NextResponse.json(stdRes, {
-            status: 404
-        })
+    if (rs.length === 0) {
+        stdRes.msg = "Story not found";
+        return NextResponse.json(stdRes, { status: 404 });
     }
-
 
     // Fetch chapters for the current story
-    let [chapterRs,] = await dbConnection.query<RowDataPacket[]>(
-        `
-            SELECT * 
-            FROM Chapter c
-            WHERE c.storyId = ${storyId}  
-            `
-    );
+    let [chapterRs] = await dbConnection.query<RowDataPacket[]>(`
+        SELECT * 
+        FROM Chapter c
+        WHERE c.storyId = ?  
+    `, [storyId]);
 
+    // Process chapters with images based on user permissions
     const chaptersWithImages = await Promise.all(chapterRs.map(async (chap) => {
-        const chapterId = chap.cId
-        console.log(`chap id = ${chapterId}`)
-        let [images, ] = await dbConnection.query<RowDataPacket[]>(
-            `
-                SELECT imageSequenceNumber, url
-                FROM ChapterImage ci
-                WHERE ci.chapterId = ${chapterId}  
-                `
-        );
+        const chapterId = chap.cId;
+
+        // Initialize images as an empty array
+        let images: any[] = [];
+
+        // If the user is authenticated, check if they have read permission
+        if (userId) {
+            const isReadable = await hasReadPermission(userId, chapterId);
+            if (isReadable) {
+                // Fetch images only if the user is authenticated and has permission
+                let [imageRs] = await dbConnection.query<RowDataPacket[]>(`
+                    SELECT imageSequenceNumber, url
+                    FROM ChapterImage ci
+                    WHERE ci.chapterId = ?  
+                `, [chapterId]);
+                images = imageRs; // Set images if user has permission
+            }
+        }
+
+        // Return the chapter data with images (or empty array if no access)
         return {
             ...chap,
-            images
-        }
-    }))
-
-    console.log(rs)
-    // Simulate fetching author data
+            images // Will be an empty array if user doesn't have access
+        };
+    }));
 
     const data = {
         ...rs[0],
-        chapters: chaptersWithImages
-    }
-    // stdRes.data = 
-
-
-    const authorData = {
-        storyId,
-        name: "Author Name",
-        message: 'Author data fetched successfully'
+        chapters: chaptersWithImages // Include chapters with or without images
     };
 
-    return NextResponse.json(data, {
-        status: 200,
-    });
+    return NextResponse.json(data, { status: 200 });
 }

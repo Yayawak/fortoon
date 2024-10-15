@@ -1,18 +1,66 @@
 import { dbConnection } from '@/db/dbConnector';
 import { verifyToken } from '@/lib/auth';
 import { uploadImage } from '@/lib/image_uploading/image_upload.lib';
+import { hasReadPermission } from '@/lib/story/chapter_permission.lib';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { MissingSlotContext } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: Request) {
 
-    return NextResponse.json({
-        test: "ABC"
-    }, {
-        status: 200,
-    });
+export async function GET(req: NextRequest, { params }: { params: { storyId: string } }) {
+    const { storyId } = params;
+
+    const stdRes: IStandardResponse = {};
+
+    // Verify the user's token
+    const verifiedRes = await verifyToken(req);
+    const userId = verifiedRes.status === 200 ? verifiedRes.data.uId : null; // Get userId only if verified
+
+    // Fetch chapters for the current story
+    let [chapterRs] = await dbConnection.query<RowDataPacket[]>(`
+        SELECT * 
+        FROM Chapter c
+        WHERE c.storyId = ?  
+    `, [storyId]);
+
+    // Process chapters and check read permissions
+    const chaptersWithImages = await Promise.all(chapterRs.map(async (chap) => {
+        const chapterId = chap.cId;
+
+        // Initialize images as an empty array
+        let images: any[] = [];
+
+        // If the user is authenticated, check if they have read permission
+        if (userId) {
+            const isReadable = await hasReadPermission(userId, chapterId);
+            if (isReadable) {
+                // Fetch images if the user has permission
+                let [imageRs] = await dbConnection.query<RowDataPacket[]>(`
+                    SELECT imageSequenceNumber, url
+                    FROM ChapterImage ci
+                    WHERE ci.chapterId = ?  
+                `, [chapterId]);
+                images = imageRs; // Set images if user has permission
+            }
+        }
+
+        // Return the chapter data with images (or empty array if no access)
+        return {
+            ...chap,
+            images // Will be an empty array if user doesn't have access
+        };
+    }));
+
+    // Filter out chapters without images for anonymous users
+    const validChapters = chaptersWithImages.filter(chapter => chapter.images.length > 0 || userId === null);
+
+    const data = {
+        storyId,
+        chapters: validChapters // Include chapters with or without images
+    };
+
+    return NextResponse.json(data, { status: 200 });
 }
 
 

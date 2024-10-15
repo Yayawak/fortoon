@@ -31,7 +31,7 @@ CREATE TABLE `Chapter` (
   PRIMARY KEY (`cId`),
   KEY `Chapter_Story_FK` (`storyId`),
   CONSTRAINT `Chapter_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `Chapter` (
 
 LOCK TABLES `Chapter` WRITE;
 /*!40000 ALTER TABLE `Chapter` DISABLE KEYS */;
-INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,10),('ราตรีแสนสุข',15,23,1,0),('i\'am solo',16,1,2,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0),('i\'am solo',24,1,5,0);
+INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,10),('ราตรีแสนสุข',15,23,1,0),('i\'am solo',16,1,2,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0),('i\'am solo',24,1,5,0),('The Strongest of the Human Race',25,26,2,0);
 /*!40000 ALTER TABLE `Chapter` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -60,7 +60,7 @@ CREATE TABLE `ChapterImage` (
   KEY `ChapterImage_Chapter_FK` (`chapterId`),
   KEY `ChapterImage_ChapterImage_FK` (`imageSequenceNumber`),
   CONSTRAINT `ChapterImage_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,7 +69,7 @@ CREATE TABLE `ChapterImage` (
 
 LOCK TABLES `ChapterImage` WRITE;
 /*!40000 ALTER TABLE `ChapterImage` DISABLE KEYS */;
-INSERT INTO `ChapterImage` VALUES (1,1,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(2,2,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(3,3,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(4,4,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(22,1,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-0.jpg',23),(23,2,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-1.jpg',23),(24,3,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-2.jpg',23),(25,4,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-3.jpg',23),(26,5,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-4.jpg',23);
+INSERT INTO `ChapterImage` VALUES (1,1,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(2,2,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(3,3,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(4,4,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(22,1,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-0.jpg',23),(23,2,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-1.jpg',23),(24,3,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-2.jpg',23),(25,4,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-3.jpg',23),(26,5,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-4.jpg',23),(27,1,'chapter-img-Tue Oct 15 2024 09:24:29 GMT+0000 (Coordinated Universal Time)-1.webp',25),(28,2,'chapter-img-Tue Oct 15 2024 09:24:29 GMT+0000 (Coordinated Universal Time)-2.webp',25),(29,3,'chapter-img-Tue Oct 15 2024 09:24:29 GMT+0000 (Coordinated Universal Time)-3.webp',25),(30,4,'chapter-img-Tue Oct 15 2024 09:24:29 GMT+0000 (Coordinated Universal Time)-4.webp',25),(31,5,'chapter-img-Tue Oct 15 2024 09:24:29 GMT+0000 (Coordinated Universal Time)-5.webp',25),(32,6,'chapter-img-Tue Oct 15 2024 09:24:29 GMT+0000 (Coordinated Universal Time)-6.webp',25),(33,7,'chapter-img-Tue Oct 15 2024 09:24:29 GMT+0000 (Coordinated Universal Time)-7.webp',25),(34,8,'chapter-img-Tue Oct 15 2024 09:24:29 GMT+0000 (Coordinated Universal Time)-8.webp',25),(35,9,'chapter-img-Tue Oct 15 2024 09:24:29 GMT+0000 (Coordinated Universal Time)-9.webp',25);
 /*!40000 ALTER TABLE `ChapterImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -264,7 +264,7 @@ CREATE TABLE `StoryChapterPermission` (
   KEY `StoryChapterPermission_User_FK` (`userId`),
   CONSTRAINT `StoryChapterPermission_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`),
   CONSTRAINT `StoryChapterPermission_User_FK` FOREIGN KEY (`userId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -273,6 +273,7 @@ CREATE TABLE `StoryChapterPermission` (
 
 LOCK TABLES `StoryChapterPermission` WRITE;
 /*!40000 ALTER TABLE `StoryChapterPermission` DISABLE KEYS */;
+INSERT INTO `StoryChapterPermission` VALUES (1,13,2);
 /*!40000 ALTER TABLE `StoryChapterPermission` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -309,7 +310,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,22,'m',0,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',20,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL);
+INSERT INTO `User` VALUES (1,22,'m',0,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',10,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -322,4 +323,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-15  8:51:06
+-- Dump completed on 2024-10-15 12:05:33
