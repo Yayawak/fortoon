@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { RowDataPacket } from "mysql2";
+import { QueryResult, ResultSetHeader, RowDataPacket } from "mysql2";
 import { dbConnection } from "@/db/dbConnector";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { formDataToJsonObject } from "@/lib/parsers";
 import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
 import { uploadFileToAmazonS3 } from "@/lib/image_uploading/amazon.lib";
 import { CreateUserScheme } from "@/schemes/user.scheme";
+import { setJwtTokenCookie } from "@/lib/auth/login.lib";
 
 
 export async function POST(req: NextRequest) {
@@ -32,7 +33,8 @@ export async function POST(req: NextRequest) {
     } catch (error: any) {
         stdRes = {
             msg2: "fail parse data",
-            msg: error.message || error,  // Log error message
+            // msg: error.message || error,  // Log error message
+            msg: error
         };
         return NextResponse.json(stdRes, { status: 500 });
     }
@@ -52,7 +54,7 @@ export async function POST(req: NextRequest) {
 
 
     try {
-        await dbConnection.execute(`
+        const [result, ] = await dbConnection.execute<ResultSetHeader>(`
             INSERT INTO User (
                 username,
                 password,
@@ -74,9 +76,12 @@ export async function POST(req: NextRequest) {
         `);
 
         stdRes = {
-            msg: "successfully created a user.",
+            msg:`Register Success, You're welcome ${parsed.username} :D`
         };
-        return NextResponse.json(stdRes, { status: 200 });
+        const userId = result.insertId
+        let response = NextResponse.json(stdRes);
+        response = setJwtTokenCookie({ username : parsed.username, uId: userId}, response);
+        return response;
 
     } catch (error: any) {
         if (error.code === 'ER_DUP_ENTRY') {

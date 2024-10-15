@@ -3,7 +3,6 @@ import { verifyToken } from "@/lib/auth";
 import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
 import { formDataToJsonObject } from "@/lib/parsers";
 import { postStoryScheme } from "@/schemes/story.scheme";
-import { postUserScheme } from "@/schemes/user.scheme";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { GenericRowDataPacket } from "@/types/IRowDataPacket";
 import { IUser } from "@/types/IUser";

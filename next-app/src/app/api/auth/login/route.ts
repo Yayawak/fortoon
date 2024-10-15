@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { RowDataPacket } from "mysql2";
 import { dbConnection } from "@/db/dbConnector";
+import { setJwtTokenCookie } from "@/lib/auth/login.lib";
 
 // Dummy user data (replace with real authentication logic)
 // const users = [
@@ -56,22 +57,9 @@ export async function POST(req: Request) {
             );
         }
 
-        // Create a JWT token
-        const token = jwt.sign({ username, 
-            uId: user.uId
-         }, JWT_SECRET, {
-            expiresIn: JWT_EXPIRATION,
-        });
-
-        // Set the token in an HTTP-only cookie
-        const response = NextResponse.json({ message: "Login successful!" });
-
-        response.cookies.set("token", token, {
-            httpOnly: true, // Prevent access from JavaScript
-            secure: process.env.NODE_ENV === "production", // Set `secure` flag in production
-            maxAge: 60 * 60, // 1 hour expiration
-            path: "/", // Token is valid site-wide
-        });
+        let response = NextResponse.json({ message: `You're welcome ${username} :D` });
+        response = setJwtTokenCookie({ username, uId: user.uId }, response);
+        return response;
 
         return response;
     } catch (error) {
