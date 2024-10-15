@@ -1,5 +1,5 @@
 import { dbConnection } from '@/db/dbConnector';
-import { verifyToken } from '@/lib/auth';
+import { verifyToken } from '@/lib/auth/auth.cookie';
 import { uploadImage } from '@/lib/image_uploading/image_upload.lib';
 import { hasReadPermission } from '@/lib/story/chapter_permission.lib';
 import { IStandardResponse } from '@/types/IApiCommunication';

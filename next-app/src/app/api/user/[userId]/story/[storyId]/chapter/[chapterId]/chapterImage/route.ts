@@ -1,5 +1,5 @@
 import { dbConnection } from '@/db/dbConnector';
-import { verifyToken } from '@/lib/auth';
+import { verifyToken } from '@/lib/auth/auth.cookie';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { RowDataPacket } from 'mysql2';
 import { NextRequest, NextResponse } from 'next/server';

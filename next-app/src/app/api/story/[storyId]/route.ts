@@ -1,5 +1,5 @@
 import { dbConnection } from '@/db/dbConnector';
-import { verifyToken } from '@/lib/auth';
+import { verifyToken } from '@/lib/auth/auth.cookie';
 import { hasReadPermission } from '@/lib/story/chapter_permission.lib';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { RowDataPacket } from 'mysql2';
@@ -14,6 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: { storyId: str
     const verifiedRes = await verifyToken(req);
     const userId = verifiedRes.status === 200 ? verifiedRes.data.uId : null; // Get userId only if verified
 
+    // Step 1: Fetch the story details
     const [rs] = await dbConnection.query<RowDataPacket[]>(`
         SELECT 
             s.*,
@@ -31,14 +32,22 @@ export async function GET(req: NextRequest, { params }: { params: { storyId: str
         return NextResponse.json(stdRes, { status: 404 });
     }
 
-    // Fetch chapters for the current story
+    // Step 2: Fetch chapters for the current story
     let [chapterRs] = await dbConnection.query<RowDataPacket[]>(`
         SELECT * 
         FROM Chapter c
         WHERE c.storyId = ?  
     `, [storyId]);
 
-    // Process chapters with images based on user permissions
+    // Step 3: Fetch genres for the current story
+    let [genreRs] = await dbConnection.query<RowDataPacket[]>(`
+        SELECT g.gId, g.genreName 
+        FROM Genre g
+        JOIN StoryGenre sg ON g.gId = sg.genreId
+        WHERE sg.storyId = ?
+    `, [storyId]);
+
+    // Step 4: Process chapters with images based on user permissions
     const chaptersWithImages = await Promise.all(chapterRs.map(async (chap) => {
         const chapterId = chap.cId;
 
@@ -59,16 +68,18 @@ export async function GET(req: NextRequest, { params }: { params: { storyId: str
             }
         }
 
-        // Return the chapter data with images (or empty array if no access)
+        // Return the chapter data with images (or an empty array if no access)
         return {
             ...chap,
             images // Will be an empty array if user doesn't have access
         };
     }));
 
+    // Step 5: Combine story, chapters, and genres into the response
     const data = {
         ...rs[0],
-        chapters: chaptersWithImages // Include chapters with or without images
+        chapters: chaptersWithImages, // Include chapters with or without images
+        genres: genreRs // Include genres associated with the story
     };
 
     return NextResponse.json(data, { status: 200 });

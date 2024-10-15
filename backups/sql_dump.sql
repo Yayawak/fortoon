@@ -102,35 +102,27 @@ LOCK TABLES `Followership` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `Like`
+-- Table structure for table `Genre`
 --
 
-DROP TABLE IF EXISTS `Like`;
+DROP TABLE IF EXISTS `Genre`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Like` (
-  `lId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `userId` int(10) unsigned NOT NULL,
-  `postId` int(10) unsigned DEFAULT NULL,
-  `storyId` int(10) unsigned DEFAULT NULL,
-  `isDislike` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`lId`),
-  KEY `Like_User_FK` (`userId`),
-  KEY `Like_Post_FK` (`postId`),
-  KEY `Like_Story_FK` (`storyId`),
-  CONSTRAINT `Like_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`),
-  CONSTRAINT `Like_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`),
-  CONSTRAINT `Like_User_FK` FOREIGN KEY (`userId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `Genre` (
+  `gId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `genreName` varchar(100) NOT NULL,
+  PRIMARY KEY (`gId`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Like`
+-- Dumping data for table `Genre`
 --
 
-LOCK TABLES `Like` WRITE;
-/*!40000 ALTER TABLE `Like` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Like` ENABLE KEYS */;
+LOCK TABLES `Genre` WRITE;
+/*!40000 ALTER TABLE `Genre` DISABLE KEYS */;
+INSERT INTO `Genre` VALUES (1,'Comedy'),(2,'Adventure'),(3,'Fantasy'),(4,'Action'),(5,'Sci-Fi '),(6,'Superhero'),(7,'Detective'),(8,'Horror'),(9,'Shonen'),(10,'Shojo'),(11,'Seinen'),(12,'Josei'),(13,'Isekai'),(14,'Romance'),(15,'Sports'),(16,'Harem'),(17,'Psychological');
+/*!40000 ALTER TABLE `Genre` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -218,6 +210,68 @@ INSERT INTO `Rank` VALUES ('casual',1),('exclusive',2),('vip',3);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `ReviewPost`
+--
+
+DROP TABLE IF EXISTS `ReviewPost`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ReviewPost` (
+  `rpId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `rating` int(1) NOT NULL,
+  `review` varchar(500) NOT NULL,
+  `reviewerId` int(10) unsigned NOT NULL,
+  `postId` int(10) unsigned NOT NULL,
+  `reviewDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`rpId`),
+  KEY `reviewerId` (`reviewerId`),
+  KEY `postId` (`postId`),
+  CONSTRAINT `ReviewPost_ibfk_1` FOREIGN KEY (`reviewerId`) REFERENCES `User` (`uId`) ON DELETE CASCADE,
+  CONSTRAINT `ReviewPost_ibfk_2` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ReviewPost`
+--
+
+LOCK TABLES `ReviewPost` WRITE;
+/*!40000 ALTER TABLE `ReviewPost` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ReviewPost` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ReviewStory`
+--
+
+DROP TABLE IF EXISTS `ReviewStory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ReviewStory` (
+  `rsId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `rating` int(1) NOT NULL,
+  `review` varchar(500) NOT NULL,
+  `reviewerId` int(10) unsigned NOT NULL,
+  `storyId` int(10) unsigned NOT NULL,
+  `reviewDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`rsId`),
+  KEY `reviewerId` (`reviewerId`),
+  KEY `storyId` (`storyId`),
+  CONSTRAINT `ReviewStory_ibfk_1` FOREIGN KEY (`reviewerId`) REFERENCES `User` (`uId`) ON DELETE CASCADE,
+  CONSTRAINT `ReviewStory_ibfk_2` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ReviewStory`
+--
+
+LOCK TABLES `ReviewStory` WRITE;
+/*!40000 ALTER TABLE `ReviewStory` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ReviewStory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `Story`
 --
 
@@ -264,7 +318,7 @@ CREATE TABLE `StoryChapterPermission` (
   KEY `StoryChapterPermission_User_FK` (`userId`),
   CONSTRAINT `StoryChapterPermission_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`),
   CONSTRAINT `StoryChapterPermission_User_FK` FOREIGN KEY (`userId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -273,8 +327,37 @@ CREATE TABLE `StoryChapterPermission` (
 
 LOCK TABLES `StoryChapterPermission` WRITE;
 /*!40000 ALTER TABLE `StoryChapterPermission` DISABLE KEYS */;
-INSERT INTO `StoryChapterPermission` VALUES (1,13,2);
+INSERT INTO `StoryChapterPermission` VALUES (3,13,2);
 /*!40000 ALTER TABLE `StoryChapterPermission` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `StoryGenre`
+--
+
+DROP TABLE IF EXISTS `StoryGenre`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `StoryGenre` (
+  `sgId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `storyId` int(10) unsigned NOT NULL,
+  `genreId` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`sgId`),
+  KEY `StoryGenre_Genre_FK` (`genreId`),
+  KEY `StoryGenre_Story_FK` (`storyId`),
+  CONSTRAINT `StoryGenre_Genre_FK` FOREIGN KEY (`genreId`) REFERENCES `Genre` (`gId`),
+  CONSTRAINT `StoryGenre_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `StoryGenre`
+--
+
+LOCK TABLES `StoryGenre` WRITE;
+/*!40000 ALTER TABLE `StoryGenre` DISABLE KEYS */;
+INSERT INTO `StoryGenre` VALUES (6,26,1),(7,26,2),(8,26,3);
+/*!40000 ALTER TABLE `StoryGenre` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -310,7 +393,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,22,'m',0,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',10,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL),(10,8,'m',0,1,'rakan88888','rakan','rakan@lover.th','2024-10-15 13:07:25','rakan','user-Tue Oct 15 2024 13:07:23 GMT+0000 (Coordinated Universal Time)-02.jpg',NULL);
+INSERT INTO `User` VALUES (1,22,'m',10,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',20,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL),(10,8,'m',0,1,'rakan88888','rakan','rakan@lover.th','2024-10-15 13:07:25','rakan','user-Tue Oct 15 2024 13:07:23 GMT+0000 (Coordinated Universal Time)-02.jpg',NULL);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -323,4 +406,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-15 13:20:01
+-- Dump completed on 2024-10-15 17:12:55

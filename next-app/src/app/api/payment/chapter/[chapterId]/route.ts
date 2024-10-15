@@ -1,5 +1,5 @@
 import { dbConnection } from "@/db/dbConnector";
-import { verifyToken } from "@/lib/auth";
+import { verifyToken } from "@/lib/auth/auth.cookie";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { RowDataPacket } from "mysql2";
 import { NextRequest, NextResponse } from "next/server";
@@ -34,16 +34,13 @@ export async function POST(req: NextRequest, { params }: { params: { chapterId: 
             SELECT authorId FROM Story WHERE sId = ?
         `, [storyId]);
 
-        // console.log(storyResult)
-
         if (storyResult.length && storyResult[0].authorId === userId) {
             return NextResponse.json({ msg: "You cannot purchase a chapter from your own story" }, { status: 409 });
         }
 
         // Check if the chapter is free
         if (chapterPrice === 0) {
-            // console.log("204")
-            return NextResponse.json({ msg: "This chapter is free. No need to purchase." , msg2: "Free Chapter"}, { status: 409 });
+            return NextResponse.json({ msg: "This chapter is free. No need to purchase.", msg2: "Free Chapter"}, { status: 409 });
         }
 
         // Check if the user already has access to the chapter
@@ -55,12 +52,10 @@ export async function POST(req: NextRequest, { params }: { params: { chapterId: 
             return NextResponse.json({ msg: "Chapter already purchased or accessible" }, { status: 400 });
         }
 
-        // console.log(userId)
         // Fetch user's current credit
         const [userResult] = await dbConnection.query<RowDataPacket[]>(`
             SELECT credit FROM User WHERE uId = ?
         `, [userId]);
-        // console.log(userResult)
 
         const userCredit = userResult[0].credit;
 
@@ -69,11 +64,25 @@ export async function POST(req: NextRequest, { params }: { params: { chapterId: 
             return NextResponse.json({ msg: "Insufficient credits" }, { status: 400 });
         }
 
-        // Deduct chapter price from user's credits and grant access
+        // Deduct chapter price from user's credits
         await dbConnection.execute(`
             UPDATE User SET credit = credit - ? WHERE uId = ?
         `, [chapterPrice, userId]);
 
+        // Fetch the author's current credit
+        const authorId = storyResult[0].authorId; // Get the author's ID
+        const [authorResult] = await dbConnection.query<RowDataPacket[]>(`
+            SELECT credit FROM User WHERE uId = ?
+        `, [authorId]);
+
+        // Credit the author's account
+        const authorCredit = authorResult[0].credit + chapterPrice;
+
+        await dbConnection.execute(`
+            UPDATE User SET credit = ? WHERE uId = ?
+        `, [authorCredit, authorId]);
+
+        // Grant access to the chapter
         await dbConnection.execute(`
             INSERT INTO StoryChapterPermission (chapterId, userId) VALUES (?, ?)
         `, [chapterId, userId]);
@@ -83,8 +92,6 @@ export async function POST(req: NextRequest, { params }: { params: { chapterId: 
     } catch (error: any) {
         console.error("Error processing chapter purchase:", error);
         stdRes = { msg: "Error processing chapter purchase", msg2: error.message };
-        // stdRes = { msg: "Error processing chapter purchase"};
-        // console.log(stdRes)
         return NextResponse.json(stdRes, { status: 500 });
     }
 }

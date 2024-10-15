@@ -8,7 +8,7 @@ import { mkdirSync } from "fs";
 import { RowDataPacket } from "mysql2";
 import { NextApiRequest } from "next";
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken } from "@/lib/auth";
+import { verifyToken } from "@/lib/auth/auth.cookie";
 import { z } from 'zod';
 import { userSettingsSchema } from "@/schemes/user.scheme";
 

@@ -1,9 +1,8 @@
 import { dbConnection } from "@/db/dbConnector";
 import { uploadFileToAmazonS3 } from "@/lib/image_uploading/amazon.lib";
-import { verifyToken } from "@/lib/auth";
+import { verifyToken } from "@/lib/auth/auth.cookie";
 import { formDataToJsonObject } from "@/lib/parsers";
 import { postStoryScheme } from "@/schemes/story.scheme";
-import { postUserScheme } from "@/schemes/user.scheme";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { GenericRowDataPacket } from "@/types/IRowDataPacket";
 import { IUser } from "@/types/IUser";
@@ -14,54 +13,64 @@ import { NextRequest, NextResponse } from "next/server";
 import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
 
 
+
 export async function GET(req: NextRequest) {
-    // const [results, fs] = await dbConnection.query<GenericRowDataPacket<IUser>[]>(`select * from Story`)
-    const verifiedRes = await verifyToken(req)
-    if (verifiedRes.status != 200) {
-        // console.log(verifiedRes)
+    const verifiedRes = await verifyToken(req);
+    if (verifiedRes.status !== 200) {
         return NextResponse.json({
             msg: verifiedRes.msg
         }, { status: verifiedRes.status });
     }
 
+    // Step 1: Retrieve all stories
     let [storyRs,] = await dbConnection.query<GenericRowDataPacket<any>[]>(
         `
-        select * 
-        from Story s
+        SELECT * 
+        FROM Story s
         `
-    )
-    // Use Promise.all with map to handle asynchronous chapter fetching
+    );
+
+    // Step 2: Use Promise.all with map to handle asynchronous chapter and genre fetching
     const ret = await Promise.all(storyRs.map(async (s) => {
-        const authorId = s.authorId;
+        const storyId = s.sId;
 
         // Fetch chapters for the current story
         let [chapterRs,] = await dbConnection.query<GenericRowDataPacket<any>[]>(
             `
                 SELECT * 
                 FROM Chapter c
-                WHERE c.storyId = ${s.sId}  
-                `
+                WHERE c.storyId = ?  
+            `,
+            [storyId]
         );
-        // TODO : hide chapters data for no-perm user (not buy yet)
 
-        // Return the story object along with its chapters
+        // Fetch genres for the current story
+        let [genreRs,] = await dbConnection.query<GenericRowDataPacket<any>[]>(
+            `
+                SELECT g.gId, g.genreName 
+                FROM Genre g
+                JOIN StoryGenre sg ON g.gId = sg.genreId
+                WHERE sg.storyId = ?
+            `,
+            [storyId]
+        );
+
+        // Return the story object along with its chapters and genres
         return {
             ...s,
-            chapters: chapterRs
+            chapters: chapterRs,
+            genres: genreRs
         };
     }));
 
-    // const authorId = fs.
-
-
     const stdRes: IStandardResponse = {
         data: ret
-    }
+    };
+
     return NextResponse.json(stdRes, {
         status: 200
-    })
+    });
 }
-
 
 
 export async function POST(req: Request) {
@@ -151,7 +160,6 @@ export async function POST(req: Request) {
     if (!parsed) {
         return
     }
-
 
 
 

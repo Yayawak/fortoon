@@ -1,5 +1,5 @@
 import { RowDataPacket } from 'mysql2';
-import { IStandardResponse } from './../types/IApiCommunication';
+import { IStandardResponse } from '../../types/IApiCommunication';
 import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { dbConnection } from '@/db/dbConnector';
