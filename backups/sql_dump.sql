@@ -30,8 +30,8 @@ CREATE TABLE `Chapter` (
   `price` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`cId`),
   KEY `Chapter_Story_FK` (`storyId`),
-  CONSTRAINT `Chapter_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
+  CONSTRAINT `Chapter_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `Chapter` (
 
 LOCK TABLES `Chapter` WRITE;
 /*!40000 ALTER TABLE `Chapter` DISABLE KEYS */;
-INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,0),('ราตรีแสนสุข',15,23,1,0),('i\'am solo',16,1,2,0),('i\'am solo',17,1,3,0),('i\'am solo',18,1,4,0),('i\'am solo',19,1,5,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0);
+INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,10),('ราตรีแสนสุข',15,23,1,0),('i\'am solo',16,1,2,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0),('i\'am solo',24,1,5,0);
 /*!40000 ALTER TABLE `Chapter` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -59,8 +59,7 @@ CREATE TABLE `ChapterImage` (
   PRIMARY KEY (`ciId`),
   KEY `ChapterImage_Chapter_FK` (`chapterId`),
   KEY `ChapterImage_ChapterImage_FK` (`imageSequenceNumber`),
-  CONSTRAINT `ChapterImage_ChapterImage_FK` FOREIGN KEY (`imageSequenceNumber`) REFERENCES `ChapterImage` (`ciId`),
-  CONSTRAINT `ChapterImage_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`)
+  CONSTRAINT `ChapterImage_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -70,7 +69,7 @@ CREATE TABLE `ChapterImage` (
 
 LOCK TABLES `ChapterImage` WRITE;
 /*!40000 ALTER TABLE `ChapterImage` DISABLE KEYS */;
-INSERT INTO `ChapterImage` VALUES (1,1,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(2,2,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(3,3,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(4,4,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(5,1,'chapter-img-Mon Oct 14 2024 16:35:30 GMT+0000 (Coordinated Universal Time)-[object File]',18),(6,1,'chapter-img-Mon Oct 14 2024 16:41:31 GMT+0000 (Coordinated Universal Time)-[object File]',19),(22,1,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-0.jpg',23),(23,2,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-1.jpg',23),(24,3,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-2.jpg',23),(25,4,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-3.jpg',23),(26,5,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-4.jpg',23);
+INSERT INTO `ChapterImage` VALUES (1,1,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(2,2,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(3,3,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(4,4,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(22,1,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-0.jpg',23),(23,2,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-1.jpg',23),(24,3,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-2.jpg',23),(25,4,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-3.jpg',23),(26,5,'chapter-img-Mon Oct 14 2024 17:24:09 GMT+0000 (Coordinated Universal Time)-4.jpg',23);
 /*!40000 ALTER TABLE `ChapterImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -310,7 +309,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,22,'m',0,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',0,1,'yone','yone','mailser','2024-09-20 15:12:45','yone','profilePic-yone-image.png',NULL),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL);
+INSERT INTO `User` VALUES (1,22,'m',0,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',20,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -323,4 +322,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-14 18:03:01
+-- Dump completed on 2024-10-15  8:51:06
