@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { Star, MessageSquare, Book, ThumbsUp, Eye, Calendar, Clock, ChevronRight } from "lucide-react";
+import { Star, MessageSquare, Book, ThumbsUp, Eye, Calendar, Clock, ChevronRight, Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -63,6 +66,11 @@ interface Manga {
 export default function MangaDetail({ params }: MangaDetailProps) {
   const { t, theme } = useSettings();
   const [activeTab, setActiveTab] = useState('description');
+  const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+
+  // Assume we have a way to determine if the current user is the owner
+  const isOwner = true; // This should be replaced with actual authentication logic
 
   const manga: Manga = {
     id: params.id,
@@ -146,6 +154,15 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     ],
   };
 
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Here you would typically send the review data to your backend
+    console.log('Submitting review:', newReview);
+    // For now, we'll just close the dialog
+    setIsReviewDialogOpen(false);
+    setNewReview({ rating: 0, comment: '' });
+  };
+
   return (
     <div className={`min-h-screen ${
       theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
@@ -170,6 +187,14 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                   </Link>
                 </Button>
               </div>
+              {isOwner && (
+                <Button asChild className="w-full">
+                  <Link href={`/manga/${manga.id}/create-chapter`}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add New Chapter
+                  </Link>
+                </Button>
+              )}
               <div className="flex items-center text-sm text-gray-500">
                 <Calendar className="w-4 h-4 mr-2" />
                 <span>{manga.releaseYear}</span>
@@ -246,7 +271,72 @@ export default function MangaDetail({ params }: MangaDetailProps) {
               </TabsContent>
               
               <TabsContent value="reviews" className="mt-4">
-                {/* ... (keep existing reviews content) ... */}
+                <div className="mb-6 flex justify-between items-center">
+                  <h2 className="text-2xl font-bold">User Reviews</h2>
+                  <div>
+                    <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button>Write a Review</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Write a Review</DialogTitle>
+                          <DialogDescription>Share your thoughts about {manga.title}</DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleReviewSubmit} className="space-y-4">
+                          <div>
+                            <Label htmlFor="rating">Rating</Label>
+                            <Input
+                              id="rating"
+                              type="number"
+                              min="1"
+                              max="5"
+                              value={newReview.rating}
+                              onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="comment">Your Review</Label>
+                            <Textarea
+                              id="comment"
+                              value={newReview.comment}
+                              onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                              required
+                            />
+                          </div>
+                          <Button type="submit">Submit Review</Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {manga.reviews.map((review, index) => (
+                    <div key={index} className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                      <div className="flex items-center mb-2">
+                        <Avatar className="w-10 h-10 mr-3">
+                          <AvatarImage src={review.avatar} alt={review.user} />
+                          <AvatarFallback>{review.user[0]}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-semibold">{review.user}</h3>
+                          <div className="flex items-center">
+                            <Star className="w-4 h-4 text-yellow-400 mr-1" />
+                            <span>{review.rating}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300">{review.comment}</p>
+                      <div className="flex items-center mt-2 text-sm text-gray-500">
+                        <ThumbsUp className="w-4 h-4 mr-1" />
+                        <span>{review.likes} likes</span>
+                        <span className="mx-2">•</span>
+                        <span>{review.date}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </TabsContent>
             </Tabs>
           </div>
