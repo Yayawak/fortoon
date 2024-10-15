@@ -254,7 +254,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6">You might also like</h2>
-          <divd className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {manga.recommendations.map(rec => (
               <Link 
                 key={rec.id}
@@ -278,7 +278,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                 </div>
               </Link>
             ))}
-          </divd
+          </div>
         </div>
       </div>
     </div>
