@@ -1,94 +1,75 @@
 import { dbConnection } from '@/db/dbConnector';
+import { verifyToken } from '@/lib/auth';
+import { hasReadPermission } from '@/lib/story/chapter_permission.lib';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { RowDataPacket } from 'mysql2';
-import { MissingSlotContext } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: Request, { params }: { params: { storyId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: { storyId: string } }) {
     const { storyId } = params;
 
-    const stdRes : IStandardResponse = {
+    const stdRes: IStandardResponse = {};
+
+    // Verify the user's token
+    const verifiedRes = await verifyToken(req);
+    const userId = verifiedRes.status === 200 ? verifiedRes.data.uId : null; // Get userId only if verified
+
+    const [rs] = await dbConnection.query<RowDataPacket[]>(`
+        SELECT 
+            s.*,
+            u.displayName AS authorDisplayName
+        FROM 
+            User u 
+        JOIN
+            Story s ON u.uId = s.authorId
+        WHERE 
+            s.sId = ?
+    `, [storyId]);
+
+    if (rs.length === 0) {
+        stdRes.msg = "Story not found";
+        return NextResponse.json(stdRes, { status: 404 });
     }
 
-    const [rs, fs] = await dbConnection.query<RowDataPacket[]>(`
-        select * from 
-        User u 
-        join
-        Story s
-        on u.uId = s.authorId
-        where u.uId = ${storyId}
-    `)
-    if (rs.length == 0) {
-        stdRes.msg = "Story not found"
+    // Fetch chapters for the current story
+    let [chapterRs] = await dbConnection.query<RowDataPacket[]>(`
+        SELECT * 
+        FROM Chapter c
+        WHERE c.storyId = ?  
+    `, [storyId]);
 
-        return NextResponse.json(stdRes, {
-            status: 404
-        })
-    }
+    // Process chapters with images based on user permissions
+    const chaptersWithImages = await Promise.all(chapterRs.map(async (chap) => {
+        const chapterId = chap.cId;
 
-    console.log(rs)
-    // Simulate fetching author data
+        // Initialize images as an empty array
+        let images: any[] = [];
 
-    const data = rs
-    // stdRes.data = 
+        // If the user is authenticated, check if they have read permission
+        if (userId) {
+            const isReadable = await hasReadPermission(userId, chapterId);
+            if (isReadable) {
+                // Fetch images only if the user is authenticated and has permission
+                let [imageRs] = await dbConnection.query<RowDataPacket[]>(`
+                    SELECT imageSequenceNumber, url
+                    FROM ChapterImage ci
+                    WHERE ci.chapterId = ?  
+                `, [chapterId]);
+                images = imageRs; // Set images if user has permission
+            }
+        }
 
+        // Return the chapter data with images (or empty array if no access)
+        return {
+            ...chap,
+            images // Will be an empty array if user doesn't have access
+        };
+    }));
 
-    const authorData = {
-        storyId,
-        name: "Author Name",
-        message: 'Author data fetched successfully'
+    const data = {
+        ...rs[0],
+        chapters: chaptersWithImages // Include chapters with or without images
     };
 
-    return NextResponse.json(data, {
-        status: 200,
-    });
+    return NextResponse.json(data, { status: 200 });
 }
-
-// export async function POST(req: Request, { params }: { params: { storyId: string } }) {
-//     const { storyId } = params;
-    
-//     let stdRes = { message: 'Author data sent successfully', id };
-
-//     try {
-//         const body = await req.json();
-//         // Assuming 'body' contains the new data to save, e.g., author details.
-//         console.log("Author POST data:", body);
-
-//         stdRes = {
-//             id,
-//             ...body,
-//             message: 'Author data successfully received and processed',
-//         };
-
-//         return NextResponse.json(stdRes, { status: 200 });
-
-//     } catch (error) {
-//         return NextResponse.json({ message: 'Error processing request', error }, { status: 500 });
-//     }
-// }
-
-// export async function PUT(req: Request, { params }: { params: { id: string } }) {
-//     const { id } = params;
-    
-//     let stdRes = { message: 'Author data updated successfully', id };
-
-//     try {
-//         const body = await req.json();
-//         console.log("Author PUT data:", body);
-//         // Process the update logic here
-
-//         return NextResponse.json(stdRes, { status: 200 });
-
-//     } catch (error) {
-//         return NextResponse.json({ message: 'Error updating author', error }, { status: 500 });
-//     }
-// }
-
-// export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-//     const { id } = params;
-
-//     // Simulate deleting the author
-//     const stdRes = { message: 'Author data deleted successfully', id };
-
-//     return NextResponse.json(stdRes, { status: 200 });
-// }

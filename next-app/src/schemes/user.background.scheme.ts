@@ -1,17 +1,9 @@
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from '@/constant/constants'
-import { numericString } from '@/lib/parsers';
-import { File } from 'buffer';
+import { File } from 'buffer'
 import { z } from 'zod'
-import { zfd } from "zod-form-data"
 
-// export const postUserScheme = zfd.formData({
-export const postStoryScheme = z.object({
-    // authorId: z.number(),
-    authorId: numericString(z.number().min(0)),
-    title: z.string(),
-    introduction: z.string(),
-
-    coverImage: z
+export const putUserBackground = z.object({
+    background: z
         .instanceof(File)
         .refine(
             (file) => file.size <= MAX_FILE_SIZE,
@@ -22,9 +14,7 @@ export const postStoryScheme = z.object({
             `Only the following image types are allowed: ${ACCEPTED_IMAGE_TYPES.join(
                 ", "
             )}.`
-        )
-        // .optional()
-        // .nullable(),
+        ).optional()
 })
 
-export type TPostStoryScheme = z.infer<typeof postStoryScheme>;
+export type putuserBackgroundScheme = z.infer<typeof putUserBackground>;
