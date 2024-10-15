@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { UserAvatar } from '@/components/community/user-avatar';
 import { Button } from '@/components/ui/button';
@@ -11,26 +11,46 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Search, Menu, LogOut, Settings, User as UserIcon } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth'; 
+import { Search, LogOut, Settings, User as UserIcon, Sun, Moon } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useSettings } from '@/contexts/SettingsContext'
+
 export default function Navbar() {
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useSettings();
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    const applyTheme = (themeToApply: 'light' | 'dark') => {
+      document.documentElement.classList.remove('light', 'dark');
+      document.documentElement.classList.add(themeToApply);
+    };
+
+    applyTheme(theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  const getThemeIcon = () => {
+    return theme === 'light' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />;
+  };
+
   return (
-    <nav className="border-b bg-white">
+    <nav className="border-b bg-background">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          {/* Left section - User info or Login/Register */}
+          {/* Left section - Logo */}
           <div className="flex items-center space-x-2">
             <Link href="/">
               <Button>
-              <span className="text-xl font-bold">Fortoon</span>
-            <img 
-              src="/logo.svg" 
-              alt="Fortoon Logo"
-              className="h-8 w-8"
-            />
+                <span className="text-xl font-bold">Fortoon</span>
+                <img 
+                  src="/logo.svg" 
+                  alt="Manga App Logo"
+                  className="h-8 w-8"
+                />
               </Button>
             </Link>
           </div>
@@ -38,10 +58,10 @@ export default function Navbar() {
           {/* Middle section - Search bar */}
           <div className="flex-1 max-w-2xl px-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search..."
+                placeholder="Search manga..."
                 className="w-full pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -49,8 +69,11 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right section - Logo and website name */}
-          <div className="flex items-center">
+          {/* Right section - User menu and theme toggle */}
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} title="Toggle theme">
+              {getThemeIcon()}
+            </Button>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -59,7 +82,7 @@ export default function Navbar() {
                     <span>{user.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                <DropdownMenuContent align="end">
                   <DropdownMenuItem>
                     <Link href="/profile" className="flex items-center">
                       <UserIcon className="mr-2 h-4 w-4" />
@@ -74,7 +97,7 @@ export default function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
+                    Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

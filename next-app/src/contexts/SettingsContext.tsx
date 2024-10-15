@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Language, Theme, FontSize } from '@/lib/types';
@@ -37,11 +37,23 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('mangaAppSettings', JSON.stringify({ language, theme, fontSize }));
     
     // Apply theme
+    const applyTheme = (themeToApply: 'light' | 'dark') => {
+      document.documentElement.classList.remove('light', 'dark');
+      document.documentElement.classList.add(themeToApply);
+    };
+
     if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      document.documentElement.classList.toggle('dark', systemTheme === 'dark');
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e: MediaQueryListEvent) => {
+        applyTheme(e.matches ? 'dark' : 'light');
+      };
+      
+      applyTheme(mediaQuery.matches ? 'dark' : 'light');
+      mediaQuery.addEventListener('change', handleChange);
+      
+      return () => mediaQuery.removeEventListener('change', handleChange);
     } else {
-      document.documentElement.classList.toggle('dark', theme === 'dark');
+      applyTheme(theme);
     }
   }, [language, theme, fontSize]);
 
