@@ -5,7 +5,7 @@ import { File } from 'buffer'
 import { z } from 'zod'
 import { zfd } from "zod-form-data"
 
-export const postUserScheme = z.object({
+export const CreateUserScheme = z.object({
     username: z.string().min(4),
     password: z.string().min(8),
     displayName: z.string().min(4),
@@ -34,7 +34,7 @@ export const postUserScheme = z.object({
         ).optional()
 })
 
-export type TPostUserScheme = z.infer<typeof postUserScheme>;
+export type TCreateUserScheme = z.infer<typeof CreateUserScheme>;
 
 // Zod validation for non-image fields (optional since some fields may not be sent)
 export const userSettingsSchema = z.object({
