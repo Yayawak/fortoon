@@ -8,7 +8,9 @@ import { MissingSlotContext } from 'next/dist/shared/lib/app-router-context.shar
 import { NextRequest, NextResponse } from 'next/server';
 
 
-export async function GET(req: NextRequest, { params }: { params: { storyId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: {
+        storyId: string } 
+}) {
     const { storyId } = params;
 
     const stdRes: IStandardResponse = {};
