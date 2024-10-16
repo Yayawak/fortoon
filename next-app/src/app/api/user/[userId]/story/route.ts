@@ -1,7 +1,7 @@
 import { dbConnection } from "@/db/dbConnector";
-import { verifyToken } from "@/lib/auth/auth.cookie";
-import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
-import { formDataToJsonObject } from "@/lib/parsers";
+import { verifyToken } from "@/backend_lib/auth/auth.cookie";
+import { uploadImage } from "@/backend_lib/image_uploading/image_upload.lib";
+import { formDataToJsonObject } from "@/backend_lib/parsers";
 import { postStoryScheme } from "@/schemes/story.scheme";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { GenericRowDataPacket } from "@/types/IRowDataPacket";

@@ -1,7 +1,7 @@
 import { dbConnection } from "@/db/dbConnector";
-import { uploadFileToAmazonS3 } from "@/lib/image_uploading/amazon.lib";
-import { verifyToken } from "@/lib/auth/auth.cookie";
-import { formDataToJsonObject } from "@/lib/parsers";
+import { uploadFileToAmazonS3 } from "@/backend_lib/image_uploading/amazon.lib";
+import { verifyToken } from "@/backend_lib/auth/auth.cookie";
+import { formDataToJsonObject } from "@/backend_lib/parsers";
 import { postStoryScheme } from "@/schemes/story.scheme";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { GenericRowDataPacket } from "@/types/IRowDataPacket";
@@ -10,7 +10,7 @@ import { mkdirSync } from "fs";
 import { RowDataPacket } from "mysql2";
 import { NextApiRequest } from "next";
 import { NextRequest, NextResponse } from "next/server";
-import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
+import { uploadImage } from "@/backend_lib/image_uploading/image_upload.lib";
 
 
 

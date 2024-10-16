@@ -1,5 +1,5 @@
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from '@/constant/constants'
-import { numericString } from '@/lib/parsers';
+import { numericString } from '@/backend_lib/parsers';
 import { File } from 'buffer';
 import { z } from 'zod'
 import { zfd } from "zod-form-data"

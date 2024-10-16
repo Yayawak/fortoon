@@ -1,38 +1,21 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Search, Star, TrendingUp, Clock } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { MangaItem, TopManga } from "@/lib/types";
 import Slider from "react-slick";
-import { CldImage } from 'next-cloudinary';
+
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { CldImage } from "next-cloudinary";
 
-type MangaItem = {
-    sId: number;
-    title: string;
-    coverImageUrl: string;
-    introduction: string;
-    postedDatetime: string;
-    chapters: Array<number>;
-    genres: Array<string>;
-    
-    authorId: number;
-    authorDisplayName: string;
-  };
 
 export default function Home() {
   const { t, theme } = useSettings();
   const [activeTab, setActiveTab] = useState('popular');
-  const [mangaList, setMangaList] = useState<MangaItem[]>([]);
-  const [filteredMangaList, setFilteredMangaList] = useState<MangaItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const topManga: TopManga[] = [
+  
+  const topManga: any[] = [
     {
       id: 1,
       title: "Attack on Titan",
@@ -70,79 +53,24 @@ export default function Home() {
     },
   ];
 
-  // const mangaList: MangaItem[] = [
-  //   { 
-  //     id: 1, 
-  //     title: "One Piece", 
-  //     cover: "/api/placeholder/300/400",
-  //     rating: 4.9,
-  //     chapter: 1089,
-  //     views: "1.2M"
-  //   },
-  //   { 
-  //     id: 2, 
-  //     title: "Jujutsu Kaisen", 
-  //     cover: "/api/placeholder/300/400",
-  //     rating: 4.7,
-  //     chapter: 235,
-  //     views: "890K"
-  //   },
-  // ];
-
-  const fetchMangaList = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/story");
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const responseData = await response.json();
-      console.log("API Response:", responseData);
-
-      if (responseData && Array.isArray(responseData.data)) {
-        setMangaList(responseData.data);
-        setFilteredMangaList(responseData.data);
-      } else if (Array.isArray(responseData)) {
-        setMangaList(responseData);
-        setFilteredMangaList(responseData);
-      } else {
-        console.error("Unexpected data format:", responseData);
-        throw new Error('Invalid data format');
-      }
-      setError(null);
-    } catch (error) {
-      console.error("There was a problem fetching the manga list:", error);
-      setError("Failed to load manga list. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchMangaList();
-  }, [fetchMangaList]);
-
-  useEffect(() => {
-    console.log("mangaList has been updated:", mangaList);
-  }, [mangaList]);
-
-  console.log("Rendering component. mangaList:", mangaList);
-
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = event.target.value.toLowerCase();
-    setSearchTerm(newSearchTerm);
-
-    if (newSearchTerm === '') {
-      setFilteredMangaList(mangaList);
-    } else {
-      const filtered = mangaList.filter(manga => 
-        manga.title.toLowerCase().includes(newSearchTerm) 
-        // || 
-        // manga.authorDisplayName.toLowerCase().includes(newSearchTerm)
-      );
-      setFilteredMangaList(filtered);
-    }
-  };
+  const mangaList: any[] = [
+    { 
+      id: 1, 
+      title: "One Piece", 
+      cover: "/api/placeholder/300/400",
+      rating: 4.9,
+      chapter: 1089,
+      views: "1.2M"
+    },
+    {
+      id: 2,
+      title: "Jujutsu Kaisen",
+      cover: "/api/placeholder/300/400",
+      rating: 4.7,
+      chapter: 235,
+      views: "890K"
+    },
+  ];
 
   const sliderSettings = {
     dots: true,
@@ -174,13 +102,11 @@ export default function Home() {
           {topManga.map((manga) => (
             <div key={manga.id}>
               <div className="relative h-[600px]">
-              {/* <Image 
-                    src={topManga.coverImageUrl || "/placeholder.jpg"}
-                    alt={topManga.title}
-                    layout="fill"
-                    objectFit="cover"
-                    className="group-hover:scale-105 transition-transform duration-300"
-                  /> */}
+                <img
+                  src={manga.cover}
+                  alt={manga.title}
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-8">
                   <div className="container mx-auto">
@@ -208,8 +134,6 @@ export default function Home() {
             <input 
               type="text" 
               placeholder={t('searchPlaceholder')}
-              value={searchTerm}
-              onChange={handleSearch}
               className={`w-full px-6 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${
                 theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
               }`}
@@ -227,7 +151,7 @@ export default function Home() {
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold">{t('browseManga')}</h2>
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={() => setActiveTab('popular')}
               className={`flex items-center gap-2 px-4 py-2 rounded-full ${
                 activeTab === 'popular' 
@@ -238,7 +162,7 @@ export default function Home() {
               <TrendingUp className="w-4 h-4" />
               {t('popular')}
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('latest')}
               className={`flex items-center gap-2 px-4 py-2 rounded-full ${
                 activeTab === 'latest' 
@@ -252,49 +176,45 @@ export default function Home() {
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="text-center py-8">Loading...</div>
-        ) : error ? (
-          <div className="text-center py-8 text-red-500">{error}</div>
-        ) : filteredMangaList.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {filteredMangaList.map((manga) => (
-              <Link 
-                key={manga.sId} 
-                href={`/manga/${manga.sId}`}
-                className="group"
-              >
-                <div className="relative overflow-hidden rounded-lg shadow-lg h-[300px]">
-                  <CldImage 
-                    src={manga.coverImageUrl}
-                    alt={manga.title}
-                    fill
-                    crop="fill"
-                    gravity="auto"
-                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
-                    className="group-hover:scale-105 transition-transform duration-300"
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {mangaList.map((manga) => (
+            <Link
+              key={manga.id}
+              href={`/manga/${manga.id}`}
+              className="group"
+            >
+              <div className="relative overflow-hidden rounded-lg shadow-lg">
+                <div
+                  // src={manga.cover}
+                  // alt={manga.title}
+                  className="w-full h-[300px] object-cover group-hover:scale-105 transition-transform duration-300"
+                >
+                  <CldImage
+                    src="wn70o4bjjurvs6fwftnm" // Use this sample image or upload your own via the Media Explorer
+                    width="500" // Transform the image: auto-crop to square aspect_ratio
+                    height="500"
+                    alt="555"
+                    crop={{
+                      type: 'auto',
+                      source: true
+                    }}
                   />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                    <h3 className="text-white font-semibold">{manga.title}</h3>
-                    <div className="flex items-center text-sm text-gray-300">
-                      <Clock className="w-4 h-4 mr-1" />
-                      <span>{new Date(manga.postedDatetime).toLocaleDateString()}</span>                    </div>
-                    <div className="text-gray-400 text-xs">
-                      {manga.chapters.length} chapters
-                    </div>
-                    <div className="text-gray-400 text-xs">
-                      Author: {manga.authorDisplayName}
-                    </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <h3 className="text-white font-semibold">{manga.title}</h3>
+                  <div className="flex items-center text-sm text-gray-300">
+                    <Star className="w-4 h-4 fill-yellow-400 stroke-yellow-400 mr-1" />
+                    <span>{manga.rating}</span>
+                    <span className="ml-auto">{manga.views}</span>
+                  </div>
+                  <div className="text-gray-400 text-xs">
+                    {t('chapter')} {manga.chapter}
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            {searchTerm ? "No manga found matching your search." : "No manga available."}
-          </div>
-        )}
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );

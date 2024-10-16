@@ -3,11 +3,11 @@ import jwt from "jsonwebtoken";
 import { QueryResult, ResultSetHeader, RowDataPacket } from "mysql2";
 import { dbConnection } from "@/db/dbConnector";
 import { IStandardResponse } from "@/types/IApiCommunication";
-import { formDataToJsonObject } from "@/lib/parsers";
-import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
-import { uploadFileToAmazonS3 } from "@/lib/image_uploading/amazon.lib";
+import { formDataToJsonObject } from "@/backend_lib/parsers";
+import { uploadImage } from "@/backend_lib/image_uploading/image_upload.lib";
+import { uploadFileToAmazonS3 } from "@/backend_lib/image_uploading/amazon.lib";
 import { CreateUserScheme } from "@/schemes/user.scheme";
-import { setJwtTokenCookie } from "@/lib/auth/login.lib";
+import { setJwtTokenCookie } from "@/backend_lib/auth/login.lib";
 
 
 export async function POST(req: NextRequest) {

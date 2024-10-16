@@ -1,6 +1,6 @@
 import { dbConnection } from "@/db/dbConnector";
-import { verifyToken } from "@/lib/auth/auth.cookie";
-import { genreUpdateSchema } from "@/lib/genre.lib";
+import { verifyToken } from "@/backend_lib/auth/auth.cookie";
+import { genreUpdateSchema } from "@/backend_lib/genre.lib";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";

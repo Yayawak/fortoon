@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Language, Theme, FontSize } from '@/lib/types';
-import { translations } from '@/lib/translations';
+import { Language, Theme, FontSize } from '@/backend_lib/types';
+import { translations } from '@/backend_lib/translations';
 
 interface SettingsContextType {
   language: Language;
@@ -42,7 +42,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       document.documentElement.classList.add(themeToApply);
     };
 
-    if (theme === 'system') {
+    if (theme === 'light') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = (e: MediaQueryListEvent) => {
         applyTheme(e.matches ? 'dark' : 'light');
