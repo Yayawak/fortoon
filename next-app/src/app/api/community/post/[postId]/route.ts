@@ -2,7 +2,7 @@ import { verifyToken } from '@/backend_lib/auth/auth.cookie';
 import { uploadImage } from '@/backend_lib/image_uploading/image_upload.lib';
 import { ErrorMessage, GetErrorMesage } from '@/constant/error_message';
 import { dbConnection } from '@/db/dbConnector';
-import { createPostSchema } from '@/schemes/post.scheme';
+import { createPostSchema, updatePostScheme } from '@/schemes/post.scheme';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { NextRequest, NextResponse } from 'next/server';
 import { addImagesToPost, deleteAllImagesForPost } from '../post.helper';
@@ -33,12 +33,12 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
             return NextResponse.json(stdRes, { status: 400 });
         }
 
-        const title = formData.get('title') as string;
-        const content = formData.get('content') as string;
+        const title = formData.get('title') as string | null;
+        const content = formData.get('content') as string | null;
         const files = formData.getAll('images') as File[];
 
         // Validate incoming data using Zod
-        createPostSchema.parse({
+        updatePostScheme.parse({
             title,
             content,
             images: files,
@@ -48,8 +48,6 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
         const [postCheckRes] = await dbConnection.execute<RowDataPacket[]>(`
             SELECT * FROM Post WHERE pId = ?
         `, [postIdNumber]);
-
-        // console.log(postCheckRes)
 
         if (postCheckRes.length === 0) {
             stdRes.msg = "Post not found.";
@@ -66,30 +64,51 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
             return NextResponse.json(stdRes, { status: 403 });
         }
 
-        // Step 3: Update the post content in the database
-        const [updateRes] = await dbConnection.execute<ResultSetHeader>(`
-            UPDATE Post SET title = ?, content = ? WHERE pId = ? AND posterId = ?
-        `, [title, content, postIdNumber, userId]);
+        // Step 3: Conditionally build the update query based on the provided data
+        const updateFields: string[] = [];
+        const updateValues: any[] = [];
 
-        // Step 4: Delete all old images for this post
-        await deleteAllImagesForPost(postIdNumber);
-
-
-        // Step 5: Upload new images to Cloudinary and save URLs
-        const uploadedImageUrls = await Promise.all(files.map(async (file) => {
-            const filename = `post-image-${new Date().toISOString()}-${file.name}`;
-            await uploadImage(file, filename);
-            return filename;
-        }));
-
-        // Step 6: Insert the uploaded image URLs into the PostImage table
-        if (uploadedImageUrls.length > 0) {
-            await addImagesToPost(postIdNumber, uploadedImageUrls);
-        } else {
-            console.info("No new images to upload in a Post.".bgCyan);
+        if (title) {
+            updateFields.push("title = ?");
+            updateValues.push(title);
         }
 
-        // Step 7: Return success response indicating the post was updated
+        if (content) {
+            updateFields.push("content = ?");
+            updateValues.push(content);
+        }
+
+        if (updateFields.length > 0) {
+            // Add the postId and userId to the values
+            updateValues.push(postIdNumber, userId);
+
+            // Construct the query dynamically
+            const updateQuery = `
+                UPDATE Post
+                SET ${updateFields.join(", ")}
+                WHERE pId = ? AND posterId = ?
+            `;
+
+            await dbConnection.execute<ResultSetHeader>(updateQuery, updateValues);
+        }
+
+        // Step 4: Conditionally delete old images and upload new ones
+        if (files.length > 0) {
+            // Delete all old images for this post
+            await deleteAllImagesForPost(postIdNumber);
+
+            // Upload new images to Cloudinary and save URLs
+            const uploadedImageUrls = await Promise.all(files.map(async (file) => {
+                const filename = `post-image-${new Date().toISOString()}-${file.name}`;
+                await uploadImage(file, filename);
+                return filename;
+            }));
+
+            // Insert the uploaded image URLs into the PostImage table
+            await addImagesToPost(postIdNumber, uploadedImageUrls);
+        }
+
+        // Step 5: Return success response indicating the post was updated
         stdRes.msg = "Post updated successfully";
         return NextResponse.json(stdRes, { status: 200 });
 

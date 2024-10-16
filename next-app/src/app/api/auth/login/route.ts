@@ -48,7 +48,8 @@ export async function POST(req: Request) {
             );
         }
 
-        const data = { username, uId: user.uId }
+        // const data = { username, uId: user.uId }
+        const data = user
         let response = NextResponse.json({ message: `You're welcome ${username} :D` , data});
         response = setJwtTokenCookie(data, response);
         return response;
