@@ -34,3 +34,5 @@ next-app/.vercel
 # typescript
 next-app/*.tsbuildinfo
 next-app/next-env.d.ts
+
+.env

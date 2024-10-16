@@ -8,9 +8,9 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       # So you don't have to use root, but you can if you like
-      MYSQL_USER: ${DB_USER}
+      # MYSQL_USER: ${DB_USER}
       # You can use whatever password you like
-      MYSQL_PASSWORD: ${DB_PW}
+      # MYSQL_PASSWORD: ${DB_PW}
       # Password for root access
       MYSQL_ROOT_PASSWORD: ${DB_PW}
       MYSQL_ROOT_HOST: '%'

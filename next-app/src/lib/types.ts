@@ -1,5 +1,5 @@
 export type Language = 'en' | 'th';
-export type Theme = 'light' | 'dark' | 'system';
+export type Theme = 'light' | 'dark' ;
 export type FontSize = 'small' | 'medium' | 'large';
 
 export interface MangaItem {

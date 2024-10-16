@@ -12,15 +12,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Search, LogOut, Settings, User as UserIcon, Sun, Moon, Menu } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext'; // Updated import
 import { useSettings } from '@/contexts/SettingsContext';
 
 export default function Navbar() {
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useAuth(); // Using the new useAuth hook
   const { theme, setTheme } = useSettings();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchOpen, setSearchOpen] = useState(false); // For the full-screen search
-  const [isSidebarOpen, setSidebarOpen] = useState(false); // For the right-side menu
+  const [isSearchOpen, setSearchOpen] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const applyTheme = (themeToApply: 'light' | 'dark') => {
@@ -93,32 +93,43 @@ export default function Navbar() {
             {/* Normal Links for larger screens */}
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center space-x-2">
-                      <UserAvatar user={user} size="sm" />
-                      <span>{user.name}</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Link href="/profile" className="flex items-center">
-                        <UserIcon className="mr-2 h-4 w-4" />
-                        Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Link href="/settings" className="flex items-center">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Settings
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={signOut}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                // <DropdownMenu>
+                //   {/* <DropdownMenuTrigger asChild>
+                //     <Button variant="ghost" className="flex items-center space-x-2">
+                //       <UserAvatar user={user} size="sm" />
+                //       <span>{user.name}</span>
+                //     </Button>
+                //   </DropdownMenuTrigger> */}
+                //   <DropdownMenuContent align="end">
+                //     <DropdownMenuItem>
+                //       <Link href="/profile" className="flex items-center">
+                //         <UserIcon className="mr-2 h-4 w-4" />
+                //         Profile
+                //       </Link>
+                //     </DropdownMenuItem>
+                //     <DropdownMenuItem>
+                //       <Link href="/settings" className="flex items-center">
+                //         <Settings className="mr-2 h-4 w-4" />
+                //         Settings
+                //       </Link>
+                //     </DropdownMenuItem>
+                //     <DropdownMenuItem onClick={signOut}>
+                //       <LogOut className="mr-2 h-4 w-4" />
+                //       Sign Out
+                //     </DropdownMenuItem>
+                //   </DropdownMenuContent>
+                // </DropdownMenu>
+                <>
+                  <Link href="/profile">
+                    <Button variant="ghost">Profile</Button>
+                  </Link>
+                  <Link href="/settings">
+                    <Button>Settings</Button>
+                  </Link>
+                  <Link href="/community">
+                    <Button>Community</Button>
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link href="/login">
