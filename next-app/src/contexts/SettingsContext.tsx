@@ -18,7 +18,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>('en');
-  const [theme, setTheme] = useState<Theme>('system');
+  const [theme, setTheme] = useState<Theme>('light');
   const [fontSize, setFontSize] = useState<FontSize>('medium');
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       document.documentElement.classList.add(themeToApply);
     };
 
-    if (theme === 'system') {
+    if (theme === 'light') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = (e: MediaQueryListEvent) => {
         applyTheme(e.matches ? 'dark' : 'light');

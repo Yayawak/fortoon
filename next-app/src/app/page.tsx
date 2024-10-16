@@ -4,18 +4,18 @@ import { useState } from "react";
 import Link from "next/link";
 import { Search, Star, TrendingUp, Clock } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { MangaItem, TopManga } from "@/backend_lib/types";
 import Slider from "react-slick";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { CldImage } from "next-cloudinary";
 
 
 export default function Home() {
   const { t, theme } = useSettings();
   const [activeTab, setActiveTab] = useState('popular');
   
-  const topManga: TopManga[] = [
+  const topManga: any[] = [
     {
       id: 1,
       title: "Attack on Titan",
@@ -53,7 +53,7 @@ export default function Home() {
     },
   ];
 
-  const mangaList: MangaItem[] = [
+  const mangaList: any[] = [
     { 
       id: 1, 
       title: "One Piece", 
@@ -62,9 +62,9 @@ export default function Home() {
       chapter: 1089,
       views: "1.2M"
     },
-    { 
-      id: 2, 
-      title: "Jujutsu Kaisen", 
+    {
+      id: 2,
+      title: "Jujutsu Kaisen",
       cover: "/api/placeholder/300/400",
       rating: 4.7,
       chapter: 235,
@@ -151,7 +151,7 @@ export default function Home() {
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold">{t('browseManga')}</h2>
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={() => setActiveTab('popular')}
               className={`flex items-center gap-2 px-4 py-2 rounded-full ${
                 activeTab === 'popular' 
@@ -162,7 +162,7 @@ export default function Home() {
               <TrendingUp className="w-4 h-4" />
               {t('popular')}
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('latest')}
               className={`flex items-center gap-2 px-4 py-2 rounded-full ${
                 activeTab === 'latest' 
@@ -178,17 +178,28 @@ export default function Home() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {mangaList.map((manga) => (
-            <Link 
-              key={manga.id} 
+            <Link
+              key={manga.id}
               href={`/manga/${manga.id}`}
               className="group"
             >
               <div className="relative overflow-hidden rounded-lg shadow-lg">
-                <img 
-                  src={manga.cover} 
-                  alt={manga.title}
+                <div
+                  // src={manga.cover}
+                  // alt={manga.title}
                   className="w-full h-[300px] object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                >
+                  <CldImage
+                    src="wn70o4bjjurvs6fwftnm" // Use this sample image or upload your own via the Media Explorer
+                    width="500" // Transform the image: auto-crop to square aspect_ratio
+                    height="500"
+                    alt="555"
+                    crop={{
+                      type: 'auto',
+                      source: true
+                    }}
+                  />
+                </div>
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                   <h3 className="text-white font-semibold">{manga.title}</h3>
                   <div className="flex items-center text-sm text-gray-300">

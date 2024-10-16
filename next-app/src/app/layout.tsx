@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar"
 import colors from "colors"
 import { SettingsProvider } from '@/contexts/SettingsContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 // import { NavigationProvider } from '@/components/loading/NavigationProvider';
 // import ProgressProvider from '@/components/loading/ProgressProvider';
 
@@ -35,14 +36,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SettingsProvider>
+        <AuthProvider>
+          <SettingsProvider>
         {/* <NavigationProvider>
           <ProgressProvider> */}
             <Navbar />
             {children}
           {/* </ProgressProvider>
         </NavigationProvider> */}
-        </SettingsProvider>   
+        </SettingsProvider>
+        </AuthProvider>
+           
       </body>
     </html>
   );
