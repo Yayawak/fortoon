@@ -35,12 +35,14 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
 
         const title = formData.get('title') as string | null;
         const content = formData.get('content') as string | null;
+        const hidden = formData.get('hidden') as string | null;
         const files = formData.getAll('images') as File[];
 
         // Validate incoming data using Zod
         updatePostScheme.parse({
             title,
             content,
+            hidden,
             images: files,
         });
 
@@ -71,6 +73,13 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
         if (title) {
             updateFields.push("title = ?");
             updateValues.push(title);
+        }
+
+        console.log(hidden)
+
+        if (hidden != null) {
+            updateFields.push("hidden = ?");
+            updateValues.push(hidden == "true"  ? "1" : "0" );
         }
 
         if (content) {

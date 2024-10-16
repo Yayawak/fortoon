@@ -15,6 +15,8 @@ export const updatePostScheme = z.object({
     title: z.string().max(50).nullable().optional(),
     content: z.string().max(400).nullable().optional(),
     parentPostId: z.string().nullable().optional(),
+    hidden: z.enum(['true', 'false']).nullable().optional(),
+    // hidden: z.boolean().nullable().optional(),
     images: z.array(z.instanceof(File)).max(4, "You can upload up to 4 images").nullable().optional()
 });
 

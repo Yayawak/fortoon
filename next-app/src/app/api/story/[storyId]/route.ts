@@ -8,6 +8,7 @@ import { ErrorMessage, GetErrorMesage } from '@/constant/error_message';
 import { updateStorySchema } from '@/schemes/story.scheme';
 import { updateStoryDetails} from './story.id.helper';
 import { uploadImage } from '@/backend_lib/image_uploading/image_upload.lib';
+import { setStandardImageName } from '@/backend_lib/image_uploading/image_namer.lib';
 
 export async function GET(req: NextRequest, { params }: { params: { storyId: string } }) {
     const { storyId } = params;
@@ -151,11 +152,9 @@ export async function PUT(req: NextRequest, { params }: { params: { storyId: str
         }
 
         // Step 3: Handle coverImage upload
-        let coverImageUrl: string | null = null;
         let filename = ""
         if (coverImage) {
-            const curr = new Date();
-            filename = `storyCover-${curr.toISOString()}-${coverImage.name}`;
+            filename = setStandardImageName(coverImage.name, "storyCover")
             await uploadImage(coverImage, filename); // Upload image and get URL
         }
 
