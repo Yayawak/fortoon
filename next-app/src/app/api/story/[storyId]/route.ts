@@ -1,6 +1,6 @@
 import { dbConnection } from '@/db/dbConnector';
-import { verifyToken } from '@/lib/auth/auth.cookie';
-import { hasReadPermission } from '@/lib/story/chapter_permission.lib';
+import { verifyToken } from '@/backend_lib/auth/auth.cookie';
+import { hasReadPermission } from '@/backend_lib/story/chapter_permission.lib';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { RowDataPacket } from 'mysql2';
 import { NextRequest, NextResponse } from 'next/server';
@@ -12,6 +12,9 @@ export async function GET(req: NextRequest, { params }: { params: { storyId: str
 
     // Verify the user's token
     const verifiedRes = await verifyToken(req);
+    if (verifiedRes.status != 200) {
+        return NextResponse.json(stdRes, {status: stdRes.status})
+    }
     const userId = verifiedRes.status === 200 ? verifiedRes.data.uId : null; // Get userId only if verified
 
     // Step 1: Fetch the story details

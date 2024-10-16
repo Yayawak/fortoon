@@ -144,7 +144,7 @@ CREATE TABLE `Post` (
   KEY `Post_User_FK` (`posterId`),
   CONSTRAINT `Post_Post_FK` FOREIGN KEY (`parentPostId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `Post_User_FK` FOREIGN KEY (`posterId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,7 +153,6 @@ CREATE TABLE `Post` (
 
 LOCK TABLES `Post` WRITE;
 /*!40000 ALTER TABLE `Post` DISABLE KEYS */;
-INSERT INTO `Post` VALUES ('tile more long',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58');
 /*!40000 ALTER TABLE `Post` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -166,12 +165,15 @@ DROP TABLE IF EXISTS `PostImage`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `PostImage` (
   `piId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `parentPostImageId` int(10) unsigned DEFAULT NULL,
   `url` varchar(200) NOT NULL,
   `postId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`piId`),
+  KEY `ChapterImage_ChapterImage_FK` (`parentPostImageId`) USING BTREE,
   KEY `ChapterImage_Chapter_FK` (`postId`) USING BTREE,
-  CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+  CONSTRAINT `PostImage_PostImage_FK` FOREIGN KEY (`parentPostImageId`) REFERENCES `PostImage` (`piId`),
+  CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -180,7 +182,6 @@ CREATE TABLE `PostImage` (
 
 LOCK TABLES `PostImage` WRITE;
 /*!40000 ALTER TABLE `PostImage` DISABLE KEYS */;
-INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6);
 /*!40000 ALTER TABLE `PostImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -405,4 +406,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-16 13:32:57
+-- Dump completed on 2024-10-15 18:16:07

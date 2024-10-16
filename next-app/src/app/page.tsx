@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Search, Star, TrendingUp, Clock } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { MangaItem, TopManga } from "@/lib/types";
+import { MangaItem, TopManga } from "@/backend_lib/types";
 import Slider from "react-slick";
 
 import "slick-carousel/slick/slick.css";

@@ -1,72 +1,84 @@
-import { dbConnection } from "@/db/dbConnector";
-import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
-import { verifyToken } from "@/lib/auth/auth.cookie";
-import { formDataToJsonObject } from "@/lib/parsers";
-import { postStoryScheme } from "@/schemes/story.scheme";
-import { IStandardResponse } from "@/types/IApiCommunication";
-import { NextRequest, NextResponse } from "next/server";
+import { verifyToken } from '@/backend_lib/auth/auth.cookie';
+import { uploadImage } from '@/backend_lib/image_uploading/image_upload.lib';
+import { ErrorMessage, GetErrorMesage } from '@/constant/error_message';
+import { createPostSchema } from '@/schemes/post.scheme';
+import { IStandardResponse } from '@/types/IApiCommunication';
+import { NextRequest, NextResponse } from 'next/server';
+import { addImagesToPost, createPost, deleteAllImagesForPost, } from './post.helper';
+
 
 export async function POST(req: NextRequest) {
-    let stdRes: IStandardResponse = {};
+    const stdRes: IStandardResponse = {};
 
-    // Verify the user token
+    // Verify the user's token
     const verifiedRes = await verifyToken(req);
-    if (verifiedRes.status != 200) {
-        return NextResponse.json({ msg: verifiedRes.msg }, { status: verifiedRes.status });
+    if (verifiedRes.status !== 200) {
+        return NextResponse.json(verifiedRes, { status: verifiedRes.status });
     }
 
-    let formData: FormData;
+    const userId = verifiedRes.data.uId; // Get the authenticated user's ID
+
     try {
-        formData = await req.formData();
-        if (!formData) {
-            stdRes = { msg: "formData is required" };
+        // Parse formData from the request
+        let formData;
+        try {
+            formData = await req.formData();
+        } catch (error: any) {
+            stdRes.msg = GetErrorMesage(ErrorMessage.EXPECTED_CONTENT_TYPE_IS_FORM_DATA);
+            console.error(`${error}`.red);
             return NextResponse.json(stdRes, { status: 400 });
         }
 
-        const jsonObject = formDataToJsonObject(formData);
-        const parsed = postStoryScheme.parse(jsonObject);
+        const files = formData.getAll('images') as File[];
+        const title = formData.get('title') as string;
+        const content = formData.get('content') as string;
+        const parentPostId = formData.get('parentPostId') ? parseInt(formData.get('parentPostId') as string) : null;
 
-        // Handle image upload if there's an image file in the form data
-        const imageFile = formData.get("image") as File | null;
-        let imageUrl = "";
-        if (imageFile) {
-            const curr = new Date();
-            const filename = `postImage-${curr.toString()}-${imageFile.name}`;
-            
-            // Get the upload result, which includes the image URL
-            const uploadResult = await uploadImage(imageFile, filename);
+        // Validate incoming data using Zod
+        createPostSchema.parse({
+            title,
+            content,
+            parentPostId,
+            images: files,
+        });
 
-            // Check for successful upload and get the image URL
-            if (uploadResult.status === 200) {
-                imageUrl = uploadResult.url; // Assuming the `uploadImage` function returns the image URL in `url`
-            } else {
-                return NextResponse.json({ msg: "Image upload failed", error: uploadResult.msg }, { status: 500 });
-            }
+        // Step 1: Create the post
+        let postId: number;
+        try {
+            postId = await createPost(title, content, parentPostId, userId);
+        } catch (error: any) {
+            stdRes.msg = "Error creating post.";
+            stdRes.msg2 = error.message;
+            return NextResponse.json(stdRes, { status: 500 });
         }
 
-        // Insert the new post into the database
-        await dbConnection.execute(`
-            INSERT INTO Post (
-                title, 
-                content, 
-                posterId, 
-                postedDatetime, 
-                imageUrl
-            )
-            VALUES (
-                '${parsed.title}', 
-                '${parsed.content}', 
-                '${parsed.posterId}', 
-                NOW(), 
-                '${imageUrl}'
-            )
-        `);
+        // Step 2: Upload images to Cloudinary and save URLs
+        const uploadedImageUrls = await Promise.all(files.map(async (file) => {
+            const filename = `post-image-${new Date().toISOString()}-${file.name}`;
+            await uploadImage(file, filename);
+            return filename;
+        }));
 
-        stdRes = { msg: "Post successfully created!", imageUrl: imageUrl };
-        return NextResponse.json(stdRes, { status: 200 });
+        // Step 3: Insert the uploaded image URLs into the PostImage table
+        if (uploadedImageUrls.length > 0) {
+            await addImagesToPost(postId, uploadedImageUrls);
+        } else {
+            console.info("No images to upload in a Post.".bgCyan);
+        }
 
-    } catch (error) {
-        stdRes = { msg: "Error creating post", error: error.message };
+        // Step 4: Return success response with the created post ID
+        stdRes.msg = "Post created successfully";
+        stdRes.data = { postId };
+
+        return NextResponse.json(stdRes, { status: 201 });
+
+    } catch (error: any) {
+        stdRes.msg = "Error creating post.";
+        stdRes.msg2 = error;
+        console.log(stdRes);
         return NextResponse.json(stdRes, { status: 500 });
     }
 }
+
+
+

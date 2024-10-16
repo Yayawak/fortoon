@@ -1,4 +1,4 @@
-import { uploadImage } from "@/lib/image_uploading/image_upload.lib";
+import { uploadImage } from "@/backend_lib/image_uploading/image_upload.lib";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function  POST (req: NextRequest) {

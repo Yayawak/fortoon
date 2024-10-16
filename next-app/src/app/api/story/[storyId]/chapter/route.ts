@@ -1,7 +1,7 @@
 import { dbConnection } from '@/db/dbConnector';
-import { verifyToken } from '@/lib/auth/auth.cookie';
-import { uploadImage } from '@/lib/image_uploading/image_upload.lib';
-import { hasReadPermission } from '@/lib/story/chapter_permission.lib';
+import { verifyToken } from '@/backend_lib/auth/auth.cookie';
+import { uploadImage } from '@/backend_lib/image_uploading/image_upload.lib';
+import { hasReadPermission } from '@/backend_lib/story/chapter_permission.lib';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { MissingSlotContext } from 'next/dist/shared/lib/app-router-context.shared-runtime';

@@ -2,23 +2,14 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { RowDataPacket } from "mysql2";
 import { dbConnection } from "@/db/dbConnector";
-import { setJwtTokenCookie } from "@/lib/auth/login.lib";
+import { setJwtTokenCookie } from "@/backend_lib/auth/login.lib";
+import { IStandardResponse } from "@/types/IApiCommunication";
 
-// Dummy user data (replace with real authentication logic)
-// const users = [
-//     { username: "admin", password: "admin123" },
-//     { username: "user", password: "user123" },
-// ];
-
-// Secret key for JWT (store this securely, e.g., in an env variable)
-const JWT_SECRET = process.env.JWT_SECRET || ""
-// console.log(JWT_SECRET)
-// Token expiration time (adjust as needed)
-const JWT_EXPIRATION = "1h"; // 1 hour
 
 
 export async function POST(req: Request) {
     let jsobj = null
+    // const stdRes : IStandardResponse = {}
     try {
         jsobj = await req.json();
     } catch (error) {
@@ -57,11 +48,11 @@ export async function POST(req: Request) {
             );
         }
 
-        let response = NextResponse.json({ message: `You're welcome ${username} :D` });
-        response = setJwtTokenCookie({ username, uId: user.uId }, response);
+        const data = { username, uId: user.uId }
+        let response = NextResponse.json({ message: `You're welcome ${username} :D` , data});
+        response = setJwtTokenCookie(data, response);
         return response;
 
-        return response;
     } catch (error) {
         return NextResponse.json({
             error: "Error processing request",
