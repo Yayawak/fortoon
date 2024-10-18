@@ -5,6 +5,32 @@ import { createPostSchema } from '@/schemes/post.scheme';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { NextRequest, NextResponse } from 'next/server';
 import { addImagesToPost, createPost, deleteAllImagesForPost, } from './post.helper';
+import { getAllPosts } from './post.helper';
+
+export async function GET() {
+    const stdRes: IStandardResponse = {};
+
+    try {
+        // Step 1: Retrieve all posts from the database
+        const posts = await getAllPosts();
+
+        if (!posts || posts.length === 0) {
+            stdRes.msg = "No posts found.";
+            return NextResponse.json(stdRes, { status: 404 });
+        }
+
+        // Step 2: Return the posts in the response
+        stdRes.msg = "Posts retrieved successfully.";
+        stdRes.data = { posts };
+        
+        return NextResponse.json(stdRes, { status: 200 });
+    } catch (error: any) {
+        stdRes.msg = "Error retrieving posts.";
+        stdRes.msg2 = error.message;
+        console.error(stdRes);
+        return NextResponse.json(stdRes, { status: 500 });
+    }
+}
 
 
 export async function POST(req: NextRequest) {

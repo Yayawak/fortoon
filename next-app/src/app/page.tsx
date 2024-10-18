@@ -14,6 +14,7 @@ import { CldImage } from "next-cloudinary";
 export default function Home() {
   const { t, theme } = useSettings();
   const [activeTab, setActiveTab] = useState('popular');
+
   
   const topManga: any[] = [
     {
