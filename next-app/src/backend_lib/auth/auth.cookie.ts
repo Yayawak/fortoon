@@ -2,13 +2,14 @@ import { RowDataPacket } from 'mysql2';
 import { IStandardResponse } from '../../types/IApiCommunication';
 import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
+import { jwtVerify, JWTPayload } from 'jose';
 import { dbConnection } from '@/db/dbConnector';
 
-const JWT_SECRET = process.env.JWT_SECRET || '';
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-key');
 
 export async function verifyToken(req: NextRequest): Promise<IStandardResponse> {
     // Get the cookie from the request
-    const cookie = req.cookies.get('token');
+    const cookie = req.cookies.get('token')?.value;;
     // console.log(cookie);
 
     // Check if the cookie is present
@@ -21,11 +22,11 @@ export async function verifyToken(req: NextRequest): Promise<IStandardResponse> 
 
     try {
         // Verify the token
-        const decoded = jwt.verify(cookie.value, JWT_SECRET);
+        const { payload } = await jwtVerify(cookie, JWT_SECRET, { algorithms: ['HS256'] });
         return {
             status: 200,
             msg: 'Token verified successfully',
-            data: decoded, // Pass the decoded token
+            data: payload, // Pass the decoded token
         };
     } catch (error : any) {
         console.error('Token verification failed:', error);
