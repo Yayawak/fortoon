@@ -12,7 +12,9 @@ const JWT_EXPIRATION = "3h"; // 1 hour
  * @param response The NextResponse object to set the cookie on.
  * @returns The NextResponse object with the JWT cookie set.
  */
-export function setJwtTokenCookie(userPayload: {username: string, uId: number}, response: NextResponse): NextResponse<any> {
+// export function setJwtTokenCookie(userPayload: {username: string, uId: number}, response: NextResponse): NextResponse<any> {
+// todo : also append data of user (include password and all)
+export function setJwtTokenCookie(userPayload: any, response: NextResponse): NextResponse<any> {
     // Create a JWT token
     const token = jwt.sign(userPayload, JWT_SECRET, {
         expiresIn: JWT_EXPIRATION,

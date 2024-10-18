@@ -1,5 +1,4 @@
 import { dbConnection } from "@/db/dbConnector";
-import { uploadFileToAmazonS3 } from "@/backend_lib/image_uploading/amazon.lib";
 import { verifyToken } from "@/backend_lib/auth/auth.cookie";
 import { formDataToJsonObject } from "@/backend_lib/parsers";
 import { postStoryScheme } from "@/schemes/story.scheme";

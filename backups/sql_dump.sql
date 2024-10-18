@@ -40,7 +40,7 @@ CREATE TABLE `Chapter` (
 
 LOCK TABLES `Chapter` WRITE;
 /*!40000 ALTER TABLE `Chapter` DISABLE KEYS */;
-INSERT INTO `Chapter` VALUES ('',13,1,1,10),('',15,23,1,0),('i\'am solo',16,1,2,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0),('i\'am solo',24,1,5,0),('The Strongest of the Human Race',25,26,2,0);
+INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,10),('ราตรีแสนสุข',15,23,1,0),('i\'am solo',16,1,2,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0),('i\'am solo',24,1,5,0),('The Strongest of the Human Race',25,26,2,0);
 /*!40000 ALTER TABLE `Chapter` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -139,12 +139,13 @@ CREATE TABLE `Post` (
   `parentPostId` int(10) unsigned DEFAULT NULL,
   `posterId` int(10) unsigned NOT NULL,
   `postedDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `hidden` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`pId`),
   KEY `Post_Post_FK` (`parentPostId`),
   KEY `Post_User_FK` (`posterId`),
   CONSTRAINT `Post_Post_FK` FOREIGN KEY (`parentPostId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `Post_User_FK` FOREIGN KEY (`posterId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,7 +154,7 @@ CREATE TABLE `Post` (
 
 LOCK TABLES `Post` WRITE;
 /*!40000 ALTER TABLE `Post` DISABLE KEYS */;
-INSERT INTO `Post` VALUES ('nepchar',1,'charcharset utf64',NULL,1,'2024-10-18 12:36:39');
+INSERT INTO `Post` VALUES ('tile more long',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58');
 /*!40000 ALTER TABLE `Post` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -172,9 +173,8 @@ CREATE TABLE `PostImage` (
   PRIMARY KEY (`piId`),
   KEY `ChapterImage_ChapterImage_FK` (`parentPostImageId`) USING BTREE,
   KEY `ChapterImage_Chapter_FK` (`postId`) USING BTREE,
-  CONSTRAINT `PostImage_PostImage_FK` FOREIGN KEY (`parentPostImageId`) REFERENCES `PostImage` (`piId`),
-  CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -183,6 +183,7 @@ CREATE TABLE `PostImage` (
 
 LOCK TABLES `PostImage` WRITE;
 /*!40000 ALTER TABLE `PostImage` DISABLE KEYS */;
+INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6);
 /*!40000 ALTER TABLE `PostImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -299,7 +300,7 @@ CREATE TABLE `Story` (
 
 LOCK TABLES `Story` WRITE;
 /*!40000 ALTER TABLE `Story` DISABLE KEYS */;
-INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[ Redice  !]       ','2024-09-26 15:19:00',1,'rj6vt7hdrcdd83kappog'),(23,'demon slayer','Learning to destroy demons wont be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know whats going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'dragon.jpg'),(26,'record of ragnarock','   Brunhild    13 ','2024-10-14 16:54:02',2,'cover.jpg');
+INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'storyCover-2024-10-16T14:59:25.385Z-02.jpg'),(23,'demon slayee','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'storyCover-2024-10-16T14:58:12.621Z-02.jpg'),(26,'record of ragnarock','กพันปีเทพเจ้าจะมาประชุมลงมติอารยธรรมของมนุษยชาติจะดำรงอยู่ต่อหรือไม่ เหล่าเจ้าเทพเจ้าลงมติเป็นเสียงเดียวกันถึงเวลาที่อารยธรรมของมนุษย์ต้องจบเพียงเท่านี้ แต่วัลคีรีสาว Brunhild ไม่เห็นด้วย จึงเกิดเป็นศึกที่ไม่เคยเกิดขึ้นมาก่อน ตัวแทนจากประวัติศาสตร์มนุษยชาติจะต้องลงสังเวียนประลองยุทธกับเทพในการต่อสู้ตัวต่อตัวใน 13 ศึกเพื่อตัดสินชะตาของมวลมนุษยชาติ','2024-10-14 16:54:02',2,'cover.jpg');
 /*!40000 ALTER TABLE `Story` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -407,4 +408,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-18 13:57:15
+-- Dump completed on 2024-10-16 13:52:58

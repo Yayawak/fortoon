@@ -41,3 +41,5 @@ export const userSettingsSchema = z.object({
     displayName: z.string().min(1, "Display name is required").max(100, "Display name is too long").optional(),
     username: z.string().min(1, "Username is required").max(100, "Username is too long").optional(),
 });
+
+

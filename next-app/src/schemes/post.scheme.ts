@@ -7,6 +7,16 @@ export const createPostSchema = z.object({
     title: z.string().min(1, "Title is required").max(50),
     content: z.string().min(1, "Content is required").max(400),
     parentPostId: z.string().optional().nullable(),
-    images: z.array(z.instanceof(File)).max(4, "You can upload up to 4 images"),
+    images: z.array(z.instanceof(File)).max(4, "You can upload up to 4 images").nullable(),
+});
+
+
+export const updatePostScheme = z.object({
+    title: z.string().max(50).nullable().optional(),
+    content: z.string().max(400).nullable().optional(),
+    parentPostId: z.string().nullable().optional(),
+    hidden: z.enum(['true', 'false']).nullable().optional(),
+    // hidden: z.boolean().nullable().optional(),
+    images: z.array(z.instanceof(File)).max(4, "You can upload up to 4 images").nullable().optional()
 });
 

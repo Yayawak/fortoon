@@ -28,3 +28,12 @@ export const postStoryScheme = z.object({
 })
 
 export type TPostStoryScheme = z.infer<typeof postStoryScheme>;
+
+
+export const updateStorySchema = z.object({
+    title: z.string().max(100).nullable().optional(),
+    introduction: z.string().max(1000).nullable().optional(),
+    coverImage: z.any().refine((file) => file instanceof File || file === null, {
+        message: "coverImage must be a file or null",
+    }).nullable().optional(),
+});
