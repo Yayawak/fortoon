@@ -65,6 +65,19 @@ export async function POST(req: NextRequest) {
         const title = formData.get('title') as string;
         const content = formData.get('content') as string;
         const parentPostId = formData.get('parentPostId') ? parseInt(formData.get('parentPostId') as string) : null;
+        const postType = formData.get('postType') as string;
+        const refId = formData.get('refId') ? parseInt(formData.get('refId') as string) : null;
+
+        // Validate postType and refId
+        if (postType === 'story' || postType === 'chapter') {
+            if (!refId) {
+                stdRes.msg = `refId is required when postType is '${postType}'.`;
+                return NextResponse.json(stdRes, { status: 400 });
+            }
+        } else if (postType !== 'community') {
+            stdRes.msg = "Invalid postType. Allowed values are 'story', 'chapter', or 'community'.";
+            return NextResponse.json(stdRes, { status: 400 });
+        }
 
         // Validate incoming data using Zod
         createPostSchema.parse({
@@ -72,9 +85,9 @@ export async function POST(req: NextRequest) {
             content,
             parentPostId,
             images: files,
+            postType,
+            refId,
         });
-
-// console.log("ABC")
 
         // Verify that the parent post exists if a parentPostId is provided
         if (parentPostId !== null) {
@@ -88,7 +101,7 @@ export async function POST(req: NextRequest) {
         // Step 1: Create the post
         let postId: number;
         try {
-            postId = await createPost(title, content, parentPostId, userId);
+            postId = await createPost(title, content, parentPostId, userId, postType, refId);
         } catch (error: any) {
             stdRes.msg = "Error creating post.";
             stdRes.msg2 = error.message;

@@ -70,7 +70,7 @@ services:
       volumes:
         - my-db:/var/lib/mysql
         - ./backups:/backups  # Mount a directory for backup storage
-      entrypoint: /bin/sh -c "sleep 1; while :; do mysqldump -h db -u root -p${DB_PW} ${DB_NAME} > /backups/sql_dump.sql; sleep 1200; done"
+      entrypoint: /bin/sh -c "sleep 10; while :; do mysqldump -h db -u root -p${DB_PW} ${DB_NAME} > /backups/sql_dump.sql; sleep 1200; done"
       networks:
         - my_network
 
