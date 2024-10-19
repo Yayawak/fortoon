@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 -- MySQL dump 10.13  Distrib 5.7.44, for Linux (x86_64)
 --
 -- Host: db    Database: fortoon_db
@@ -407,4 +409,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-19  8:30:07
+-- Dump completed on 2024-10-16 13:52:58
