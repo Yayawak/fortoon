@@ -5,22 +5,20 @@ import { dbConnection } from "@/db/dbConnector";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { formDataToJsonObject } from "@/backend_lib/parsers";
 import { uploadImage } from "@/backend_lib/image_uploading/image_upload.lib";
-import { uploadFileToAmazonS3 } from "@/backend_lib/image_uploading/amazon.lib";
 import { CreateUserScheme } from "@/schemes/user.scheme";
 import { setJwtTokenCookie } from "@/backend_lib/auth/login.lib";
-
 
 export async function POST(req: NextRequest) {
     let stdRes: IStandardResponse = {};
     let parsed = null;
 
     // Try to parse the formData and JSON object
-    let formData: FormData
+    let formData: FormData;
     try {
         formData = await req.formData();
 
         if (!formData) {
-            stdRes = { msg: "need formData" };
+            stdRes = { msg: "Need formData" };
             return NextResponse.json(stdRes, { status: 400 });
         }
 
@@ -29,12 +27,10 @@ export async function POST(req: NextRequest) {
 
         // Validate and parse the data using Zod schema
         parsed = CreateUserScheme.parse(jsonObject);
-        // parsed.profilePic = profilePic; // Use the correct Blob instance
     } catch (error: any) {
         stdRes = {
-            msg2: "fail parse data",
-            // msg: error.message || error,  // Log error message
-            msg: error
+            msg: "Fail to parse data",
+            msg2: error.message || error,
         };
         return NextResponse.json(stdRes, { status: 500 });
     }
@@ -44,17 +40,19 @@ export async function POST(req: NextRequest) {
         return;
     }
 
-    let filename = null
+    let filename = null;
 
-    const profilePic = formData.get("profilePic") as File
-    const curr = new Date()
-    filename = `user-${curr.toString()}-${profilePic.name}`
-    await uploadImage(profilePic, filename)
-
-
+    // Handle profilePic as optional
+    const profilePic = formData.get("profilePic") as File | null;
+    if (profilePic) {
+        const curr = new Date();
+        filename = `user-${curr.toISOString()}-${profilePic.name}`;
+        await uploadImage(profilePic, filename); // Upload the image only if provided
+    }
 
     try {
-        const [result, ] = await dbConnection.execute<ResultSetHeader>(`
+        // Insert the user into the database
+        const [result] = await dbConnection.execute<ResultSetHeader>(`
             INSERT INTO User (
                 username,
                 password,
@@ -71,34 +69,35 @@ export async function POST(req: NextRequest) {
                 '${parsed.sex}',
                 '${parsed.email}',
                 '${parsed.age}',
-                ${filename ? `'${filename}'` : null}
+                ${filename ? `'${filename}'` : 'NULL'}  -- Set profilePicUrl to null if no file was uploaded
             );
         `);
 
         stdRes = {
-            msg:`Register Success, You're welcome ${parsed.username} :D`
+            msg: `Register Success, You're welcome ${parsed.username} :D`,
         };
-        const userId = result.insertId
+
+        const userId = result.insertId;
         let response = NextResponse.json(stdRes);
-        response = setJwtTokenCookie({ username : parsed.username, uId: userId}, response);
+        response = setJwtTokenCookie({ username: parsed.username, uId: userId }, response);
         return response;
 
     } catch (error: any) {
         if (error.code === 'ER_DUP_ENTRY') {
-            // Handle duplicate entry error (code 1062 or 'ER_DUP_ENTRY')
+            // Handle duplicate entry error
             stdRes = {
                 msg: "Duplicate entry error: A user with this field already exists.",
-                msg2: error.message,  // Detailed error message
+                msg2: error.message,
             };
-            return NextResponse.json(stdRes, { status: 409 });  // HTTP 409 Conflict
+            return NextResponse.json(stdRes, { status: 409 });
         }
 
-        console.log(error)
+        console.log(error);
 
         // Handle other SQL errors
         stdRes = {
             msg: "Error creating new User",
-            // msg2: error.message || error,  // Log SQL error message
+            msg2: error.message || error,
         };
         return NextResponse.json(stdRes, { status: 500 });
     }

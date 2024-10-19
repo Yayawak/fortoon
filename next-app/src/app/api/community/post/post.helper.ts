@@ -2,13 +2,31 @@ import { ResultSetHeader } from 'mysql2';
 import { RowDataPacket } from 'mysql2';
 import { dbConnection } from "@/db/dbConnector";
 
-// Helper function to create a new post
-export async function createPost(title: string, content: string, parentPostId: number | null, posterId: number) {
-    const [insertRes] = await dbConnection.execute<ResultSetHeader>(`
-        INSERT INTO Post (title, content, parentPostId, posterId) VALUES (?, ?, ?, ?)
-    `, [title, content, parentPostId, posterId]);
+// Modify the createPost function to accept postType and refId
+export async function createPost(
+    title: string,
+    content: string,
+    parentPostId: number | null,
+    userId: number,
+    postType: string,
+    refId: number | null
+): Promise<number> {
+    try {
+        // Insert the post with the new postType and refId
+        const [result] = await dbConnection.execute<ResultSetHeader>(
+            `INSERT INTO Post (title, content, parentPostId, posterId, refType, refId)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [title, content, parentPostId, userId, postType, refId]
+        );
 
-    return insertRes.insertId; // Return the ID of the newly created post
+        // MySQL2 returns a result set with an insertId property
+        const insertId = result.insertId;
+        return insertId;
+
+    } catch (error) {
+        console.error("Error creating post:", error);
+        throw new Error("Could not create post.");
+    }
 }
 
 // Helper function to add images to a post
