@@ -62,6 +62,9 @@ export function structurePosts(posts: any[]): any[] {
 
     // Initialize the postMap with posts
     posts.forEach(post => {
+        // Convert images from a comma-separated string to an array
+        post.images = post.images ? post.images.split(',') : []; // Split the string into an array or set to empty if no images
+
         post.children = []; // Initialize an array for children
         postMap[post.pId] = post; // Map post by its ID
     });
