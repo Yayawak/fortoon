@@ -138,13 +138,26 @@ CREATE TABLE `Post` (
   `content` varchar(400) NOT NULL,
   `parentPostId` int(10) unsigned DEFAULT NULL,
   `posterId` int(10) unsigned NOT NULL,
+<<<<<<< HEAD
+  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `hidden` tinyint(1) NOT NULL DEFAULT '0',
+  `refId` int(10) unsigned DEFAULT NULL,
+  `refType` enum('story','chapter','community') NOT NULL,
+=======
   `postedDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+>>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
   PRIMARY KEY (`pId`),
   KEY `Post_Post_FK` (`parentPostId`),
   KEY `Post_User_FK` (`posterId`),
+  KEY `Post_Chapter_FK` (`refId`),
+  CONSTRAINT `Post_Chapter_FK` FOREIGN KEY (`refId`) REFERENCES `Chapter` (`cId`) ON UPDATE CASCADE,
   CONSTRAINT `Post_Post_FK` FOREIGN KEY (`parentPostId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `Post_User_FK` FOREIGN KEY (`posterId`) REFERENCES `User` (`uId`)
+<<<<<<< HEAD
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+=======
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+>>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,7 +166,11 @@ CREATE TABLE `Post` (
 
 LOCK TABLES `Post` WRITE;
 /*!40000 ALTER TABLE `Post` DISABLE KEYS */;
+<<<<<<< HEAD
+INSERT INTO `Post` VALUES ('concerto',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58',0,NULL,'story'),('where is saran',7,'5555555555555555555',NULL,2,'2024-10-16 13:56:03',0,NULL,'story'),('nepchar',8,'nlp so so end',NULL,1,'2024-10-16 15:41:04',0,NULL,'story'),('nepchar',9,'charcharset utf64',8,1,'2024-10-18 18:11:31',0,NULL,'story'),('narjar',10,'eeeeiiieieieieieieieieie',6,1,'2024-10-18 18:17:11',0,NULL,'story'),('kiki',11,'bajaha na',10,1,'2024-10-18 18:17:50',0,NULL,'story'),('kiki',12,'bajaha na',10,1,'2024-10-18 18:18:29',0,NULL,'story'),('kiki',13,'bajaha na',10,1,'2024-10-19 07:24:00',0,NULL,'story');
+=======
 INSERT INTO `Post` VALUES ('nepchar',1,'charcharset utf64',NULL,1,'2024-10-18 12:36:39');
+>>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
 /*!40000 ALTER TABLE `Post` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -172,9 +189,14 @@ CREATE TABLE `PostImage` (
   PRIMARY KEY (`piId`),
   KEY `ChapterImage_ChapterImage_FK` (`parentPostImageId`) USING BTREE,
   KEY `ChapterImage_Chapter_FK` (`postId`) USING BTREE,
+<<<<<<< HEAD
+  CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+=======
   CONSTRAINT `PostImage_PostImage_FK` FOREIGN KEY (`parentPostImageId`) REFERENCES `PostImage` (`piId`),
   CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+>>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -183,6 +205,10 @@ CREATE TABLE `PostImage` (
 
 LOCK TABLES `PostImage` WRITE;
 /*!40000 ALTER TABLE `PostImage` DISABLE KEYS */;
+<<<<<<< HEAD
+INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6),(14,'post-image-2024-10-16T15:41:04.018Z-02.jpg',8),(15,'post-image-2024-10-18T18:11:32.011Z-02.jpg',9),(16,'post-image-2024-10-18T18:17:50.502Z-',11),(17,'post-image-2024-10-18T18:18:29.216Z-',12),(18,'post-image-2024-10-19T07:24:00.333Z-0_png.rf.5eaf4a99d1c7643441a8015e0b01b1f2.jpg',13),(19,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.078c6d035baa4477f2ec0aa2adc39f39.jpg',13),(20,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.ab4b52897ac361aacf27bb33c18eb652.jpg',13);
+=======
+>>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
 /*!40000 ALTER TABLE `PostImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -208,37 +234,6 @@ LOCK TABLES `Rank` WRITE;
 /*!40000 ALTER TABLE `Rank` DISABLE KEYS */;
 INSERT INTO `Rank` VALUES ('casual',1),('exclusive',2),('vip',3);
 /*!40000 ALTER TABLE `Rank` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `ReviewPost`
---
-
-DROP TABLE IF EXISTS `ReviewPost`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ReviewPost` (
-  `rpId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `rating` int(1) NOT NULL,
-  `review` varchar(500) NOT NULL,
-  `reviewerId` int(10) unsigned NOT NULL,
-  `postId` int(10) unsigned NOT NULL,
-  `reviewDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`rpId`),
-  KEY `reviewerId` (`reviewerId`),
-  KEY `postId` (`postId`),
-  CONSTRAINT `ReviewPost_ibfk_1` FOREIGN KEY (`reviewerId`) REFERENCES `User` (`uId`) ON DELETE CASCADE,
-  CONSTRAINT `ReviewPost_ibfk_2` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ReviewPost`
---
-
-LOCK TABLES `ReviewPost` WRITE;
-/*!40000 ALTER TABLE `ReviewPost` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ReviewPost` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -407,4 +402,8 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-19 10:27:13
+<<<<<<< HEAD
+-- Dump completed on 2024-10-19  8:34:10
+=======
+-- Dump completed on 2024-10-16 13:52:58
+>>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365

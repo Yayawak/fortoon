@@ -1,10 +1,11 @@
+import { RowDataPacket } from 'mysql2';
 import { verifyToken } from '@/backend_lib/auth/auth.cookie';
 import { uploadImage } from '@/backend_lib/image_uploading/image_upload.lib';
 import { ErrorMessage, GetErrorMesage } from '@/constant/error_message';
 import { createPostSchema } from '@/schemes/post.scheme';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { NextRequest, NextResponse } from 'next/server';
-import { addImagesToPost, createPost, deleteAllImagesForPost, getParentPostById, structurePosts, } from './post.helper';
+import { addImagesToPost, checkChapterExists, createPost, deleteAllImagesForPost, getParentPostById, structurePosts, } from './post.helper';
 import { getAllPosts } from './post.helper';
 import { ConstructionIcon } from 'lucide-react';
 
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
         const content = formData.get('content') as string;
         const parentPostId = formData.get('parentPostId') ? parseInt(formData.get('parentPostId') as string) : null;
         const postType = formData.get('postType') as string;
-        const refId = formData.get('refId') ? parseInt(formData.get('refId') as string) : null;
+        let refId = formData.get('refId') ? parseInt(formData.get('refId') as string) : null;
 
         // Validate postType and refId
         if (postType === 'story' || postType === 'chapter') {
@@ -74,7 +75,13 @@ export async function POST(req: NextRequest) {
                 stdRes.msg = `refId is required when postType is '${postType}'.`;
                 return NextResponse.json(stdRes, { status: 400 });
             }
-        } else if (postType !== 'community') {
+        } else if (postType === 'community') {
+            if (refId !== null) {
+                stdRes.msg = "Do not input refId when postType is 'community'.";
+                return NextResponse.json(stdRes, { status: 400 });
+            }
+            refId = null; // Ensure refId is null when postType is 'community'
+        } else {
             stdRes.msg = "Invalid postType. Allowed values are 'story', 'chapter', or 'community'.";
             return NextResponse.json(stdRes, { status: 400 });
         }
@@ -89,40 +96,59 @@ export async function POST(req: NextRequest) {
             refId,
         });
 
-        // Verify that the parent post exists if a parentPostId is provided
+        // Step 1: Verify that the parent post exists if a parentPostId is provided
         if (parentPostId !== null) {
             const parentPostExists = await getParentPostById(parentPostId);
             if (!parentPostExists) {
                 stdRes.msg = "Parent post not found.";
                 return NextResponse.json(stdRes, { status: 400 });
             }
+
+            // Verify parent and child post types must match
+            if (postType === 'chapter') {
+                if (parentPostExists.postType !== postType) {
+                    stdRes.msg = `Child post type must match the parent post type. Parent post is of type '${parentPostExists.postType}'.`;
+                    return NextResponse.json(stdRes, { status: 400 });
+                }
+            }
         }
 
-        // Step 1: Create the post
+        // Step 2: Check if refId is valid if postType is 'chapter'
+        if (postType === 'chapter' && refId !== null) {
+            const chapterExists = await checkChapterExists(refId);
+            if (!chapterExists) {
+                stdRes.msg = `Invalid refId: No chapter found with ID ${refId}.`;
+                return NextResponse.json(stdRes, { status: 400 });
+            }
+        }
+
+        // Step 3: Create the post
         let postId: number;
         try {
             postId = await createPost(title, content, parentPostId, userId, postType, refId);
+            console.log(`Post created successfully with ID: ${postId}`);
         } catch (error: any) {
             stdRes.msg = "Error creating post.";
-            stdRes.msg2 = error.message;
+            stdRes.msg2 = error;
+            console.error(stdRes);
             return NextResponse.json(stdRes, { status: 500 });
         }
 
-        // Step 2: Upload images to Cloudinary and save URLs
+        // Step 4: Upload images to Cloudinary and save URLs
         const uploadedImageUrls = await Promise.all(files.map(async (file) => {
             const filename = `post-image-${new Date().toISOString()}-${file.name}`;
             await uploadImage(file, filename);
             return filename;
         }));
 
-        // Step 3: Insert the uploaded image URLs into the PostImage table
+        // Step 5: Insert the uploaded image URLs into the PostImage table
         if (uploadedImageUrls.length > 0) {
             await addImagesToPost(postId, uploadedImageUrls);
         } else {
-            console.info("No images to upload in a Post.");
+            console.info("No images to upload in the Post.");
         }
 
-        // Step 4: Return success response with the created post ID
+        // Step 6: Return success response with the created post ID
         stdRes.msg = "Post created successfully";
         stdRes.data = { postId };
 
@@ -131,7 +157,7 @@ export async function POST(req: NextRequest) {
     } catch (error: any) {
         stdRes.msg = "Error creating post.";
         stdRes.msg2 = error;
-        console.log(stdRes);
+        console.error(stdRes);
         return NextResponse.json(stdRes, { status: 500 });
     }
 }
