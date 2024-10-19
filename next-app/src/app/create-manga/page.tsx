@@ -35,25 +35,25 @@ const CreateManga: React.FC = () => {
     coverImage: null,
   });
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const userData = await getCurrentUser();
-        if (!userData) {
-          router.replace('/login');
-          return;
-        }
-        setUser(userData);
-      } catch (error) {
-        console.error('Authentication error:', error);
-        router.replace('/login');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     try {
+  //       const userData = await getCurrentUser();
+  //       if (!userData) {
+  //         router.replace('/login');
+  //         return;
+  //       }
+  //       setUser(userData);
+  //     } catch (error) {
+  //       console.error('Authentication error:', error);
+  //       router.replace('/login');
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    checkAuth();
-  }, [router]);
+  //   checkAuth();
+  // }, [router]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -119,29 +119,29 @@ const CreateManga: React.FC = () => {
     }
   };
 
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-          <p className="text-lg">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // // Show loading state while checking authentication
+  // if (isLoading) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <div className="flex flex-col items-center space-y-4">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+  //         <p className="text-lg">Loading...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  // If not loading and no user, the middleware will handle redirect
-  if (!user) {
-    return null;
-  }
+  // // If not loading and no user, the middleware will handle redirect
+  // if (!user) {
+  //   return null;
+  // }
 
   return (
     <div className="max-w-4xl mx-auto p-4">
       <Card className="w-full">
         <CardHeader>
           <h1 className="text-2xl font-bold text-center">Create New Manga</h1>
-          <p className="text-center text-gray-600">Welcome, {user.username}!</p>
+          {/* <p className="text-center text-gray-600">Welcome, {user.username}!</p> */}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
