@@ -189,6 +189,35 @@ INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.j
 UNLOCK TABLES;
 
 --
+-- Table structure for table `PostInteraction`
+--
+
+DROP TABLE IF EXISTS `PostInteraction`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `PostInteraction` (
+  `piId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `postId` int(10) unsigned NOT NULL,
+  `likerId` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`piId`),
+  UNIQUE KEY `unique_post_liker` (`postId`,`likerId`),
+  KEY `PostInteraction_User_FK` (`likerId`),
+  CONSTRAINT `PostInteraction_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`),
+  CONSTRAINT `PostInteraction_User_FK` FOREIGN KEY (`likerId`) REFERENCES `User` (`uId`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `PostInteraction`
+--
+
+LOCK TABLES `PostInteraction` WRITE;
+/*!40000 ALTER TABLE `PostInteraction` DISABLE KEYS */;
+INSERT INTO `PostInteraction` VALUES (11,11,1);
+/*!40000 ALTER TABLE `PostInteraction` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `Rank`
 --
 
@@ -378,4 +407,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-19 10:21:05
+-- Dump completed on 2024-10-19 11:46:02

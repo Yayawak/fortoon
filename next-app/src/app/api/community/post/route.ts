@@ -5,9 +5,11 @@ import { ErrorMessage, GetErrorMesage } from '@/constant/error_message';
 import { createPostSchema } from '@/schemes/post.scheme';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { NextRequest, NextResponse } from 'next/server';
-import { addImagesToPost, checkChapterExists, createPost, deleteAllImagesForPost, getParentPostById, structurePosts, } from './post.helper';
+import { addImagesToPost, createPost, deleteAllImagesForPost, getParentPostById, structurePosts, } from './post.helper';
 import { getAllPosts } from './post.helper';
 import { ConstructionIcon } from 'lucide-react';
+import { checkChapterExists } from '@/backend_lib/story/chapter_permission.lib';
+
 
 
 export async function GET() {

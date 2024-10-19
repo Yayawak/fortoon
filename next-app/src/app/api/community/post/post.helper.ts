@@ -105,11 +105,3 @@ export function structurePosts(posts: any[]): any[] {
 
     return treePosts;
 }
-
-// Helper function to check if the Chapter exists
-export async function checkChapterExists(refId: number) {
-    const [rows]: [RowDataPacket[], any] = await dbConnection.execute(`
-        SELECT * FROM Chapter WHERE cId = ?
-    `, [refId]);
-    return rows.length > 0;
-}
