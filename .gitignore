@@ -38,4 +38,4 @@ next-app/next-env.d.ts
 .env
 
 
-backups/sql_dump.sql
+./backups/sql_dump.sql
