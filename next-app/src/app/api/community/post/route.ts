@@ -4,7 +4,39 @@ import { ErrorMessage, GetErrorMesage } from '@/constant/error_message';
 import { createPostSchema } from '@/schemes/post.scheme';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { NextRequest, NextResponse } from 'next/server';
-import { addImagesToPost, createPost, deleteAllImagesForPost, } from './post.helper';
+import { addImagesToPost, createPost, deleteAllImagesForPost, getParentPostById, structurePosts, } from './post.helper';
+import { getAllPosts } from './post.helper';
+import { ConstructionIcon } from 'lucide-react';
+
+
+export async function GET() {
+    const stdRes: IStandardResponse = {};
+
+    try {
+        // Step 1: Retrieve all posts from the database
+        const posts = await getAllPosts();
+
+        if (!posts || posts.length === 0) {
+            stdRes.msg = "No posts found.";
+            return NextResponse.json(stdRes, { status: 404 });
+        }
+
+        // Step 2: Structure posts into a tree format using the helper function
+        const structuredPosts = structurePosts(posts);
+
+        // Step 3: Return the structured posts in the response
+        stdRes.msg = "Posts retrieved successfully.";
+        stdRes.data = { posts: structuredPosts };
+
+        return NextResponse.json(stdRes, { status: 200 });
+    } catch (error: any) {
+        stdRes.msg = "Error retrieving posts.";
+        stdRes.msg2 = error.message;
+        console.error(stdRes);
+        return NextResponse.json(stdRes, { status: 500 });
+    }
+}
+
 
 
 export async function POST(req: NextRequest) {
@@ -25,7 +57,7 @@ export async function POST(req: NextRequest) {
             formData = await req.formData();
         } catch (error: any) {
             stdRes.msg = GetErrorMesage(ErrorMessage.EXPECTED_CONTENT_TYPE_IS_FORM_DATA);
-            console.error(`${error}`.red);
+            console.error(`${error}`);
             return NextResponse.json(stdRes, { status: 400 });
         }
 
@@ -41,6 +73,17 @@ export async function POST(req: NextRequest) {
             parentPostId,
             images: files,
         });
+
+// console.log("ABC")
+
+        // Verify that the parent post exists if a parentPostId is provided
+        if (parentPostId !== null) {
+            const parentPostExists = await getParentPostById(parentPostId);
+            if (!parentPostExists) {
+                stdRes.msg = "Parent post not found.";
+                return NextResponse.json(stdRes, { status: 400 });
+            }
+        }
 
         // Step 1: Create the post
         let postId: number;
@@ -63,7 +106,7 @@ export async function POST(req: NextRequest) {
         if (uploadedImageUrls.length > 0) {
             await addImagesToPost(postId, uploadedImageUrls);
         } else {
-            console.info("No images to upload in a Post.".bgCyan);
+            console.info("No images to upload in a Post.");
         }
 
         // Step 4: Return success response with the created post ID
@@ -79,6 +122,3 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(stdRes, { status: 500 });
     }
 }
-
-
-
