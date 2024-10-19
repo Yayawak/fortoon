@@ -2,10 +2,16 @@ import { RowDataPacket } from 'mysql2';
 import { IStandardResponse } from '../../types/IApiCommunication';
 import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { jwtVerify, JWTPayload } from 'jose';
+// import { jwtVerify, JWTPayload } from 'jose';
 import { dbConnection } from '@/db/dbConnector';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-key');
+// const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-key');
+const JWT_SECRET =process.env.JWT_SECRET  || "sec"
+
+export const verifyByTokenValue = (tokenValue: string) => {
+    const  payload : any = jwt.verify(tokenValue, JWT_SECRET)
+    return payload
+}
 
 export async function verifyToken(req: NextRequest): Promise<IStandardResponse> {
     // Get the cookie from the request
@@ -22,7 +28,9 @@ export async function verifyToken(req: NextRequest): Promise<IStandardResponse> 
 
     try {
         // Verify the token
-        const { payload } = await jwtVerify(cookie, JWT_SECRET, { algorithms: ['HS256'] });
+        // const  payload = jwt.verify(cookie, JWT_SECRET);
+        const payload = verifyByTokenValue(cookie)
+        console.log(payload)
         return {
             status: 200,
             msg: 'Token verified successfully',
@@ -39,25 +47,3 @@ export async function verifyToken(req: NextRequest): Promise<IStandardResponse> 
 }
 
 
-
-// const authenticate = async (req : NextRequest, ) => {
-//     const [rowCountExistedStory] = await dbConnection.execute<RowDataPacket[]>(
-//         `SELECT 
-//         count(*) as ownedStoryCount
-//         FROM User u
-//         join Story s
-//         on u.uId = s.authorId
-//         WHERE uId = ?
-//         and sId = ?
-//         `, 
-//         [
-//             userId,
-//             storyId,
-//         ]
-//     );
-//     const ownedStoryCount : Number = rowCountExistedStory[0].ownedStoryCount
-//     if (ownedStoryCount == 0) {
-//         stdRes.msg = `Unfound story so can not create chapters.`
-//         return NextResponse.json(stdRes, { status: 400 });
-//     }
-// }

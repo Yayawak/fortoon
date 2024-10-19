@@ -64,14 +64,16 @@ export async function getAllPosts() {
 }
 
 
-// Helper function to check if a parent post exists
+// Helper function to retrieve a parent post by its ID
 export async function getParentPostById(parentPostId: number) {
     const [rows]: [RowDataPacket[], any] = await dbConnection.execute(`
         SELECT * FROM Post WHERE pId = ?
     `, [parentPostId]);
 
-    return rows.length > 0; // Return true if a post is found, false otherwise
+    // Return the post if found, otherwise return null
+    return rows.length > 0 ? rows[0] : null; 
 }
+
 
 
 export function structurePosts(posts: any[]): any[] {
@@ -102,4 +104,12 @@ export function structurePosts(posts: any[]): any[] {
     });
 
     return treePosts;
+}
+
+// Helper function to check if the Chapter exists
+export async function checkChapterExists(refId: number) {
+    const [rows]: [RowDataPacket[], any] = await dbConnection.execute(`
+        SELECT * FROM Chapter WHERE cId = ?
+    `, [refId]);
+    return rows.length > 0;
 }
