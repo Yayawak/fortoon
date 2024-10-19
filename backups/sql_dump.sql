@@ -154,7 +154,11 @@ CREATE TABLE `Post` (
 
 LOCK TABLES `Post` WRITE;
 /*!40000 ALTER TABLE `Post` DISABLE KEYS */;
+<<<<<<< HEAD
 INSERT INTO `Post` VALUES ('concerto',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58',0),('where is saran',7,'5555555555555555555',NULL,2,'2024-10-16 13:56:03',0),('nepchar',8,'nlp so so end',NULL,1,'2024-10-16 15:41:04',0),('nepchar',9,'charcharset utf64',8,1,'2024-10-18 18:11:31',0),('narjar',10,'eeeeiiieieieieieieieieie',6,1,'2024-10-18 18:17:11',0),('kiki',11,'bajaha na',10,1,'2024-10-18 18:17:50',0),('kiki',12,'bajaha na',10,1,'2024-10-18 18:18:29',0),('kiki',13,'bajaha na',10,1,'2024-10-19 07:24:00',0);
+=======
+INSERT INTO `Post` VALUES ('tile more long',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58');
+>>>>>>> eeaed91c242aa22fbbd213ee0caa48a536d61933
 /*!40000 ALTER TABLE `Post` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -167,12 +171,18 @@ DROP TABLE IF EXISTS `PostImage`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `PostImage` (
   `piId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `parentPostImageId` int(10) unsigned DEFAULT NULL,
   `url` varchar(200) NOT NULL,
   `postId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`piId`),
+  KEY `ChapterImage_ChapterImage_FK` (`parentPostImageId`) USING BTREE,
   KEY `ChapterImage_Chapter_FK` (`postId`) USING BTREE,
   CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`) ON DELETE CASCADE
+<<<<<<< HEAD
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+=======
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+>>>>>>> eeaed91c242aa22fbbd213ee0caa48a536d61933
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,7 +191,11 @@ CREATE TABLE `PostImage` (
 
 LOCK TABLES `PostImage` WRITE;
 /*!40000 ALTER TABLE `PostImage` DISABLE KEYS */;
+<<<<<<< HEAD
 INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6),(14,'post-image-2024-10-16T15:41:04.018Z-02.jpg',8),(15,'post-image-2024-10-18T18:11:32.011Z-02.jpg',9),(16,'post-image-2024-10-18T18:17:50.502Z-',11),(17,'post-image-2024-10-18T18:18:29.216Z-',12),(18,'post-image-2024-10-19T07:24:00.333Z-0_png.rf.5eaf4a99d1c7643441a8015e0b01b1f2.jpg',13),(19,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.078c6d035baa4477f2ec0aa2adc39f39.jpg',13),(20,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.ab4b52897ac361aacf27bb33c18eb652.jpg',13);
+=======
+INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6);
+>>>>>>> eeaed91c242aa22fbbd213ee0caa48a536d61933
 /*!40000 ALTER TABLE `PostImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -393,7 +407,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,22,'m',10,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',20,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL),(10,8,'m',0,1,'rakan88888','rakan','rakan@lover.th','2024-10-15 13:07:25','rakan','user-Tue Oct 15 2024 13:07:23 GMT+0000 (Coordinated Universal Time)-02.jpg',NULL);
+INSERT INTO `User` VALUES (1,22,'m',20,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',20,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL),(10,8,'m',0,1,'rakan88888','rakan','rakan@lover.th','2024-10-15 13:07:25','rakan','user-Tue Oct 15 2024 13:07:23 GMT+0000 (Coordinated Universal Time)-02.jpg',NULL);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -406,4 +420,8 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+<<<<<<< HEAD
 -- Dump completed on 2024-10-19  7:51:14
+=======
+-- Dump completed on 2024-10-16 13:52:58
+>>>>>>> eeaed91c242aa22fbbd213ee0caa48a536d61933

@@ -12,11 +12,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Search, LogOut, Settings, User as UserIcon, Sun, Moon, Menu } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext'; // Updated import
+import { useAuth } from '@/contexts/AuthContext'; 
 import { useSettings } from '@/contexts/SettingsContext';
 
 export default function Navbar() {
-  const { user, signOut } = useAuth(); // Using the new useAuth hook
+  const { user, signOut } = useAuth(); 
   const { theme, setTheme } = useSettings();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setSearchOpen] = useState(false);
