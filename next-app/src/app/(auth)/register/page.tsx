@@ -1,55 +1,110 @@
 'use client'
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+
+interface FormData {
+    username: string;
+    password: string;
+    displayName: string;
+    sex: string;
+    email: string;
+    profilePic: File | null;
+    age: string;
+  }
+  
+  interface FormErrors {
+    [key: string]: string;
+  }
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    displayname: '',
+    displayName: '',
     sex: '',
     email: '',
-    profilepic: '',
+    profilePic: null,
     age: '',
   });
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [errors, setErrors] = useState<FormErrors>({});
+  const router = useRouter();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
     setFormData(prevState => ({
       ...prevState,
-      [name]: value
+      [name]: type === 'file' ? (e.target as HTMLInputElement).files?.[0] || null : value
     }));
+    // Clear the error for this field when it's changed
+    setErrors(prevErrors => ({ ...prevErrors, [name]: '' }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+        return;
+    }
+
+    const formDataToSend = new FormData();
+    
+    (Object.keys(formData) as Array<keyof FormData>).forEach(key => {
+        const value = formData[key];
+        if (value !== null) {
+          formDataToSend.append(key, value);
+        }
+      });
+  
+
     try {
       const response = await fetch('api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: formDataToSend,
       });
 
       if (response.ok) {
-        navigate('/login');
+        router.push('/login');
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Registration failed');
+        if (errorData.msg && errorData.msg.issues) {
+          const serverErrors : FormErrors = {};
+          errorData.msg.issues.forEach((issue: { path: string[], message: string }) => {
+            serverErrors[issue.path[0]] = issue.message;
+          });
+          setErrors(serverErrors);
+        } else {
+          setErrors({ general: 'Registration failed. Please try again.' });
+        }
       }
     } catch (error) {
-      setError('An error occurred. Please try again.');
+      setErrors({ general: 'An error occurred. Please try again.' });
     }
   };
+
+  const validateForm = () => {
+    const newErrors: FormErrors = {};
+    if (formData.username.length < 4) {
+        newErrors.username = 'Username must contain at least 4 characters';
+      }
+    if (formData.password.length < 8) {
+      newErrors.password = 'Password must contain at least 8 characters';
+    }
+    if (!formData.displayName) {
+      newErrors.displayName = 'Display name is required';
+    }
+    if (formData.sex !== 'm' && formData.sex !== 'f') {
+      newErrors.sex = "Sex must be either 'm' or 'f'";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
 
   return (
     <div className="max-w-md mx-auto mt-8">
       <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <h2 className="text-2xl mb-4 text-center">Register</h2>
-        {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
+        {errors.general && <p className="text-red-500 text-xs italic mb-4">{errors.general}</p>}
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
             Username
@@ -63,6 +118,7 @@ const RegisterForm = () => {
             onChange={handleChange}
             required
           />
+          {errors.username && <p className="text-red-500 text-xs italic">{errors.username}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
@@ -77,20 +133,22 @@ const RegisterForm = () => {
             onChange={handleChange}
             required
           />
+          {errors.password && <p className="text-red-500 text-xs italic">{errors.password}</p>}
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="displayname">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="displayName">
             Display Name
           </label>
           <input
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="displayname"
+            id="displayName"
             type="text"
-            name="displayname"
-            value={formData.displayname}
+            name="displayName"
+            value={formData.displayName}
             onChange={handleChange}
             required
           />
+          {errors.displayName && <p className="text-red-500 text-xs italic">{errors.displayName}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="sex">
@@ -105,10 +163,10 @@ const RegisterForm = () => {
             required
           >
             <option value="">Select</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
+            <option value="m">Male</option>
+            <option value="f">Female</option>
           </select>
+          {errors.sex && <p className="text-red-500 text-xs italic">{errors.sex}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
@@ -123,19 +181,21 @@ const RegisterForm = () => {
             onChange={handleChange}
             required
           />
+          {errors.email && <p className="text-red-500 text-xs italic">{errors.email}</p>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="profilepic">
-            Profile Picture URL
+            Profile Picture
           </label>
           <input
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="profilepic"
-            type="url"
+            type="file"
             name="profilepic"
-            value={formData.profilepic}
             onChange={handleChange}
+            accept="image/*"
           />
+          {errors.profilePic && <p className="text-red-500 text-xs italic">{errors.profilepic}</p>}
         </div>
         <div className="mb-6">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="age">
@@ -150,6 +210,7 @@ const RegisterForm = () => {
             onChange={handleChange}
             required
           />
+          {errors.age && <p className="text-red-500 text-xs italic">{errors.age}</p>}
         </div>
         <div className="flex items-center justify-between">
           <button
