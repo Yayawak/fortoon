@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "bun run dev",
-    "build": "bun run build",
-    "start": "bun run start",
-    "lint": "bun run lint"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.1",
@@ -68,5 +68,15 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "resolutions": {
+    "string-width": "^4.2.3",
+    "strip-ansi": "^6.0.1",
+    "wrap-ansi": "^8.0.1"
+  },
+  "overrides": {
+    "string-width-cjs": "npm:string-width@4.2.3",
+    "strip-ansi-cjs": "npm:strip-ansi@6.0.1",
+    "wrap-ansi-cjs": "npm:wrap-ansi@8.0.1"
   }
 }

@@ -1,14 +1,17 @@
 # FROM node:18-alpine
 
 # Use the official Bun image to leverage Bun as the package manager and runtime
-FROM jarredsumner/bun:edge
-
+FROM oven/bun:1.1.31
 
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* bun.lockb* package-lock.json* pnpm-lock.yaml* ./
-# RUN \
+COPY package.json ./
+COPY bun.lockb* ./
+COPY next.config.mjs ./
+COPY tsconfig.json ./
+COPY tailwind.config.ts ./
+COPY postcss.config.mjs ./
 #   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
 #   elif [ -f package-lock.json ]; then npm ci; \
 #   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i; \
@@ -16,18 +19,16 @@ COPY package.json yarn.lock* bun.lockb* package-lock.json* pnpm-lock.yaml* ./
 #   else echo "Warning: Lockfile not found. It is recommended to commit lockfiles to version control." && yarn install; \
 #   fi
 # Install dependencies using Bun (fallback to npm if needed)
-RUN if [ -f bun.lockb ]; then bun install; \
-    elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
-    elif [ -f package-lock.json ]; then npm ci; \
-    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm install; \
-    else echo "No lockfile found, installing via Bun..." && bun install; fi
+# RUN if [ -f bun.lockb ]; then bun install; \
+#     elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
+#     elif [ -f package-lock.json ]; then npm ci; \
+#     elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm install; \
+#     else echo "No lockfile found, installing via Bun..." && bun install; fi
+RUN bun install
 
 COPY src ./src
 COPY public ./public
-COPY next.config.mjs .
-COPY tsconfig.json .
-COPY tailwind.config.ts .
-COPY postcss.config.mjs .
+
 
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line to disable telemetry at run time
