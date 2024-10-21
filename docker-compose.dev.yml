@@ -47,7 +47,7 @@ services:
     environment:
       ENV_VARIABLE: ${ENV_VARIABLE}
       NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
-    command: npm run dev
+    command: bun run dev
 
     # Set environment variables based on the .env file
     env_file:
