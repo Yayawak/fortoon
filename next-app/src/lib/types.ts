@@ -1,3 +1,5 @@
+import { translations } from '@/lib/translations';
+
 export type Language = 'en' | 'th';
 export type Theme = 'light' | 'dark' ;
 export type FontSize = 'small' | 'medium' | 'large';
@@ -37,4 +39,31 @@ export interface TranslationKeys {
   latest: string;
   topStories: string;
   viewAll: string;
+}
+
+export interface User {
+  uId: number;
+  username: string;
+  credit: number;
+  age: number;
+  
+}
+
+export interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  loginSuccess: boolean;
+  signIn: (username: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+}
+
+export interface SettingsContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  fontSize: FontSize;
+  setFontSize: (size: FontSize) => void;
+  t: (key: keyof typeof translations.en) => string;
 }

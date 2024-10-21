@@ -102,4 +102,5 @@ docker system prune -af --volumes
 
  docker network create my_network; docker compose -f docker-compose.dev.yml build; docker compose -f docker-compose.dev.yml up 
 ```
-
+# for new sql dump
+docker exec -it fortoon-db-1 bash

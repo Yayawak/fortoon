@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Settings, User, Mail, Phone, MapPin, Book, Github, Twitter, Linkedin ,PlusCircle } from 'lucide-react';
+import { Settings, User, Mail, Phone, MapPin, Github, Twitter, Linkedin, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { 
@@ -11,17 +11,40 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function Profile() {
+  const { user, loading, signOut } = useAuth();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [showManga, setShowManga] = useState(false);
 
-  // Mock data for user's manga
+  // Redirect to login if not authenticated
+  if (!loading && !user) {
+    router.push('/login');
+    return null;
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
+  // Mock data for user's manga - could be fetched from an API based on user.uId
   const userManga = [
     { id: 1, title: "My Hero Academia", cover: "/api/placeholder/200/300", chapters: 10 },
     { id: 2, title: "One Piece", cover: "/api/placeholder/200/300", chapters: 15 },
     { id: 3, title: "Naruto", cover: "/api/placeholder/200/300", chapters: 20 },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -34,7 +57,7 @@ export default function Profile() {
               </div>
             </div>
             <div className="text-center md:text-left">
-              <h2 className="text-3xl font-bold">John Doe</h2>
+              <h2 className="text-3xl font-bold">{user?.displayName || 'Anonymous'}</h2>
               <p className="text-xl">Software Developer & Manga Artist</p>
               <div className="flex justify-center md:justify-start space-x-4 mt-4">
                 <Link href="#"><Github className="hover:text-yellow-300 transition-colors" /></Link>
@@ -44,6 +67,14 @@ export default function Profile() {
             </div>
           </div>
           <div className="flex items-center space-x-2 mt-4 md:mt-0">
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              className="bg-white text-purple-600 hover:bg-purple-100"
+              onClick={handleSignOut}
+            >
+              Sign Out
+            </Button>
             <Link href="/settings">
               <Button variant="secondary" size="sm" className="bg-white text-purple-600 hover:bg-purple-100">
                 Edit Profile
@@ -63,22 +94,15 @@ export default function Profile() {
                   <div className="flex items-center space-x-4">
                     <Mail className="text-pink-500" />
                     <div>
-                      <p className="text-sm font-medium text-purple-800">Email</p>
-                      <p className="text-sm text-purple-600">john.doe@example.com</p>
+                      <p className="text-sm font-medium text-purple-800">User ID</p>
+                      <p className="text-sm text-purple-600">{user?.uId}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <Phone className="text-pink-500" />
                     <div>
-                      <p className="text-sm font-medium text-purple-800">Phone</p>
-                      <p className="text-sm text-purple-600">+1 234 567 890</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <MapPin className="text-pink-500" />
-                    <div>
-                      <p className="text-sm font-medium text-purple-800">Location</p>
-                      <p className="text-sm text-purple-600">San Francisco, CA</p>
+                      <p className="text-sm font-medium text-purple-800">Username</p>
+                      <p className="text-sm text-purple-600">{user?.username}</p>
                     </div>
                   </div>
                 </div>
@@ -122,9 +146,17 @@ export default function Profile() {
                 </div>
               </>
             ) : (
-              <>
-                {/* ... (manga display content remains the same) ... */}
-              </>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {userManga.map((manga) => (
+                  <div key={manga.id} className="border rounded-lg overflow-hidden shadow-lg">
+                    <img src={manga.cover} alt={manga.title} className="w-full h-48 object-cover" />
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg">{manga.title}</h3>
+                      <p className="text-gray-600">Chapters: {manga.chapters}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </CardContent>

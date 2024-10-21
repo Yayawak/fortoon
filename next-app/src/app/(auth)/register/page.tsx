@@ -63,7 +63,7 @@ const RegisterForm = () => {
       });
 
       if (response.ok) {
-        router.push('/login');
+        router.push('/');
       } else {
         const errorData = await response.json();
         if (errorData.msg && errorData.msg.issues) {

@@ -1,12 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { User, Lock, Bell, Palette } from 'lucide-react';
+import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
+import { User, Lock, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import { 
   Card,
   CardContent,
@@ -19,201 +17,199 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/components/ui/tabs';
+} from '@/components/ui/tabs';import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-export default function ProfileSettings() {
-  const [notifications, setNotifications] = useState({
-    email: true,
-    push: false,
-    marketing: true
-  });
+interface UserProfile {
+  username: string;
+  displayName: string;
+  profilePic: string | null;
+  background: string | null;
+  email: string;
+  createdAt: string;
+  status: string;
+}
+
+interface DataPreviewDialogProps {
+  showPreview: boolean;
+  setShowPreview: (show: boolean) => void;
+  profileData: UserProfile | null;
+  profilePicFile: File | null;
+  backgroundFile: File | null;
+  profilePicPreview: string | null;
+  backgroundPreview: string | null;
+  loading: boolean;
+  handleSubmit: () => Promise<void>;
+}
+
+const DataPreviewDialog: React.FC<DataPreviewDialogProps> = ({
+  showPreview,
+  setShowPreview,
+  profileData,
+  profilePicPreview,
+  backgroundPreview,
+  loading,
+  handleSubmit,
+}) => (
+  <Dialog open={showPreview} onOpenChange={setShowPreview}>
+    <DialogContent className="max-w-2xl">
+      <DialogHeader>
+        <DialogTitle>Review Changes</DialogTitle>
+        <DialogDescription>Please review your changes before saving</DialogDescription>
+      </DialogHeader>
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <ImagePreview label="Profile Picture" src={profilePicPreview || profileData?.profilePic} />
+          <ImagePreview label="Background Image" src={backgroundPreview || profileData?.background} />
+        </div>
+        <UserProfileDetails profileData={profileData} />
+      </div>
+      <DialogFooter>
+        <Button variant="outline" onClick={() => setShowPreview(false)}>Cancel</Button>
+        <Button onClick={() => { setShowPreview(false); handleSubmit(); }} disabled={loading}>
+          {loading ? 'Saving Changes...' : 'Confirm & Save'}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+);
+
+const ImagePreview: React.FC<{ label: string; src: string | null }> = ({ label, src }) => (
+  <div className="space-y-2">
+    <Label>{label}</Label>
+    <div className="relative h-32 w-full">
+      <img src={src || '/api/placeholder/80/80'} alt={label} className="object-cover w-full h-full rounded-lg" />
+    </div>
+  </div>
+);
+
+const UserProfileDetails: React.FC<{ profileData: UserProfile | null }> = ({ profileData }) => (
+  <div className="grid grid-cols-2 gap-4">
+    <ProfileField label="Username" value={profileData?.username || 'Not set'} />
+    <ProfileField label="Display Name" value={profileData?.displayName || 'Not set'} />
+    <ProfileField label="Email" value={profileData?.email || 'Not set'} />
+    <ProfileField label="Status" value={profileData?.status || 'Not set'} />
+  </div>
+);
+
+const ProfileField: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="space-y-2">
+    <Label className="font-bold">{label}</Label>
+    <p className="text-sm">{value}</p>
+  </div>
+);
+
+const ProfileSettings: React.FC = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [profileData, setProfileData] = useState<UserProfile | null>(null);
+  const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
+  const [backgroundPreview, setBackgroundPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user?.uId) return;
+
+    fetchUserProfile();
+  }, [user?.uId]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch('/api/user', { method: 'GET', credentials: 'include' });
+      if (!response.ok) throw new Error('Failed to fetch user profile');
+
+      const data = await response.json();
+      setProfileData(data);
+      setProfilePicPreview(data.profilePic);
+      setBackgroundPreview(data.background);
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to load user profile', variant: 'destructive' });
+    }
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, type: 'profilePic' | 'background') => {
+    const file = e.target.files?.[0];
+    if (file && file.size <= 5 * 1024 * 1024) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        type === 'profilePic' ? setProfilePicPreview(reader.result as string) : setBackgroundPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      toast({ title: 'Error', description: 'File size must be under 5MB', variant: 'destructive' });
+    }
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      if (profileData?.username) formData.append('username', profileData.username);
+      if (profileData?.displayName) formData.append('displayName', profileData.displayName);
+
+      const response = await fetch('/api/user', { method: 'PUT', credentials: 'include', body: formData });
+      if (!response.ok) throw new Error('Failed to update profile');
+
+      const updatedData = await response.json();
+      setProfileData(updatedData);
+      toast({ title: 'Success', description: 'Profile updated successfully' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to update profile', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!profileData) return <LoadingSpinner />;
 
   return (
     <div className="container mx-auto py-6">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Profile Settings</h1>
-          <p className="text-gray-500">Manage your account settings and preferences</p>
-        </div>
-
-        <Tabs defaultValue="profile" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" /> Profile
-            </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              <Lock className="h-4 w-4" /> Security
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
-              <Bell className="h-4 w-4" /> Notifications
-            </TabsTrigger>
-            <TabsTrigger value="appearance" className="flex items-center gap-2">
-              <Palette className="h-4 w-4" /> Appearance
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="profile">
-            <Card>
-              <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
-                <CardDescription>Update your personal details here</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
-                    <User size={32} className="text-gray-500" />
-                  </div>
-                  <Button variant="outline">Change Avatar</Button>
-                </div>
-                <Separator />
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" placeholder="John" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" placeholder="Doe" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="john.doe@example.com" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" placeholder="+1 234 567 890" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <textarea 
-                    id="bio" 
-                    className="w-full min-h-[100px] p-2 border rounded-md"
-                    placeholder="Tell us about yourself..."
-                  />
-                </div>
-                <Button>Save Changes</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="security">
-            <Card>
-              <CardHeader>
-                <CardTitle>Security Settings</CardTitle>
-                <CardDescription>Manage your password and security preferences</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current Password</Label>
-                    <Input id="currentPassword" type="password" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" type="password" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <Input id="confirmPassword" type="password" />
-                  </div>
-                </div>
-                <Separator />
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">Two-Factor Authentication</h4>
-                      <p className="text-sm text-gray-500">Add an extra layer of security</p>
-                    </div>
-                    <Switch />
-                  </div>
-                </div>
-                <Button>Update Security Settings</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="notifications">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Preferences</CardTitle>
-                <CardDescription>Choose what notifications you receive</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">Email Notifications</h4>
-                      <p className="text-sm text-gray-500">Receive email updates</p>
-                    </div>
-                    <Switch 
-                      checked={notifications.email}
-                      onCheckedChange={(checked) => 
-                        setNotifications(prev => ({...prev, email: checked}))
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">Push Notifications</h4>
-                      <p className="text-sm text-gray-500">Receive push notifications</p>
-                    </div>
-                    <Switch 
-                      checked={notifications.push}
-                      onCheckedChange={(checked) => 
-                        setNotifications(prev => ({...prev, push: checked}))
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">Marketing Emails</h4>
-                      <p className="text-sm text-gray-500">Receive marketing updates</p>
-                    </div>
-                    <Switch 
-                      checked={notifications.marketing}
-                      onCheckedChange={(checked) => 
-                        setNotifications(prev => ({...prev, marketing: checked}))
-                      }
-                    />
-                  </div>
-                </div>
-                <Button>Save Preferences</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="appearance">
-            <Card>
-              <CardHeader>
-                <CardTitle>Appearance Settings</CardTitle>
-                <CardDescription>Customize how your profile looks</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">Dark Mode</h4>
-                      <p className="text-sm text-gray-500">Toggle dark mode theme</p>
-                    </div>
-                    <Switch />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Theme Color</Label>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" className="bg-blue-500 hover:bg-blue-600" />
-                      <Button variant="outline" className="bg-green-500 hover:bg-green-600" />
-                      <Button variant="outline" className="bg-purple-500 hover:bg-purple-600" />
-                      <Button variant="outline" className="bg-orange-500 hover:bg-orange-600" />
-                    </div>
-                  </div>
-                </div>
-                <Button>Save Appearance</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+      <Tabs defaultValue="profile" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="profile"><User className="h-4 w-4" /> Profile</TabsTrigger>
+          <TabsTrigger value="security"><Lock className="h-4 w-4" /> Security</TabsTrigger>
+        </TabsList>
+        <TabsContent value="profile">
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Information</CardTitle>
+              <CardDescription>Update your profile details</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <form onSubmit={(e) => { e.preventDefault(); setShowPreview(true); }} className="space-y-6">
+                <FileUpload label="Profile Picture" onChange={(e) => handleFileChange(e, 'profilePic')} />
+                <FileUpload label="Background Image" onChange={(e) => handleFileChange(e, 'background')} />
+                <Button type="submit" disabled={loading}>Preview Changes</Button>
+              </form>
+              <DataPreviewDialog
+                showPreview={showPreview}
+                setShowPreview={setShowPreview}
+                profileData={profileData}
+                profilePicPreview={profilePicPreview}
+                backgroundPreview={backgroundPreview}
+                loading={loading}
+                handleSubmit={handleSubmit} profilePicFile={null} backgroundFile={null}              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
-}
+};
+
+const FileUpload: React.FC<{ label: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void }> = ({ label, onChange }) => (
+  <div className="space-y-2">
+    <Label>{label}</Label>
+    <Input type="file" accept="image/*" onChange={onChange} />
+  </div>
+);
+
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+  </div>
+);
+
+export default ProfileSettings;

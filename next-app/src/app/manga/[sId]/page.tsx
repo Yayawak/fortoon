@@ -63,91 +63,10 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
   const [manga, setManga] = useState<Manga | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
-  // const manga: Manga = {
-  //   id: params.id,
-  //   title: "Demon Slayer",
-  //   cover: "/api/placeholder/500/700",
-  //   rating: 4.8,
-  //   author: "Koyoharu Gotouge",
-  //   status: "Completed",
-  //   releaseYear: 2016,
-  //   description: "In Taisho-era Japan, Tanjiro Kamado is a kindhearted boy who makes a living selling charcoal. But his peaceful life is shattered when a demon slaughters his entire family. His little sister Nezuko is the only survivor, but she has been transformed into a demon herself! Tanjiro sets out on a dangerous journey to find a way to return his sister to normal and destroy the demon who ruined his life.\n\nAs Tanjiro and Nezuko encounter both demons and demon slayers on their journey, they not only learn more about the demons' powers and origins but also about the ancient history of the demon slayer corps. Together with his comrades, Tanjiro faces increasingly challenging battles against powerful demons, all while trying to find a cure for Nezuko.",
-  //   genres: ["Action", "Adventure", "Fantasy", "Supernatural", "Drama"],
-  //   chapters: [
-  //     { 
-  //       number: 205,
-  //       title: "The Final Battle",
-  //       releaseDate: "2020-05-17",
-  //       views: 1500000,
-  //       comments: [
-  //         {
-  //           user: "MangaExpert",
-  //           avatar: "/api/placeholder/40/40",
-  //           comment: "The way Muzan's backstory was revealed was masterful. It added so much depth to the final confrontation.",
-  //           likes: 342
-  //         },
-  //         {
-  //           user: "DemonSlayerFan",
-  //           avatar: "/api/placeholder/40/40",
-  //           comment: "Tanjiro's character development throughout the series really shines in this chapter. The artwork is absolutely stunning!",
-  //           likes: 289
-  //         }
-  //       ]
-  //     },
-  //     { 
-  //       number: 204,
-  //       title: "Towards Tomorrow",
-  //       releaseDate: "2020-05-10",
-  //       views: 1450000,
-  //       comments: [
-  //         {
-  //           user: "ArtCritic",
-  //           avatar: "/api/placeholder/40/40",
-  //           comment: "The emotional weight of this chapter is incredible. Every panel feels meaningful.",
-  //           likes: 276
-  //         }
-  //       ]
-  //     }
-  //   ],
-  //   reviews: [
-  //     {
-  //       user: "MangaScholar",
-  //       avatar: "/api/placeholder/40/40",
-  //       rating: 5,
-  //       comment: "Demon Slayer is a masterpiece that combines stunning visuals with deep emotional storytelling. The character development is exceptional, and the way the story balances intense action sequences with moments of humor and heart is truly remarkable. The art style is unique and beautiful, particularly in the breathing technique animations. While the pacing can be a bit fast at times, it never detracts from the overall experience. A must-read for any manga fan.",
-  //       likes: 1205,
-  //       date: "2023-12-15"
-  //     },
-  //     {
-  //       user: "CriticalReader",
-  //       avatar: "/api/placeholder/40/40",
-  //       rating: 4,
-  //       comment: "An excellent series that breathes new life into the shounen genre. The art is consistently gorgeous, and the fight scenes are among the best I've seen. The protagonist's journey is compelling, though some side characters could use more development. The series sometimes relies on common tropes, but it executes them well. The emotional core of the story - the bond between siblings - resonates throughout and gives weight to every battle.",
-  //       likes: 892,
-  //       date: "2023-11-30"
-  //     }
-  //   ],
-  //   recommendations: [
-  //     {
-  //       id: 101,
-  //       title: "Jujutsu Kaisen",
-  //       cover: "/api/placeholder/200/300",
-  //       similarity: "Similar supernatural themes and exceptional fight scenes",
-  //       rating: 4.7
-  //     },
-  //     {
-  //       id: 102,
-  //       title: "Chainsaw Man",
-  //       cover: "/api/placeholder/200/300",
-  //       similarity: "Dark fantasy with unique art style and compelling characters",
-  //       rating: 4.8
-  //     }
-  //   ],
-  // };
   useEffect(() => {
     const fetchManga = async () => {
       if (!params.sId) {
@@ -174,18 +93,68 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     fetchManga();
   }, [params.sId]);
 
+
+  const fetchReviews = async () => {
+    try {
+      const response = await fetch(`/api/story/${params.sId}/review`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch reviews');
+      }
+      const data = await response.json();
+      setReviews(data);
+    } catch (err) {
+      console.error('Error fetching reviews:', err);
+    }
+  };
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`/api/story/${params.sId}/review`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newReview),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit review');
+      }
+
+      // Refresh reviews after submission
+      fetchReviews();
+      setIsReviewDialogOpen(false);
+      setNewReview({ rating: 0, comment: '' });
+    } catch (err) {
+      console.error('Error submitting review:', err);
+    }
+  };
+
+  const handleReviewUpdate = async (reviewId: number, updatedReview: Partial<Review>) => {
+    try {
+      const response = await fetch(`/api/story/${params.sId}/review/${reviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedReview),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update review');
+      }
+
+      // Refresh reviews after update
+      fetchReviews();
+    } catch (err) {
+      console.error('Error updating review:', err);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!manga) return <div>No manga data found</div>;
-
-  const handleReviewSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically send the review data to your backend
-    console.log('Submitting review:', newReview);
-    // For now, we'll just close the dialog
-    setIsReviewDialogOpen(false);
-    setNewReview({ rating: 0, comment: '' });
-  };
 
   return(
     <div className={`min-h-screen ${
@@ -240,6 +209,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
               <TabsList>
                 <TabsTrigger value="description">Description</TabsTrigger>
                 <TabsTrigger value="chapters">Chapters</TabsTrigger>
+                <TabsTrigger value="reviews">reviews</TabsTrigger>
               </TabsList>
               
               <TabsContent value="description" className="mt-4">
@@ -280,6 +250,80 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                   ))}
                 </div>
               </TabsContent>
+
+              <TabsContent value="reviews" className="mt-4">
+            <div className="mb-6 flex justify-between items-center">
+              <h2 className="text-2xl font-bold">User Reviews</h2>
+              <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>Write a Review</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Write a Review</DialogTitle>
+                    <DialogDescription>Share your thoughts about {manga.title}</DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleReviewSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="rating">Rating</Label>
+                      <Input
+                        id="rating"
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={newReview.rating}
+                        onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="comment">Your Review</Label>
+                      <Textarea
+                        id="comment"
+                        value={newReview.comment}
+                        onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <Button type="submit">Submit Review</Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <div className="space-y-6">
+              {reviews.map((review) => (
+                <div key={review.id} className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                  <div className="flex items-center mb-2">
+                    <Avatar className="w-10 h-10 mr-3">
+                      <AvatarImage src={review.avatar} alt={review.user} />
+                      <AvatarFallback>{review.user[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-semibold">{review.user}</h3>
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 text-yellow-400 mr-1" />
+                        <span>{review.rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300">{review.comment}</p>
+                  <div className="flex items-center mt-2 text-sm text-gray-500">
+                    <ThumbsUp className="w-4 h-4 mr-1" />
+                    <span>{review.likes} likes</span>
+                    <span className="mx-2">•</span>
+                    <span>{review.date}</span>
+                  </div>
+                  {/* Add edit functionality if the user owns this review */}
+                  {/* This is a placeholder and should be replaced with actual user authentication logic */}
+                  {review.user === 'CurrentUser' && (
+                    <Button onClick={() => handleReviewUpdate(review.id, { comment: 'Updated comment' })}>
+                      Edit Review
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </TabsContent>
             </Tabs>
           </div>
         </div>

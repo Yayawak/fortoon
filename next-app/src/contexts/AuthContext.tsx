@@ -2,21 +2,7 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-interface User {
-  uId: string;
-  username: string;
-  // Add other user properties as needed
-}
-
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  error: string | null;
-  loginSuccess: boolean;
-  signIn: (username: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-}
+import { User, AuthContextType } from '@/lib/types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -31,14 +17,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const response = await fetch('/api/auth/cookie', {
-          method: 'GET',
+        const response = await fetch('/api/auth/login/byCookie', {
+          method: 'POST',
           credentials: 'include', // Important for cookies
         });
-
+        
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
+          console.log(data)
+          setUser(data.data);
           setLoginSuccess(true);
           
           // Only redirect if we're on the login page
