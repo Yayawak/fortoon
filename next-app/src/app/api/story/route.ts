@@ -14,12 +14,12 @@ import { uploadImage } from "@/backend_lib/image_uploading/image_upload.lib";
 
 
 export async function GET(req: NextRequest) {
-    const verifiedRes = await verifyToken(req);
-    if (verifiedRes.status !== 200) {
-        return NextResponse.json({
-            msg: verifiedRes.msg
-        }, { status: verifiedRes.status });
-    }
+    // const verifiedRes = await verifyToken(req);
+    // if (verifiedRes.status !== 200) {
+    //     return NextResponse.json({
+    //         msg: verifiedRes.msg
+    //     }, { status: verifiedRes.status });
+    // }
 
     // Step 1: Retrieve all stories
     let [storyRs,] = await dbConnection.query<GenericRowDataPacket<any>[]>(

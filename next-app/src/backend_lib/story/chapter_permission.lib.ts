@@ -28,3 +28,11 @@ export async function hasReadPermission(readerId: string, chapterId: string): Pr
 
     return permissionResult.length > 0; // If there's a record, the user has permission
 }
+
+// Helper function to check if the Chapter exists
+export async function checkChapterExists(refId: number) {
+    const [rows]: [RowDataPacket[], any] = await dbConnection.execute(`
+        SELECT * FROM Chapter WHERE cId = ?
+    `, [refId]);
+    return rows.length > 0;
+}
