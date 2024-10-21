@@ -1,20 +1,7 @@
 'use client'
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-
-interface FormData {
-    username: string;
-    password: string;
-    displayName: string;
-    sex: string;
-    email: string;
-    profilePic: File | null;
-    age: string;
-  }
-  
-  interface FormErrors {
-    [key: string]: string;
-  }
+import type { FormData,FormErrors } from '@/lib/types';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({

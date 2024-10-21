@@ -19,14 +19,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  author: string;
-  createdAt: string;
-  image?: string;
-}
+import { Post } from '@/lib/types';
 
 const CommunityPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);

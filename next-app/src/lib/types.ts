@@ -67,3 +67,26 @@ export interface SettingsContextType {
   setFontSize: (size: FontSize) => void;
   t: (key: keyof typeof translations.en) => string;
 }
+
+export interface FormData {
+  username: string;
+  password: string;
+  displayName: string;
+  sex: string;
+  email: string;
+  profilePic: File | null;
+  age: string;
+}
+
+export interface FormErrors {
+  [key: string]: string;
+}
+
+export interface Post {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  createdAt: string;
+  image?: string;
+}

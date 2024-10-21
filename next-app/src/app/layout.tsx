@@ -44,7 +44,7 @@ export default function RootLayout({
             {children}
           {/* </ProgressProvider>
         </NavigationProvider> */}
-        </SettingsProvider>
+          </SettingsProvider>
         </AuthProvider>
            
       </body>
