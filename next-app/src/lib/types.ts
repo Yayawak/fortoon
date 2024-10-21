@@ -90,3 +90,40 @@ export interface Post {
   createdAt: string;
   image?: string;
 }
+
+export interface MangaDetailProps {
+  params: {
+    sId: string;
+  };
+}
+
+export interface Chapter {
+  name: string;
+  cId: number;
+  storyId: number;
+  chapterSequence: number;
+  price: number;
+  images: string[];
+}
+
+export interface Review {
+  id: number;
+  user: string;
+  avatar: string;
+  rating: number;
+  comment: string;
+  likes: number;
+  date: string;
+}
+
+export interface Manga {
+  sId: number;
+  title: string;
+  introduction: string;
+  postedDatetime: string;
+  authorId: number;
+  coverImageUrl: string;
+  authorDisplayName: string;
+  chapters: Chapter[];
+  genres: string[];
+}

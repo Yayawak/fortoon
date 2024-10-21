@@ -1,9 +1,13 @@
-FROM node:18-alpine
+# FROM node:18-alpine
+
+# Use the official Bun image to leverage Bun as the package manager and runtime
+FROM jarredsumner/bun:edge
+
 
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY package.json yarn.lock* bun.lockb* package-lock.json* pnpm-lock.yaml* ./
 # RUN \
 #   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
 #   elif [ -f package-lock.json ]; then npm ci; \
@@ -11,7 +15,12 @@ COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 #   # Allow install without lockfile, so example works even without Node.js installed locally
 #   else echo "Warning: Lockfile not found. It is recommended to commit lockfiles to version control." && yarn install; \
 #   fi
-RUN npm ci
+# Install dependencies using Bun (fallback to npm if needed)
+RUN if [ -f bun.lockb ]; then bun install; \
+    elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then npm ci; \
+    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm install; \
+    else echo "No lockfile found, installing via Bun..." && bun install; fi
 
 COPY src ./src
 COPY public ./public
@@ -35,4 +44,6 @@ COPY postcss.config.mjs .
 #   else npm run dev; \
 #   fi
 
-CMD ["npm", "run", "dev"]
+# CMD ["npm", "run", "dev"]
+
+CMD ["bun", "run", "dev"]
