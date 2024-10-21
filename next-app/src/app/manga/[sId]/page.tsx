@@ -107,15 +107,15 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     }
   };
 
-  const handleReviewSubmit = async (e: React.FormEvent) => {
+  const handleReviewSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
     try {
       const response = await fetch(`/api/story/${params.sId}/review`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newReview),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -126,19 +126,22 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       fetchReviews();
       setIsReviewDialogOpen(false);
       setNewReview({ rating: 0, comment: '' });
+      form.reset();
     } catch (err) {
       console.error('Error submitting review:', err);
     }
   };
 
   const handleReviewUpdate = async (reviewId: number, updatedReview: Partial<Review>) => {
+    const formData = new FormData();
+    Object.entries(updatedReview).forEach(([key, value]) => {
+      formData.append(key, value.toString());
+    });
+
     try {
       const response = await fetch(`/api/story/${params.sId}/review/${reviewId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedReview),
+        body: formData,
       });
 
       if (!response.ok) {
