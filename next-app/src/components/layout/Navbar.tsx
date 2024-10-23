@@ -108,7 +108,7 @@ export default function Navbar() {
                   <DropdownMenuItem>
                     <Link href="/community" className="flex items-center">
                       <UserIcon className="mr-2 h-4 w-4" />
-                      community
+                      Community
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>

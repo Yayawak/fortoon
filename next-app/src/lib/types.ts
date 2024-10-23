@@ -83,12 +83,15 @@ export interface FormErrors {
 }
 
 export interface Post {
-  id: string;
+  pId: string;
   title: string;
   content: string;
-  author: string;
+  posterId: number,
   createdAt: string;
-  image?: string;
+  images: string[];
+  children: Post[];
+  postType?: string;
+  parentPostId?: number | null;
 }
 
 export interface MangaDetailProps {
@@ -126,4 +129,11 @@ export interface Manga {
   authorDisplayName: string;
   chapters: Chapter[];
   genres: string[];
+}
+
+export interface PostCardProps {
+  post: Post;
+  level?: number;
+  currentUserId: number | undefined;
+  onPostUpdate: () => void;
 }

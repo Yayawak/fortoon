@@ -6,8 +6,8 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { Loader2 } from "lucide-react";
 
 export default function Login() {
-  const [username, setUsername] = useState('yone');
-  const [password, setPassword] = useState('yone');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const { signIn, error, loginSuccess } = useAuth();
   const router = useRouter();
   const { t, theme } = useSettings();
