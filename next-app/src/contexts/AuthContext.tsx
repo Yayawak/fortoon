@@ -12,7 +12,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [loginSuccess, setLoginSuccess] = useState(false);
   const router = useRouter();
-
+  
   // Auto-login effect
   useEffect(() => {
     const checkAuthStatus = async () => {

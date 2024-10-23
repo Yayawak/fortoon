@@ -21,12 +21,43 @@ type MangaItem = {
 
     authorId: number;
     authorDisplayName: string;
+    rating?: number; 
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5
+    }
+  }
+};
+
+const fadeInVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { duration: 0.6 }
+  }
 };
 
 export default function Home() {
     const { t, theme } = useSettings();
     const [activeTab, setActiveTab] = useState('popular');
     const [mangaList, setMangaList] = useState<MangaItem[]>([]);
+    const [topMangaList, setTopMangaList] = useState<MangaItem[]>([]);
     const [filteredMangaList, setFilteredMangaList] = useState<MangaItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -43,63 +74,6 @@ export default function Home() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    const topManga = [
-        {
-            id: 1,
-            title: "Attack on Titan",
-            cover: "/api/placeholder/1200/600",
-            rating: 4.8,
-            description: "In a world where humanity lives inside cities surrounded by enormous walls due to the Titans, giant humanoid creatures who devour humans seemingly without reason...",
-        },
-        {
-            id: 2,
-            title: "One Piece",
-            cover: "/api/placeholder/1200/600",
-            rating: 4.9,
-            description: "Follow Monkey D. Luffy and his swashbuckling crew in their search for the ultimate treasure, One Piece.",
-        },
-        {
-            id: 3,
-            title: "Demon Slayer",
-            cover: "/api/placeholder/1200/600",
-            rating: 4.7,
-            description: "Tanjiro Kamado, a young boy who becomes a demon slayer after his family is slaughtered and his younger sister Nezuko is turned into a demon.",
-        },
-        {
-            id: 4,
-            title: "My Hero Academia",
-            cover: "/api/placeholder/1200/600",
-            rating: 4.6,
-            description: "In a world where people with superpowers known as 'Quirks' are the norm, Izuku Midoriya has dreams of one day becoming a Hero, despite being bullied for not having a Quirk.",
-        },
-        {
-            id: 5,
-            title: "Jujutsu Kaisen",
-            cover: "/api/placeholder/1200/600",
-            rating: 4.8,
-            description: "Yuji Itadori, a high schooler who joins a secret organization of Jujutsu Sorcerers in order to kill a powerful Curse named Ryomen Sukuna, of whom Yuji becomes the host.",
-        },
-    ];
-
-    // const mangaList: MangaItem[] = [
-    //   { 
-    //     id: 1, 
-    //     title: "One Piece", 
-    //     cover: "/api/placeholder/300/400",
-    //     rating: 4.9,
-    //     chapter: 1089,
-    //     views: "1.2M"
-    //   },
-    //   { 
-    //     id: 2, 
-    //     title: "Jujutsu Kaisen", 
-    //     cover: "/api/placeholder/300/400",
-    //     rating: 4.7,
-    //     chapter: 235,
-    //     views: "890K"
-    //   },
-    // ];
-
     const fetchMangaList = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -111,11 +85,26 @@ export default function Home() {
             console.log("API Response:", responseData);
 
             if (responseData && Array.isArray(responseData.data)) {
-                setMangaList(responseData.data);
-                setFilteredMangaList(responseData.data);
-            } else if (Array.isArray(responseData)) {
-                setMangaList(responseData);
-                setFilteredMangaList(responseData);
+              const allManga = responseData.data;
+              
+              // Set regular manga list
+              setMangaList(allManga);
+              setFilteredMangaList(allManga);
+
+              // Process top manga (for example, taking the first 5 with highest chapters count)
+              const topManga = [...allManga]
+                  .sort((a, b) => { 
+                    const dateA = new Date(a.postedDatetime).getTime();
+                    const dateB = new Date(b.postedDatetime).getTime();
+                    return dateB - dateA;
+                  })
+                  .slice(0, 5)
+                  .map(manga => ({
+                      ...manga,
+                      rating: (4.5 + Math.random() * 0.4).toFixed(1)  // Add random rating between 4.5-4.9
+                  }));
+              
+              setTopMangaList(topManga);
             } else {
                 console.error("Unexpected data format:", responseData);
                 throw new Error('Invalid data format');
@@ -133,9 +122,10 @@ export default function Home() {
         fetchMangaList();
     }, [fetchMangaList]);
 
-    useEffect(() => {
-        console.log("mangaList has been updated:", mangaList);
-    }, [mangaList]);
+  useEffect(() => {
+    console.log("mangaList has been updated:", mangaList);
+    console.log(mangaList[0]?.coverImageUrl)
+  }, [mangaList]);
 
     console.log("Rendering component. mangaList:", mangaList);
 
@@ -156,223 +146,336 @@ export default function Home() {
     };
 
     const sliderSettings = {
-        dots: true,
-        infinite: true,
-        speed: 500,
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        autoplay: true,
-        autoplaySpeed: 5000,
-        arrows: true,
-        responsive: [
-            {
-                breakpoint: 1024,
-                settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1,
-                }
-            }
-        ]
-    };
+      dots: true,
+      infinite: true,
+      speed: 500,
+      slidesToShow: 3,
+      slidesToScroll: 1,
+      autoplay: true,
+      autoplaySpeed: 5000,
+      arrows: true,
+      responsive: [
+          {
+              breakpoint: 1024,
+              settings: {
+                  slidesToShow: 2,
+                  slidesToScroll: 1,
+              }
+          },
+          {
+              breakpoint: 640,
+              settings: {
+                  slidesToShow: 1,
+                  slidesToScroll: 1,
+              }
+          }
+      ]
+  };
 
-    const mobileNavVariants = {
-        hidden: { y: -100, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-            transition: { type: "spring", stiffness: 100 }
-        }
-    };
 
-    return (
-        <div className={`min-h-screen bg-gray-100 text-gray-900 ${theme === 'dark' ? 'dark' : ''}`}>
-            {/* Hero Section with Slider */}
-            <section className="relative h-screen">
-                <Slider {...sliderSettings}>
-                    {topManga.map((manga) => (
-                        <div key={manga.id} className="relative h-screen">
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 1 }}
-                                className="absolute inset-0"
-                            >
-                                <CldImage
-                                    src={manga.cover}
-                                    alt={manga.title}
-                                    fill
-                                    style={{ objectFit: "cover" }}
-                                    className="opacity-70"
-                                />
-                            </motion.div>
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8">
-                                <motion.h1
-                                    initial={{ y: -50, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.8 }}
-                                    className="text-6xl font-bold mb-4 text-center"
-                                >
-                                    {manga.title}
-                                </motion.h1>
-                                <motion.div
-                                    initial={{ y: 50, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.8, delay: 0.2 }}
-                                    className="flex items-center mb-4"
-                                >
-                                    <Star className="w-6 h-6 text-yellow-400 mr-2" />
-                                    <span className="text-xl">{manga.rating}</span>
-                                </motion.div>
-                                <motion.p
-                                    initial={{ y: 50, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.8, delay: 0.4 }}
-                                    className="text-xl mb-8 max-w-2xl text-center"
-                                >
-                                    {manga.description}
-                                </motion.p>
-                                <motion.button
-                                    initial={{ y: 50, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.8, delay: 0.6 }}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="bg-blue-500 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-600 transition-colors duration-300"
-                                >
-                                    Explore Now
-                                </motion.button>
-                            </div>
+  const mobileNavVariants = {
+    hidden: { y: -100, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: "spring", stiffness: 100 }
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, { 
+        month: 'short', 
+        day: 'numeric' 
+    });
+};
+  
+  return (
+    <AnimatePresence>
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        className={`min-h-screen ${theme === 'dark' ? 'dark bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}
+      >
+        {/* Hero Section with Enhanced Animations */}
+        <section className="min-h-screen w-full bg-gradient-to-b from-blue-900 to-gray-900">
+      <div className="container mx-auto px-4 py-8 lg:py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8 lg:mb-12"
+        >
+          <h2 className="text-3xl lg:text-4xl font-bold text-white">การ์ตูนยอดนิยม</h2>
+        </motion.div>
+        
+        <div className="relative px-4 lg:px-8">
+          <Slider {...sliderSettings} className="featured-manga-slider">
+            {topMangaList.map((manga) => (
+              <motion.div
+                key={manga.sId}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-2 lg:p-4"
+              >
+                <div className="bg-gray-800 rounded-lg overflow-hidden shadow-2xl hover:scale-105 transition-transform duration-300">
+                  <div className="relative aspect-[2/3] w-full">
+                    <CldImage 
+                      src={manga.coverImageUrl}
+                      alt={manga.title}
+                      fill
+                      className="object-cover transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0">
+                      {/* Top gradient overlay */}
+                      <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/70 to-transparent">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center bg-yellow-500 rounded-full px-2 py-1">
+                            <Star className="w-4 h-4 text-white" />
+                            <span className="text-white ml-1 font-bold">
+                              {manga.rating}
+                            </span>
+                          </div>
+                          <span className="text-white bg-blue-600 rounded-full px-3 py-1 text-sm">
+                            {formatDate(manga.postedDatetime)}
+                          </span>
                         </div>
-                    ))}
-                </Slider>
-            </section>
-
-            {/* Search Section */}
-            <section className="bg-blue-600 py-16">
-                <div className="container mx-auto px-4">
-                    <div className="max-w-2xl mx-auto">
-                        <h2 className="text-3xl font-bold text-white mb-8 text-center">Discover Your Next Manga Adventure</h2>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder={t('searchPlaceholder')}
-                                value={searchTerm}
-                                onChange={handleSearch}
-                                className="w-full px-6 py-4 rounded-full bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            />
-                            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        </div>
+                      </div>
+                      
+                      {/* Bottom gradient overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
+                        <h3 className="text-white font-bold text-lg lg:text-xl mb-2 line-clamp-2">
+                          {manga.title}
+                        </h3>
+                        <p className="text-gray-200 text-sm line-clamp-3 mb-4">
+                          {manga.introduction}
+                        </p>
+                        <Link href={`/manga/${manga.sId}`}>
+                          <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300">
+                            Read Now
+                          </button>
+                        </Link>
+                      </div>
                     </div>
+                  </div>
                 </div>
-            </section>
-
-            {/* Manga List Section */}
-            <section className="py-20 px-4">
-                <div className="container mx-auto">
-                    <h2 className="text-4xl font-bold mb-12 text-center">Explore Manga Worlds</h2>
-                    {isLoading ? (
-                        <div className="text-center py-8">Loading...</div>
-                    ) : error ? (
-                        <div className="text-center py-8 text-red-500">{error}</div>
-                    ) : filteredMangaList.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {filteredMangaList.map((manga) => (
-                                <Link
-                                    key={manga.sId}
-                                    href={`/manga/${manga.sId}`}
-                                    className="group"
-                                >
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5 }}
-                                        className="bg-white rounded-lg shadow-lg overflow-hidden"
-                                    >
-                                        <div className="relative h-64">
-                                            <CldImage
-                                                src={manga.coverImageUrl}
-                                                alt={manga.title}
-                                                fill
-                                                style={{ objectFit: "cover" }}
-                                                className="group-hover:scale-105 transition-transform duration-300"
-                                            />
-                                        </div>
-                                        <div className="p-6">
-                                            <h3 className="text-2xl font-semibold mb-2">{manga.title}</h3>
-                                            <p className="text-gray-600 mb-4">{manga.introduction.slice(0, 100)}...</p>
-                                            <div className="flex items-center justify-between text-sm text-gray-500">
-                                                <div className="flex items-center">
-                                                    <MapPin className="w-4 h-4 mr-1" />
-                                                    <span>{manga.authorDisplayName}</span>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <Clock className="w-4 h-4 mr-1" />
-                                                    <span>{new Date(manga.postedDatetime).toLocaleDateString()}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </Link>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-8">
-                            {searchTerm ? "No manga found matching your search." : "No manga available."}
-                        </div>
-                    )}
-                </div>
-            </section>
-
-            {/* Call to Action with Animation */}
-            <motion.section
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true }}
-                className="bg-blue-600 text-white py-16 md:py-20 px-4"
-            >
-                <div className="container mx-auto text-center">
-                    <motion.h2
-                        initial={{ y: -20, opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        viewport={{ once: true }}
-                        className="text-3xl md:text-4xl font-bold mb-4"
-                    >
-                        Ready to Start Your Manga Journey?
-                    </motion.h2>
-                    <motion.p
-                        initial={{ y: -20, opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                        viewport={{ once: true }}
-                        className="text-lg md:text-xl mb-8"
-                    >
-                        Join our community and explore countless manga worlds!
-                    </motion.p>
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-white text-blue-600 px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-100 transition-colors duration-300"
-                    >
-                        Sign Up Now
-                    </motion.button>
-                </div>
-            </motion.section>
-
-            {/* Footer with Animation */}
-            <motion.footer
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true }}
-                className="bg-gray-800 text-white py-6 md:py-8 px-4"
-            >
-                <div className="container mx-auto text-center">
-                    <p>&copy; 2024 Manga Journey Quest. All rights reserved.</p>
-                </div>
-            </motion.footer>
+              </motion.div>
+            ))}
+          </Slider>
         </div>
-    );
+      </div>
+
+      {/* Slider Custom Styles */}
+      <style jsx>{`
+        .featured-manga-slider :global(.slick-track) {
+          @apply flex gap-4;
+        }
+        
+        .featured-manga-slider :global(.slick-slide) {
+          @apply h-full;
+        }
+
+        .featured-manga-slider :global(.slick-slide > div) {
+          @apply h-full;
+        }
+
+        .featured-manga-slider :global(.slick-prev),
+        .featured-manga-slider :global(.slick-next) {
+          @apply w-10 h-10 bg-white/20 rounded-full z-10 transition-all duration-300;
+        }
+
+        .featured-manga-slider :global(.slick-prev:hover),
+        .featured-manga-slider :global(.slick-next:hover) {
+          @apply bg-white/30;
+        }
+
+        .featured-manga-slider :global(.slick-prev) {
+          @apply -left-5;
+        }
+
+        .featured-manga-slider :global(.slick-next) {
+          @apply -right-5;
+        }
+
+        .featured-manga-slider :global(.slick-dots) {
+          @apply -bottom-8;
+        }
+
+        .featured-manga-slider :global(.slick-dots li button:before) {
+          @apply text-white;
+        }
+
+        .featured-manga-slider :global(.slick-dots li.slick-active button:before) {
+          @apply text-blue-500;
+        }
+      `}</style>
+    </section>
+
+        {/* Search Section with Animation */}
+        <motion.section 
+          variants={fadeInVariants}
+          className="bg-blue-600 py-12 md:py-16"
+        >
+          <div className="container mx-auto px-4">
+            <div className="max-w-2xl mx-auto">
+              <motion.h2 
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="text-2xl md:text-3xl font-bold text-white mb-8 text-center"
+              >
+                Discover Your Next Manga Adventure
+              </motion.h2>
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="relative"
+              >
+                <input 
+                  type="text" 
+                  placeholder={t('searchPlaceholder')}
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  className="w-full px-4 md:px-6 py-3 md:py-4 rounded-full bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              </motion.div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Manga List Section with Grid Animation */}
+        <motion.section 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="py-12 md:py-20 px-4"
+        >
+          <div className="container mx-auto">
+            <motion.h2 
+              variants={itemVariants}
+              className="text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center"
+            >
+              Explore Manga Worlds
+            </motion.h2>
+            
+            {isLoading ? (
+              <motion.div 
+                variants={fadeInVariants}
+                className="text-center py-8"
+              >
+                Loading...
+              </motion.div>
+            ) : error ? (
+              <motion.div 
+                variants={fadeInVariants}
+                className="text-center py-8 text-red-500"
+              >
+                {error}
+              </motion.div>
+            ) : (
+              <motion.div 
+                variants={containerVariants}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8"
+              >
+                <AnimatePresence>
+                  {filteredMangaList.map((manga) => (
+                    <motion.div
+                      key={manga.sId}
+                      variants={itemVariants}
+                      layout
+                      whileHover={{ y: -5 }}
+                    >
+                      <Link href={`/manga/${manga.sId}`}>
+                        <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300`}>
+                          <div className="relative h-48 md:h-64">
+                            <CldImage 
+                              src={manga.coverImageUrl}
+                              alt={manga.title}
+                              fill
+                              style={{objectFit: "cover"}}
+                              className="transition-transform duration-300 hover:scale-105"
+                            />
+                          </div>
+                          <div className="p-4 md:p-6">
+                            <h3 className="text-xl md:text-2xl font-semibold mb-2 dark:text-white">
+                              {manga.title}
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base mb-4">
+                              {manga.introduction.slice(0, 100)}...
+                            </p>
+                            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                              <div className="flex items-center">
+                                <MapPin className="w-4 h-4 mr-1" />
+                                <span>{manga.authorDisplayName}</span>
+                              </div>
+                              <div className="flex items-center">
+                                <Clock className="w-4 h-4 mr-1" />
+                                <span>{new Date(manga.postedDatetime).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </div>
+        </motion.section>
+
+        {/* Call to Action with Animation */}
+        <motion.section 
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="bg-blue-600 text-white py-16 md:py-20 px-4"
+        >
+          <div className="container mx-auto text-center">
+            <motion.h2 
+              initial={{ y: -20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-bold mb-4"
+            >
+              Ready to Start Your Manga Journey?
+            </motion.h2>
+            <motion.p 
+              initial={{ y: -20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              viewport={{ once: true }}
+              className="text-lg md:text-xl mb-8"
+            >
+              Join our community and explore countless manga worlds!
+            </motion.p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white text-blue-600 px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-100 transition-colors duration-300"
+            >
+              Sign Up Now
+            </motion.button>
+          </div>
+        </motion.section>
+
+        {/* Footer with Animation */}
+        <motion.footer 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="bg-gray-800 text-white py-6 md:py-8 px-4"
+        >
+          <div className="container mx-auto text-center">
+            <p>&copy; 2024 Manga Journey Quest. All rights reserved.</p>
+          </div>
+        </motion.footer>
+      </motion.div>
+    </AnimatePresence>
+  );
 }

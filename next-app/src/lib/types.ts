@@ -46,7 +46,7 @@ export interface User {
   username: string;
   credit: number;
   age: number;
-  
+  displayName: string;
 }
 
 export interface AuthContextType {

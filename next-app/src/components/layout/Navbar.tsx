@@ -14,6 +14,7 @@ import {
 import { Search, LogOut, Settings, User as UserIcon, Sun, Moon, Menu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext'; 
 import { useSettings } from '@/contexts/SettingsContext';
+import Image from 'next/image';
 
 export default function Navbar() {
   const { user, signOut } = useAuth(); 
@@ -56,7 +57,15 @@ export default function Navbar() {
             <Link href="/">
               <Button className="flex items-center">
                 <span className="text-xl font-bold">Fortoon</span>
-                <img src="/logo.svg" alt="Manga App Logo" className="h-8 w-8" />
+                {/* <img src="/logo.svg" alt="Manga App Logo" className="h-8 w-8" /> */}
+                <div className="relative h-12 w-12">
+                  <Image 
+                    src="/logo.svg" 
+                    alt="Manga App Logo" 
+                    fill 
+                    className="object-contain" 
+                  />
+                </div>
               </Button>
             </Link>
           </div>
@@ -109,6 +118,12 @@ export default function Navbar() {
                     <Link href="/community" className="flex items-center">
                       <UserIcon className="mr-2 h-4 w-4" />
                       Community
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="/topup" className="flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      topup
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
@@ -175,6 +190,7 @@ export default function Navbar() {
                     </li>
                     <li><Link href="/profile" className="block py-2">Profile</Link></li>
                     <li><Link href="/community" className="block py-2">community</Link></li>
+                    <li><Link href="/topup" className="block py-2">topup</Link></li>
                     <li><Link href="/settings" className="block py-2">Settings</Link></li>
                     <li><Button onClick={signOut} className="mt-4">Sign Out</Button></li>
                   </>

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AuthContext'; 
 // import { getCurrentUser } from '@/lib/auth';
 
 interface MangaFormData {
@@ -16,17 +17,12 @@ interface MangaFormData {
   coverImage: File | null;
 }
 
-interface User {
-  username: string;
-  uId: number;
-}
-
 const CreateManga: React.FC = () => {
   const router = useRouter();
   const { toast } = useToast();
-  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth(); 
 
   const [formData, setFormData] = useState<MangaFormData>({
     title: '',
@@ -90,7 +86,6 @@ const CreateManga: React.FC = () => {
     }
 
     try {
-      // const response = await fetch(`/api/user/${user.uId}/story`, {
       const response = await fetch(`/api/story`, {
         method: 'POST',
         body: formDataToSend,
@@ -103,11 +98,12 @@ const CreateManga: React.FC = () => {
       }
 
       const result = await response.json();
+      console.log(result)
       toast({
         title: "Success",
         description: "Story created successfully!",
       });
-      router.push(`/stories/${result.id}`);
+      router.push(`/manga/${result.id}`);
     } catch (error) {
       console.error('Error creating story:', error);
       toast({

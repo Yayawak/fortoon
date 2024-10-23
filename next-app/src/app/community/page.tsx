@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Heart, MessageSquare, Share2, Trash2 } from 'lucide-react';
+import { Heart, MessageSquare, Share2, Trash2, Sun, Moon } from 'lucide-react';
 import { 
   Card,
   CardContent,
@@ -24,7 +24,20 @@ import {
 import { Post } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { CldImage } from 'next-cloudinary';
+import { useSettings } from '@/contexts/SettingsContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from "@/hooks/use-toast";
+interface PostFormData {
+  title: string;
+  content: string;
+  images: File[];
+}
 
+interface ReplyFormData {
+  title: string;
+  content: string;
+  images: File[];
+}
 // Extend Post type to include likes
 interface EnhancedPost extends Post {
   likes?: number;
@@ -47,7 +60,73 @@ const PostCard: React.FC<{
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes || 0);
   const [isLiked, setIsLiked] = useState(post.isLiked || false);
-  // const { theme } = useTheme();
+  const { theme } = useSettings();
+  const { toast } = useToast();
+
+  const [replyFormData, setReplyFormData] = useState<ReplyFormData>({
+    title: '',
+    content: '',
+    images: []
+  });
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setReplyFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setReplyFormData(prev => ({ ...prev, image: e.target.files![0] }));
+    }
+  };
+
+  const handleReplySubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('postType', 'community');
+      formData.append('parentPostId', post.pId.toString());
+      formData.append('title', replyFormData.title);
+      formData.append('content', replyFormData.content);
+      
+      replyFormData.images.forEach(image => {
+        formData.append('images', image);
+      });
+      
+      const response = await fetch('/api/community/post', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit reply');
+      }
+      
+      setReplyFormData({
+        title: '',
+        content: '',
+        images: []
+      });
+      setIsReplying(false);
+      onPostUpdate();
+      
+      toast({
+        title: "Success",
+        description: "Reply posted successfully!",
+      });
+    } catch (err) {
+      console.error('Error posting reply:', err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to post reply. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   const isLongContent = post.content.length > 200;
   const displayContent = isLongContent && !isExpanded 
@@ -68,38 +147,6 @@ const PostCard: React.FC<{
       setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     } catch (err) {
       console.error('Error liking post:', err);
-    }
-  };
-
-  const handleReplySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      const form = e.currentTarget;
-      const formData = new FormData(form);
-      
-      formData.append('postType', 'community');
-      formData.append('parentPostId', post.pId.toString());
-      
-      const response = await fetch('/api/community/post', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to submit reply');
-      }
-      
-      form.reset();
-      setIsReplying(false);
-      onPostUpdate();
-    } catch (err) {
-      console.error('Error posting reply:', err);
-      alert(err instanceof Error ? err.message : 'Failed to post reply');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -126,16 +173,29 @@ const PostCard: React.FC<{
   const isOwnPost = post.posterId === currentUserId;
 
   return (
-    <div style={{ marginLeft: `${level * 2}rem` }}>
-      <Card className={`mb-4 ${isOwnPost ? 'border-primary/50 border-2' : ''} hover:shadow-lg transition-shadow duration-200`}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      style={{ marginLeft: `${level * 2}rem` }}
+    >
+      <Card className={`mb-4 ${isOwnPost ? 'border-primary/50 border-2' : ''} 
+        hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1
+        ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white'}`}>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>{post.title}</span>
+            <motion.span
+              whileHover={{ scale: 1.01 }}
+              className="text-xl font-bold"
+            >
+              {post.title}
+            </motion.span>
             {isOwnPost && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-destructive hover:text-destructive/90"
+                className="text-destructive hover:text-destructive/90 hover:rotate-12 transition-transform"
                 onClick={handleDeletePost}
               >
                 <Trash2 className="h-5 w-5" />
@@ -151,8 +211,12 @@ const PostCard: React.FC<{
         </CardHeader>
         
         <CardContent>
-          <div className="mb-4">
-            <p className="whitespace-pre-wrap break-words">
+          <motion.div 
+            className="mb-4"
+            initial={false}
+            animate={{ height: 'auto' }}
+          >
+            <p className="whitespace-pre-wrap break-words leading-relaxed">
               {displayContent}
             </p>
             {isLongContent && (
@@ -160,25 +224,30 @@ const PostCard: React.FC<{
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="mt-2"
+                className="mt-2 hover:scale-105 transition-transform"
               >
                 {isExpanded ? 'Show Less' : 'Read More'}
               </Button>
             )}
-          </div>
+          </motion.div>
           
           {post.images && post.images.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               {post.images.map((image, index) => (
-          <div key={index} className="relative w-full h-64">
-            <CldImage
-              src={image}
-              alt={`Post image ${index + 1}`}
-              fill
-              style={{objectFit: "cover"}}
-              className="transition-transform duration-300 hover:scale-105 rounded-lg"
-            />
-          </div>
+                <motion.div
+                  key={index}
+                  className="relative w-full h-64 overflow-hidden rounded-lg"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <CldImage
+                    src={image}
+                    alt={`Post image ${index + 1}`}
+                    fill
+                    style={{objectFit: "cover"}}
+                    className="transition-transform duration-300 hover:scale-105 rounded-lg"
+                  />
+                </motion.div>
               ))}
             </div>
           )}
@@ -186,78 +255,110 @@ const PostCard: React.FC<{
 
         <CardFooter className="flex justify-between items-center">
           <div className="flex gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`flex items-center gap-2 ${isLiked ? 'text-red-500' : ''}`}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              className={`flex items-center gap-2 p-2 rounded-full
+                ${isLiked ? 'text-red-500' : ''} 
+                hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
               onClick={handleLike}
             >
               <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
               <span>{likeCount}</span>
-            </Button>
+            </motion.button>
             
-            <Button 
-              variant="ghost" 
-              size="sm"
-              disabled={isSubmitting}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 p-2 rounded-full
+                hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               onClick={() => setIsReplying(!isReplying)}
-              className="flex items-center gap-2"
+              disabled={isSubmitting}
             >
               <MessageSquare className="h-5 w-5" />
               <span>{isReplying ? 'Cancel' : 'Reply'}</span>
-            </Button>
+            </motion.button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex items-center gap-2"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 p-2 rounded-full
+                hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <Share2 className="h-5 w-5" />
               <span>Share</span>
-            </Button>
+            </motion.button>
           </div>
         </CardFooter>
 
-        {isReplying && (
-          <CardContent>
-            <form onSubmit={handleReplySubmit} className="mt-4">
-              <div className="mb-4">
-                <Label htmlFor={`reply-title-${post.pId}`}>Title</Label>
-                <Input 
-                  id={`reply-title-${post.pId}`}
-                  name="title"
-                  placeholder="Reply title"
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="mb-4">
-                <Label htmlFor={`reply-content-${post.pId}`}>Your Reply</Label>
-                <textarea
-                  id={`reply-content-${post.pId}`}
-                  name="content"
-                  placeholder="Write your reply..."
-                  required
-                  disabled={isSubmitting}
-                  className="w-full min-h-[100px] p-2 border rounded-md"
-                />
-              </div>
-              <div className="mb-4">
-                <Label htmlFor={`reply-image-${post.pId}`}>Image (optional)</Label>
-                <Input
-                  id={`reply-image-${post.pId}`}
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  disabled={isSubmitting}
-                />
-              </div>
-              <Button type="submit" size="sm" disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting...' : 'Submit Reply'}
-              </Button>
-            </form>
-          </CardContent>
-        )}
+        <AnimatePresence>
+          {isReplying && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <CardContent>
+                <form onSubmit={handleReplySubmit} className="mt-4 space-y-4">
+                  <div>
+                    <Label htmlFor={`reply-title-${post.pId}`}>Title</Label>
+                    <Input 
+                      id={`reply-title-${post.pId}`}
+                      name="title"
+                      value={replyFormData.title}
+                      onChange={handleInputChange}
+                      placeholder="Reply title"
+                      required
+                      disabled={isSubmitting}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`reply-content-${post.pId}`}>Your Reply</Label>
+                    <textarea
+                      id={`reply-content-${post.pId}`}
+                      name="content"
+                      value={replyFormData.content}
+                      onChange={handleInputChange}
+                      placeholder="Write your reply..."
+                      required
+                      disabled={isSubmitting}
+                      className="w-full min-h-[100px] p-2 border rounded-md mt-1
+                        focus:ring-2 focus:ring-primary/50 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`reply-image-${post.pId}`}>Image (optional)</Label>
+                    <Input
+                      id={`reply-image-${post.pId}`}
+                      name="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      disabled={isSubmitting}
+                      className="mt-1"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="w-full md:w-auto transition-all duration-300
+                      hover:scale-105 active:scale-95"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Submitting...</span>
+                      </div>
+                    ) : (
+                      'Submit Reply'
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {post.children && post.children.length > 0 && (
           <CardContent className="pt-0">
@@ -273,17 +374,24 @@ const PostCard: React.FC<{
           </CardContent>
         )}
       </Card>
-    </div>
+    </motion.div>
   );
 };
 
 const CommunityPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
-  // const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useSettings();
+  const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const [postFormData, setPostFormData] = useState<PostFormData>({
+    title: '',
+    content: '',
+    images: []
+  });
 
   const fetchPosts = async () => {
     try {
@@ -296,25 +404,73 @@ const CommunityPage: React.FC = () => {
       setPosts(result.data.posts);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   useEffect(() => {
     fetchPosts();
   }, []);
 
-  const handleSubmitPost = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setPostFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      // Validate file types and sizes
+      const files = Array.from(e.target.files);
+      const validFiles = files.filter(file => {
+        const isValidType = file.type.startsWith('image/');
+        const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
+        
+        if (!isValidType) {
+          toast({
+            variant: "destructive",
+            title: "Invalid file type",
+            description: `${file.name} is not an image file.`,
+          });
+        }
+        
+        if (!isValidSize) {
+          toast({
+            variant: "destructive",
+            title: "File too large",
+            description: `${file.name} exceeds 5MB limit.`,
+          });
+        }
+        
+        return isValidType && isValidSize;
+      });
+
+      setPostFormData(prev => ({ ...prev, images: validFiles }));
+    }
+  };
+
+  const resetForm = () => {
+    setPostFormData({
+      title: '',
+      content: '',
+      images: []
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleSubmitPost = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      const form = e.currentTarget;
-      const formData = new FormData(form);
-
-      // Add postType for community posts
-    formData.append('postType', 'community');
+      const formData = new FormData();
+      formData.append('postType', 'community');
+      formData.append('title', postFormData.title);
+      formData.append('content', postFormData.content);
+      
+      postFormData.images.forEach(image => {
+        formData.append('images', image);
+      });
       
       const response = await fetch('/api/community/post', {
         method: 'POST',
@@ -326,11 +482,19 @@ const CommunityPage: React.FC = () => {
         throw new Error(errorData.message || 'Failed to submit post');
       }
       
-      form.reset();
-      fetchPosts(); // Refresh posts after successful submission
+      resetForm();
+      fetchPosts();
+      toast({
+        title: "Success",
+        description: "Post created successfully!",
+      });
     } catch (err) {
       console.error('Error submitting post:', err);
-      alert(err instanceof Error ? err.message : 'Failed to submit post');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to create post. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -338,53 +502,66 @@ const CommunityPage: React.FC = () => {
 
   const userPosts = posts.filter(post => post.posterId === user?.uId);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
   return (
-    <div className="container mx-auto p-4">
-
+    <div className={`container mx-auto p-4 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50'}`}>
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Create a New Post</CardTitle>
           <CardDescription>Share your thoughts with the community</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmitPost} encType="multipart/form-data">
-            <div className="mb-4">
+          <form onSubmit={handleSubmitPost} className="space-y-4">
+            <div>
               <Label htmlFor="post-title">Title</Label>
               <Input 
                 id="post-title" 
-                name="title" 
+                name="title"
+                value={postFormData.title}
+                onChange={handleInputChange}
                 placeholder="Enter post title" 
                 required
                 disabled={isSubmitting}
               />
             </div>
-            <div className="mb-4">
+            <div>
               <Label htmlFor="post-content">Your Post</Label>
               <textarea
                 id="post-content"
                 name="content"
+                value={postFormData.content}
+                onChange={handleInputChange}
                 placeholder="What's on your mind?"
                 required
                 disabled={isSubmitting}
                 className="w-full min-h-[100px] p-2 border rounded-md"
               />
             </div>
-            <div className="mb-4">
-              <Label htmlFor="post-image">Image (optional)</Label>
+            <div>
+              <Label htmlFor="post-image">Images (optional)</Label>
               <Input 
                 id="post-image" 
                 name="image" 
                 type="file" 
-                accept="image/*" 
+                accept="image/*"
+                onChange={handleFileChange}
                 multiple
                 disabled={isSubmitting}
               />
             </div>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Posting...' : 'Post'}
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="w-full md:w-auto transition-all duration-300
+                hover:scale-105 active:scale-95"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Posting...</span>
+                </div>
+              ) : (
+                'Create Post'
+              )}
             </Button>
           </form>
         </CardContent>
