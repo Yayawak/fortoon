@@ -48,7 +48,7 @@
     "react-router-dom": "^6.27.0",
     "react-slick": "^0.30.2",
     "slick-carousel": "^1.8.1",
-    "tailwind-merge": "^2.5.3",
+    "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "universal-cookie": "^7.2.1",
     "zod": "^3.23.8",
@@ -68,5 +68,15 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "resolutions": {
+    "string-width": "^4.2.3",
+    "strip-ansi": "^6.0.1",
+    "wrap-ansi": "^8.0.1"
+  },
+  "overrides": {
+    "string-width-cjs": "npm:string-width@4.2.3",
+    "strip-ansi-cjs": "npm:strip-ansi@6.0.1",
+    "wrap-ansi-cjs": "npm:wrap-ansi@8.0.1"
   }
 }

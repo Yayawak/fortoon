@@ -4,37 +4,16 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from "@/contexts/SettingsContext";
 import { Loader2 } from "lucide-react";
-import { getCookie } from 'cookies-next'; 
-import { jwtVerify } from 'jose'; 
-
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-key');
 
 export default function Login() {
-  const [username, setUsername] = useState('yone');
-  const [password, setPassword] = useState('yone');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const { signIn, error, loginSuccess } = useAuth();
   const router = useRouter();
   const { t, theme } = useSettings();
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const checkToken = async () => {
-      const token = getCookie('token') as string; // Retrieve token from cookies
 
-      if (token) {
-        try {
-          const { payload } = await jwtVerify(token, JWT_SECRET); // Verify token
-          console.log('Token valid, redirecting to home');
-
-          router.push('/'); // Redirect to home if token is valid
-        } catch (error) {
-          console.error('Invalid token:', error); // If token is invalid, stay on login
-        }
-      }
-    };
-
-    checkToken(); // Run the check on component mount
-  }, [router]);
 
   useEffect(() => {
     if (loginSuccess) {

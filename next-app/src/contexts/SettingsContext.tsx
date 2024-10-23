@@ -1,18 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Language, Theme, FontSize } from '@/backend_lib/types';
-import { translations } from '@/backend_lib/translations';
-
-interface SettingsContextType {
-  language: Language;
-  setLanguage: (lang: Language) => void;
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  fontSize: FontSize;
-  setFontSize: (size: FontSize) => void;
-  t: (key: keyof typeof translations.en) => string;
-}
+import { Language, Theme, FontSize, SettingsContextType} from '@/lib/types';
+import { translations } from '@/lib/translations';
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 

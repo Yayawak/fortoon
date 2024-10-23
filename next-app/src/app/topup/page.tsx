@@ -9,9 +9,9 @@ import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
 
 const coinPackages = [
-  { coins: 100, price: 5 },
-  { coins: 500, price: 20 },
-  { coins: 1000, price: 35 },
+  { coins: 10, price: 5 },
+  { coins: 50, price: 20 },
+  { coins: 100, price: 35 },
 ];
 
 export default function TopUpPage() {
@@ -49,7 +49,8 @@ export default function TopUpPage() {
       }
 
       const data = await response.json();
-      setBalance(data.newBalance);
+      console.log(data)
+      setBalance(data.data.newBalance);
       toast({
         title: "Top Up Successful",
         description: `Added ${coinsToAdd} coins. New balance: ${data.newBalance} coins.`,
