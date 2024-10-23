@@ -106,6 +106,12 @@ export default function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
+                    <Link href="/community" className="flex items-center">
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      community
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
                     <Link href="/settings" className="flex items-center">
                       <Settings className="mr-2 h-4 w-4" />
                       Settings
@@ -168,6 +174,7 @@ export default function Navbar() {
                       <div className="text-sm text-muted-foreground">Credits: {user?.credit}</div>
                     </li>
                     <li><Link href="/profile" className="block py-2">Profile</Link></li>
+                    <li><Link href="/community" className="block py-2">community</Link></li>
                     <li><Link href="/settings" className="block py-2">Settings</Link></li>
                     <li><Button onClick={signOut} className="mt-4">Sign Out</Button></li>
                   </>
