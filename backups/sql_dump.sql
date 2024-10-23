@@ -40,7 +40,7 @@ CREATE TABLE `Chapter` (
 
 LOCK TABLES `Chapter` WRITE;
 /*!40000 ALTER TABLE `Chapter` DISABLE KEYS */;
-INSERT INTO `Chapter` VALUES ('',13,1,1,10),('',15,23,1,0),('i\'am solo',16,1,2,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0),('i\'am solo',24,1,5,0),('The Strongest of the Human Race',25,26,2,0);
+INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,10),('ราตรีแสนสุข',15,23,1,0),('i\'am solo',16,1,2,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0),('i\'am solo',24,1,5,0),('The Strongest of the Human Race',25,26,2,0);
 /*!40000 ALTER TABLE `Chapter` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -138,26 +138,17 @@ CREATE TABLE `Post` (
   `content` varchar(400) NOT NULL,
   `parentPostId` int(10) unsigned DEFAULT NULL,
   `posterId` int(10) unsigned NOT NULL,
-<<<<<<< HEAD
   `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `hidden` tinyint(1) NOT NULL DEFAULT '0',
-  `refId` int(10) unsigned DEFAULT NULL,
+  `refId` int(10) unsigned DEFAULT NULL COMMENT 'ref to Story and Chapter table if not specify mean this Post is belong to community (stand alone post)',
   `refType` enum('story','chapter','community') NOT NULL,
-=======
-  `postedDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
->>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
   PRIMARY KEY (`pId`),
   KEY `Post_Post_FK` (`parentPostId`),
   KEY `Post_User_FK` (`posterId`),
   KEY `Post_Chapter_FK` (`refId`),
-  CONSTRAINT `Post_Chapter_FK` FOREIGN KEY (`refId`) REFERENCES `Chapter` (`cId`) ON UPDATE CASCADE,
   CONSTRAINT `Post_Post_FK` FOREIGN KEY (`parentPostId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `Post_User_FK` FOREIGN KEY (`posterId`) REFERENCES `User` (`uId`)
-<<<<<<< HEAD
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
-=======
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
->>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -166,11 +157,7 @@ CREATE TABLE `Post` (
 
 LOCK TABLES `Post` WRITE;
 /*!40000 ALTER TABLE `Post` DISABLE KEYS */;
-<<<<<<< HEAD
-INSERT INTO `Post` VALUES ('concerto',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58',0,NULL,'story'),('where is saran',7,'5555555555555555555',NULL,2,'2024-10-16 13:56:03',0,NULL,'story'),('nepchar',8,'nlp so so end',NULL,1,'2024-10-16 15:41:04',0,NULL,'story'),('nepchar',9,'charcharset utf64',8,1,'2024-10-18 18:11:31',0,NULL,'story'),('narjar',10,'eeeeiiieieieieieieieieie',6,1,'2024-10-18 18:17:11',0,NULL,'story'),('kiki',11,'bajaha na',10,1,'2024-10-18 18:17:50',0,NULL,'story'),('kiki',12,'bajaha na',10,1,'2024-10-18 18:18:29',0,NULL,'story'),('kiki',13,'bajaha na',10,1,'2024-10-19 07:24:00',0,NULL,'story');
-=======
-INSERT INTO `Post` VALUES ('nepchar',1,'charcharset utf64',NULL,1,'2024-10-18 12:36:39');
->>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
+INSERT INTO `Post` VALUES ('concerto',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58',0,NULL,'story'),('where is saran',7,'5555555555555555555',NULL,2,'2024-10-16 13:56:03',0,NULL,'story'),('nepchar',8,'nlp so so end',NULL,1,'2024-10-16 15:41:04',0,NULL,'story'),('nepchar',9,'charcharset utf64',8,1,'2024-10-18 18:11:31',0,NULL,'story'),('narjar',10,'eeeeiiieieieieieieieieie',6,1,'2024-10-18 18:17:11',0,NULL,'story'),('kiki',11,'bajaha na',10,1,'2024-10-18 18:17:50',0,NULL,'story'),('kiki',12,'bajaha na',10,1,'2024-10-18 18:18:29',0,NULL,'story'),('kiki',13,'bajaha na',10,1,'2024-10-19 07:24:00',0,NULL,'story'),('nepchar',14,'charcharset utf64',NULL,1,'2024-10-19 09:04:09',0,NULL,'community'),('nepchar',17,'charcharset utf64',NULL,1,'2024-10-19 09:30:59',0,NULL,'community'),('nepchar',18,'charcharset utf64',NULL,1,'2024-10-19 09:33:39',0,1,'story');
 /*!40000 ALTER TABLE `Post` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -183,20 +170,12 @@ DROP TABLE IF EXISTS `PostImage`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `PostImage` (
   `piId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `parentPostImageId` int(10) unsigned DEFAULT NULL,
   `url` varchar(200) NOT NULL,
   `postId` int(10) unsigned NOT NULL,
   PRIMARY KEY (`piId`),
-  KEY `ChapterImage_ChapterImage_FK` (`parentPostImageId`) USING BTREE,
   KEY `ChapterImage_Chapter_FK` (`postId`) USING BTREE,
-<<<<<<< HEAD
   CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
-=======
-  CONSTRAINT `PostImage_PostImage_FK` FOREIGN KEY (`parentPostImageId`) REFERENCES `PostImage` (`piId`),
-  CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
->>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -205,10 +184,7 @@ CREATE TABLE `PostImage` (
 
 LOCK TABLES `PostImage` WRITE;
 /*!40000 ALTER TABLE `PostImage` DISABLE KEYS */;
-<<<<<<< HEAD
-INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6),(14,'post-image-2024-10-16T15:41:04.018Z-02.jpg',8),(15,'post-image-2024-10-18T18:11:32.011Z-02.jpg',9),(16,'post-image-2024-10-18T18:17:50.502Z-',11),(17,'post-image-2024-10-18T18:18:29.216Z-',12),(18,'post-image-2024-10-19T07:24:00.333Z-0_png.rf.5eaf4a99d1c7643441a8015e0b01b1f2.jpg',13),(19,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.078c6d035baa4477f2ec0aa2adc39f39.jpg',13),(20,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.ab4b52897ac361aacf27bb33c18eb652.jpg',13);
-=======
->>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
+INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6),(14,'post-image-2024-10-16T15:41:04.018Z-02.jpg',8),(15,'post-image-2024-10-18T18:11:32.011Z-02.jpg',9),(16,'post-image-2024-10-18T18:17:50.502Z-',11),(17,'post-image-2024-10-18T18:18:29.216Z-',12),(18,'post-image-2024-10-19T07:24:00.333Z-0_png.rf.5eaf4a99d1c7643441a8015e0b01b1f2.jpg',13),(19,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.078c6d035baa4477f2ec0aa2adc39f39.jpg',13),(20,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.ab4b52897ac361aacf27bb33c18eb652.jpg',13),(21,'post-image-2024-10-19T09:04:09.511Z-02.jpg',14);
 /*!40000 ALTER TABLE `PostImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -228,7 +204,7 @@ CREATE TABLE `PostInteraction` (
   KEY `PostInteraction_User_FK` (`likerId`),
   CONSTRAINT `PostInteraction_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `PostInteraction_User_FK` FOREIGN KEY (`likerId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -237,7 +213,7 @@ CREATE TABLE `PostInteraction` (
 
 LOCK TABLES `PostInteraction` WRITE;
 /*!40000 ALTER TABLE `PostInteraction` DISABLE KEYS */;
-INSERT INTO `PostInteraction` VALUES (11,11,1);
+INSERT INTO `PostInteraction` VALUES (1,11,1);
 /*!40000 ALTER TABLE `PostInteraction` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -284,7 +260,7 @@ CREATE TABLE `ReviewStory` (
   KEY `storyId` (`storyId`),
   CONSTRAINT `ReviewStory_ibfk_1` FOREIGN KEY (`reviewerId`) REFERENCES `User` (`uId`) ON DELETE CASCADE,
   CONSTRAINT `ReviewStory_ibfk_2` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -293,6 +269,7 @@ CREATE TABLE `ReviewStory` (
 
 LOCK TABLES `ReviewStory` WRITE;
 /*!40000 ALTER TABLE `ReviewStory` DISABLE KEYS */;
+INSERT INTO `ReviewStory` VALUES (2,5,'so bad',1,23,'2024-10-19 15:10:59'),(3,1,'so cliche',1,26,'2024-10-19 15:12:41');
 /*!40000 ALTER TABLE `ReviewStory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -323,7 +300,7 @@ CREATE TABLE `Story` (
 
 LOCK TABLES `Story` WRITE;
 /*!40000 ALTER TABLE `Story` DISABLE KEYS */;
-INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[ Redice  !]       ','2024-09-26 15:19:00',1,'rj6vt7hdrcdd83kappog'),(23,'demon slayer','Learning to destroy demons wont be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know whats going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'dragon.jpg'),(26,'record of ragnarock','   Brunhild    13 ','2024-10-14 16:54:02',2,'cover.jpg');
+INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'storyCover-2024-10-16T14:59:25.385Z-02.jpg'),(23,'demon slayee','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'storyCover-2024-10-16T14:58:12.621Z-02.jpg'),(26,'record of ragnarock','กพันปีเทพเจ้าจะมาประชุมลงมติอารยธรรมของมนุษยชาติจะดำรงอยู่ต่อหรือไม่ เหล่าเจ้าเทพเจ้าลงมติเป็นเสียงเดียวกันถึงเวลาที่อารยธรรมของมนุษย์ต้องจบเพียงเท่านี้ แต่วัลคีรีสาว Brunhild ไม่เห็นด้วย จึงเกิดเป็นศึกที่ไม่เคยเกิดขึ้นมาก่อน ตัวแทนจากประวัติศาสตร์มนุษยชาติจะต้องลงสังเวียนประลองยุทธกับเทพในการต่อสู้ตัวต่อตัวใน 13 ศึกเพื่อตัดสินชะตาของมวลมนุษยชาติ','2024-10-14 16:54:02',2,'cover.jpg');
 /*!40000 ALTER TABLE `Story` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -409,7 +386,7 @@ CREATE TABLE `User` (
   UNIQUE KEY `username` (`username`),
   KEY `User_Rank_FK` (`rankId`),
   CONSTRAINT `User_Rank_FK` FOREIGN KEY (`rankId`) REFERENCES `Rank` (`rId`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -418,7 +395,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,22,'m',20,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',2920,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL),(10,8,'m',0,1,'rakan88888','rakan','rakan@lover.th','2024-10-15 13:07:25','rakan','user-Tue Oct 15 2024 13:07:23 GMT+0000 (Coordinated Universal Time)-02.jpg',NULL),(12,3456789,'m',0,1,'yone23456789','yone234','df@gmail.com','2024-10-19 09:07:52','ddfghjkl;',NULL,NULL);
+INSERT INTO `User` VALUES (1,22,'m',10,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',20,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL),(10,8,'m',0,1,'rakan88888','rakan','rakan@lover.th','2024-10-15 13:07:25','rakan','user-Tue Oct 15 2024 13:07:23 GMT+0000 (Coordinated Universal Time)-02.jpg',NULL);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -431,12 +408,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
-<<<<<<< HEAD
--- Dump completed on 2024-10-19 11:46:02
-=======
-<<<<<<< HEAD
--- Dump completed on 2024-10-19  8:34:10
-=======
--- Dump completed on 2024-10-16 13:52:58
->>>>>>> 8327b270f5f48d5ce2acd415fad3fc669f83b365
->>>>>>> 2fb009c9d30cf6704dcf27c64b61393757163fed
+-- Dump completed on 2024-10-23 10:20:53

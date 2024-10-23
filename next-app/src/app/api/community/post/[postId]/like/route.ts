@@ -90,17 +90,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { postId: s
 
     // Step 2: Check if the post exists
     const isPostExisted = await checkPostExisted(postId)
-    // try {
-    //     const [post, ] = await dbConnection.query<RowDataPacket[]>('SELECT pId FROM Post WHERE pId = ?', [postId]);
-    //     if (!post.length) {
-    //         stdRes.msg = `Post with ID ${postId} not found.`;
-    //         return NextResponse.json(stdRes, { status: 404 });
-    //     }
-    // } catch (error: any) {
-    //     stdRes.msg = 'Error checking post existence.';
-    //     stdRes.msg2 = error.message;
-    //     return NextResponse.json(stdRes, { status: 500 });
-    // }
+    if (!isPostExisted) {
+        stdRes.msg = 'Post to delete not found';
+        return NextResponse.json(stdRes, { status: 404 });
+    }
 
     // Step 3: Attempt to remove the like
     try {

@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, Star, TrendingUp, Clock ,MapPin} from "lucide-react";
+import { Search, Star, TrendingUp, Clock, MapPin } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { MangaItem, TopManga } from "@/lib/types";
 import Slider from "react-slick";
@@ -12,17 +12,17 @@ import "slick-carousel/slick/slick-theme.css";
 import { motion } from 'framer-motion';
 
 type MangaItem = {
-    sId: number;
-    title: string;
-    coverImageUrl: string;
-    introduction: string;
-    postedDatetime: string;
-    chapters: Array<number>;
-    genres: Array<string>;
-    
-    authorId: number;
-    authorDisplayName: string;
-  };
+  sId: number;
+  title: string;
+  coverImageUrl: string;
+  introduction: string;
+  postedDatetime: string;
+  chapters: Array<number>;
+  genres: Array<string>;
+
+  authorId: number;
+  authorDisplayName: string;
+};
 
 export default function Home() {
   const { t, theme } = useSettings();
@@ -136,8 +136,8 @@ export default function Home() {
     if (newSearchTerm === '') {
       setFilteredMangaList(mangaList);
     } else {
-      const filtered = mangaList.filter(manga => 
-        manga.title.toLowerCase().includes(newSearchTerm) 
+      const filtered = mangaList.filter(manga =>
+        manga.title.toLowerCase().includes(newSearchTerm)
         // || 
         // manga.authorDisplayName.toLowerCase().includes(newSearchTerm)
       );
@@ -168,6 +168,7 @@ export default function Home() {
   return (
     <div className={`min-h-screen bg-gray-100 text-gray-900 ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Hero Section with Slider */}
+
       <section className="relative h-screen">
         <Slider {...sliderSettings}>
           {topManga.map((manga) => (
@@ -178,11 +179,11 @@ export default function Home() {
                 transition={{ duration: 1 }}
                 className="absolute inset-0"
               >
-                <CldImage 
+                <CldImage
                   src={manga.cover}
                   alt={manga.title}
                   fill
-                  style={{objectFit: "cover"}}
+                  style={{ objectFit: "cover" }}
                   className="opacity-70"
                 />
               </motion.div>
@@ -235,8 +236,8 @@ export default function Home() {
           <div className="max-w-2xl mx-auto">
             <h2 className="text-3xl font-bold text-white mb-8 text-center">Discover Your Next Manga Adventure</h2>
             <div className="relative">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={handleSearch}
@@ -259,23 +260,23 @@ export default function Home() {
           ) : filteredMangaList.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredMangaList.map((manga) => (
-                <Link 
-                  key={manga.sId} 
+                <Link
+                  key={manga.sId}
                   href={`/manga/${manga.sId}`}
                   className="group"
                 >
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                     className="bg-white rounded-lg shadow-lg overflow-hidden"
                   >
                     <div className="relative h-64">
-                      <CldImage 
+                      <CldImage
                         src={manga.coverImageUrl}
                         alt={manga.title}
                         fill
-                        style={{objectFit: "cover"}}
+                        style={{ objectFit: "cover" }}
                         className="group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
