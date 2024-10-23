@@ -4,10 +4,7 @@ import { File } from 'buffer';
 import { z } from 'zod'
 import { zfd } from "zod-form-data"
 
-// export const postUserScheme = zfd.formData({
 export const postStoryScheme = z.object({
-    // authorId: z.number(),
-    authorId: numericString(z.number().min(0)),
     title: z.string(),
     introduction: z.string(),
 

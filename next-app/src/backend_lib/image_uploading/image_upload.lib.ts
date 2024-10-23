@@ -13,16 +13,19 @@ export const uploadImage = async (file: File, filename: string): Promise<IStanda
     let stdRes: IStandardResponse = {};
 
     try {
+          // Remove file extension from filename
+        const filenameWithoutExtension = filename.replace(/\.[^/.]+$/, "");
+
         // Convert file to base64 for uploading
         const buffer = Buffer.from(await file.arrayBuffer());
         const base64File = buffer.toString('base64');
 
         // Upload to Cloudinary
         const uploadResult = await cloudinary.uploader.upload(`data:image/jpeg;base64,${base64File}`, {
-            public_id: filename,
+            public_id: filenameWithoutExtension,
         });
 
-        let msg = `Successfully uploaded image named [${filename}] to Cloudinary`.green;
+        let msg = `Successfully uploaded image named [${filenameWithoutExtension}] to Cloudinary`.green;
         stdRes.status = 200;
         stdRes.msg = msg;
         console.log(msg);

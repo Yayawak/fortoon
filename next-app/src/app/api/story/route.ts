@@ -72,15 +72,21 @@ export async function GET(req: NextRequest) {
 }
 
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
 
     let stdRes: IStandardResponse = {
     }
 
-    // const storyData = postStoryScheme.safeParse(req.body)
+    const verifiedRes = await verifyToken(req);
+    if (verifiedRes.status !== 200) {
+        return NextResponse.json({
+            msg: verifiedRes.msg
+        }, { status: verifiedRes.status });
+    }
+    const authorId = verifiedRes.data.uId
 
     let parsed = null
-    let formData : FormData
+    let formData: FormData
     try {
         formData = await req.formData()
         if (formData === undefined) {
@@ -104,10 +110,12 @@ export async function POST(req: Request) {
         // console.log(coverImageFile)
 
         // let filename = coverImageFile.name
-           // const file: File = parsed.profilePic as unknown as File;
+        // const file: File = parsed.profilePic as unknown as File;
         const coverImage = formData.get("coverImage") as File
         const curr = new Date()
         const filename = `storyCover-${curr.toString()}-${coverImage.name}`
+        console.log("**************")
+        console.log(`${filename}`.bgRed)
 
         await uploadImage(coverImage, filename)
 
@@ -121,7 +129,7 @@ export async function POST(req: Request) {
                 )
                     values
                 (
-                    '${parsed.authorId}',
+                    '${authorId}',
                     '${parsed.title}',
                     '${parsed.introduction}',
                     '${filename}'
@@ -134,12 +142,26 @@ export async function POST(req: Request) {
                 status: 200
             })
 
-        } catch (error) {
+        } catch (error: any) {
             console.error(`${error}`.bgRed)
             stdRes = {
                 msg: "error creating new Story",
-                msg2: error
             }
+            const sqlState = error.sqlState
+            const sqlMessage = error.sqlMessage
+
+            // stdRes.msg2 = sqlMessage
+
+            switch (sqlState) {
+                case '23000':
+                    stdRes.msg2 = "Duplicated Key title, try to change the name of story."
+                    break;
+
+                default:
+                    stdRes.msg2 = error.sqlMessage
+                    break;
+            }
+
             return NextResponse.json(stdRes, {
                 status: 500
             })

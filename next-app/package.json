@@ -38,7 +38,7 @@
     "mysql2": "^3.11.3",
     "next": "^14.2.12",
     "next-auth": "^4.24.8",
-    "next-cloudinary": "^6.14.2",
+    "next-cloudinary": "^6.16.0",
     "next-cookies": "^2.0.3",
     "nprogress": "^0.2.0",
     "react": "^18",

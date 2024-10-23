@@ -90,7 +90,8 @@ const CreateManga: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`/api/user/${user.uId}/story`, {
+      // const response = await fetch(`/api/user/${user.uId}/story`, {
+      const response = await fetch(`/api/story`, {
         method: 'POST',
         body: formDataToSend,
         credentials: 'include',
