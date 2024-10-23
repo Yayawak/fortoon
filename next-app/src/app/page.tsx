@@ -2,9 +2,8 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, Star, TrendingUp, Clock ,MapPin} from "lucide-react";
+import { Search, Star, TrendingUp, Clock, MapPin } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { MangaItem, TopManga } from "@/lib/types";
 import Slider from "react-slick";
 import { CldImage } from 'next-cloudinary';
 import "slick-carousel/slick/slick.css";
@@ -19,191 +18,192 @@ type MangaItem = {
     postedDatetime: string;
     chapters: Array<number>;
     genres: Array<string>;
-    
+
     authorId: number;
     authorDisplayName: string;
-  };
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
     }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5
-      }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5
     }
-  };
-  
-  const fadeInVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { duration: 0.6 }
-    }
-  };
+  }
+};
+
+const fadeInVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { duration: 0.6 }
+  }
+};
 
 export default function Home() {
-  const { t, theme } = useSettings();
-  const [activeTab, setActiveTab] = useState('popular');
-  const [mangaList, setMangaList] = useState<MangaItem[]>([]);
-  const [filteredMangaList, setFilteredMangaList] = useState<MangaItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isMobile, setIsMobile] = useState(false);
+    const { t, theme } = useSettings();
+    const [activeTab, setActiveTab] = useState('popular');
+    const [mangaList, setMangaList] = useState<MangaItem[]>([]);
+    const [filteredMangaList, setFilteredMangaList] = useState<MangaItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
 
-  const topManga: TopManga[] = [
-    {
-      id: 1,
-      title: "Attack on Titan",
-      cover: "/api/placeholder/1200/600",
-      rating: 4.8,
-      description: "In a world where humanity lives inside cities surrounded by enormous walls due to the Titans, giant humanoid creatures who devour humans seemingly without reason...",
-    },
-    {
-      id: 2,
-      title: "One Piece",
-      cover: "/api/placeholder/1200/600",
-      rating: 4.9,
-      description: "Follow Monkey D. Luffy and his swashbuckling crew in their search for the ultimate treasure, One Piece.",
-    },
-    {
-      id: 3,
-      title: "Demon Slayer",
-      cover: "/api/placeholder/1200/600",
-      rating: 4.7,
-      description: "Tanjiro Kamado, a young boy who becomes a demon slayer after his family is slaughtered and his younger sister Nezuko is turned into a demon.",
-    },
-    {
-      id: 4,
-      title: "My Hero Academia",
-      cover: "/api/placeholder/1200/600",
-      rating: 4.6,
-      description: "In a world where people with superpowers known as 'Quirks' are the norm, Izuku Midoriya has dreams of one day becoming a Hero, despite being bullied for not having a Quirk.",
-    },
-    {
-      id: 5,
-      title: "Jujutsu Kaisen",
-      cover: "/api/placeholder/1200/600",
-      rating: 4.8,
-      description: "Yuji Itadori, a high schooler who joins a secret organization of Jujutsu Sorcerers in order to kill a powerful Curse named Ryomen Sukuna, of whom Yuji becomes the host.",
-    },
-  ];
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
-  // const mangaList: MangaItem[] = [
-  //   { 
-  //     id: 1, 
-  //     title: "One Piece", 
-  //     cover: "/api/placeholder/300/400",
-  //     rating: 4.9,
-  //     chapter: 1089,
-  //     views: "1.2M"
-  //   },
-  //   { 
-  //     id: 2, 
-  //     title: "Jujutsu Kaisen", 
-  //     cover: "/api/placeholder/300/400",
-  //     rating: 4.7,
-  //     chapter: 235,
-  //     views: "890K"
-  //   },
-  // ];
+    const topManga = [
+        {
+            id: 1,
+            title: "Attack on Titan",
+            cover: "/api/placeholder/1200/600",
+            rating: 4.8,
+            description: "In a world where humanity lives inside cities surrounded by enormous walls due to the Titans, giant humanoid creatures who devour humans seemingly without reason...",
+        },
+        {
+            id: 2,
+            title: "One Piece",
+            cover: "/api/placeholder/1200/600",
+            rating: 4.9,
+            description: "Follow Monkey D. Luffy and his swashbuckling crew in their search for the ultimate treasure, One Piece.",
+        },
+        {
+            id: 3,
+            title: "Demon Slayer",
+            cover: "/api/placeholder/1200/600",
+            rating: 4.7,
+            description: "Tanjiro Kamado, a young boy who becomes a demon slayer after his family is slaughtered and his younger sister Nezuko is turned into a demon.",
+        },
+        {
+            id: 4,
+            title: "My Hero Academia",
+            cover: "/api/placeholder/1200/600",
+            rating: 4.6,
+            description: "In a world where people with superpowers known as 'Quirks' are the norm, Izuku Midoriya has dreams of one day becoming a Hero, despite being bullied for not having a Quirk.",
+        },
+        {
+            id: 5,
+            title: "Jujutsu Kaisen",
+            cover: "/api/placeholder/1200/600",
+            rating: 4.8,
+            description: "Yuji Itadori, a high schooler who joins a secret organization of Jujutsu Sorcerers in order to kill a powerful Curse named Ryomen Sukuna, of whom Yuji becomes the host.",
+        },
+    ];
 
-  const fetchMangaList = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/story");
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const responseData = await response.json();
-      console.log("API Response:", responseData);
+    // const mangaList: MangaItem[] = [
+    //   { 
+    //     id: 1, 
+    //     title: "One Piece", 
+    //     cover: "/api/placeholder/300/400",
+    //     rating: 4.9,
+    //     chapter: 1089,
+    //     views: "1.2M"
+    //   },
+    //   { 
+    //     id: 2, 
+    //     title: "Jujutsu Kaisen", 
+    //     cover: "/api/placeholder/300/400",
+    //     rating: 4.7,
+    //     chapter: 235,
+    //     views: "890K"
+    //   },
+    // ];
 
-      if (responseData && Array.isArray(responseData.data)) {
-        setMangaList(responseData.data);
-        setFilteredMangaList(responseData.data);
-      } else if (Array.isArray(responseData)) {
-        setMangaList(responseData);
-        setFilteredMangaList(responseData);
-      } else {
-        console.error("Unexpected data format:", responseData);
-        throw new Error('Invalid data format');
-      }
-      setError(null);
-    } catch (error) {
-      console.error("There was a problem fetching the manga list:", error);
-      setError("Failed to load manga list. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    const fetchMangaList = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch("/api/story");
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const responseData = await response.json();
+            console.log("API Response:", responseData);
 
-  useEffect(() => {
-    fetchMangaList();
-  }, [fetchMangaList]);
+            if (responseData && Array.isArray(responseData.data)) {
+                setMangaList(responseData.data);
+                setFilteredMangaList(responseData.data);
+            } else if (Array.isArray(responseData)) {
+                setMangaList(responseData);
+                setFilteredMangaList(responseData);
+            } else {
+                console.error("Unexpected data format:", responseData);
+                throw new Error('Invalid data format');
+            }
+            setError(null);
+        } catch (error) {
+            console.error("There was a problem fetching the manga list:", error);
+            setError("Failed to load manga list. Please try again later.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchMangaList();
+    }, [fetchMangaList]);
 
   useEffect(() => {
     console.log("mangaList has been updated:", mangaList);
     console.log(mangaList[0]?.coverImageUrl)
   }, [mangaList]);
 
-  console.log("Rendering component. mangaList:", mangaList);
+    console.log("Rendering component. mangaList:", mangaList);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = event.target.value.toLowerCase();
-    setSearchTerm(newSearchTerm);
+    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newSearchTerm = event.target.value.toLowerCase();
+        setSearchTerm(newSearchTerm);
 
-    if (newSearchTerm === '') {
-      setFilteredMangaList(mangaList);
-    } else {
-      const filtered = mangaList.filter(manga => 
-        manga.title.toLowerCase().includes(newSearchTerm) 
-        // || 
-        // manga.authorDisplayName.toLowerCase().includes(newSearchTerm)
-      );
-      setFilteredMangaList(filtered);
-    }
-  };
-
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 5000,
-    arrows: true,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
+        if (newSearchTerm === '') {
+            setFilteredMangaList(mangaList);
+        } else {
+            const filtered = mangaList.filter(manga =>
+                manga.title.toLowerCase().includes(newSearchTerm)
+                // || 
+                // manga.authorDisplayName.toLowerCase().includes(newSearchTerm)
+            );
+            setFilteredMangaList(filtered);
         }
-      }
-    ]
-  };
+    };
+
+    const sliderSettings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 5000,
+        arrows: true,
+        responsive: [
+            {
+                breakpoint: 1024,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                }
+            }
+        ]
+    };
 
   const mobileNavVariants = {
     hidden: { y: -100, opacity: 0 },
