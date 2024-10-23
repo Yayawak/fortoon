@@ -14,6 +14,7 @@ import {
 import { Search, LogOut, Settings, User as UserIcon, Sun, Moon, Menu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext'; 
 import { useSettings } from '@/contexts/SettingsContext';
+import Image from 'next/image';
 
 export default function Navbar() {
   const { user, signOut } = useAuth(); 
@@ -56,7 +57,15 @@ export default function Navbar() {
             <Link href="/">
               <Button className="flex items-center">
                 <span className="text-xl font-bold">Fortoon</span>
-                <img src="/logo.svg" alt="Manga App Logo" className="h-8 w-8" />
+                {/* <img src="/logo.svg" alt="Manga App Logo" className="h-8 w-8" /> */}
+                <div className="relative h-12 w-12">
+                  <Image 
+                    src="/logo.svg" 
+                    alt="Manga App Logo" 
+                    fill 
+                    className="object-contain" 
+                  />
+                </div>
               </Button>
             </Link>
           </div>
