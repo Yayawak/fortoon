@@ -12,28 +12,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 
 export default function Profile() {
-  const { user, loading, signOut } = useAuth();
-  const router = useRouter();
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [showManga, setShowManga] = useState(false);
-
-  // Redirect to login if not authenticated
-  if (!loading && !user) {
-    router.push('/login');
-    return null;
-  }
-
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    );
-  }
 
   // Mock data for user's manga - could be fetched from an API based on user.uId
   const userManga = [
@@ -41,10 +24,6 @@ export default function Profile() {
     { id: 2, title: "One Piece", cover: "/api/placeholder/200/300", chapters: 15 },
     { id: 3, title: "Naruto", cover: "/api/placeholder/200/300", chapters: 20 },
   ];
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -67,14 +46,6 @@ export default function Profile() {
             </div>
           </div>
           <div className="flex items-center space-x-2 mt-4 md:mt-0">
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              className="bg-white text-purple-600 hover:bg-purple-100"
-              onClick={handleSignOut}
-            >
-              Sign Out
-            </Button>
             <Link href="/settings">
               <Button variant="secondary" size="sm" className="bg-white text-purple-600 hover:bg-purple-100">
                 Edit Profile

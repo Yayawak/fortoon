@@ -20,19 +20,7 @@ import {
   Clock,
   Bookmark,
 } from 'lucide-react';
-
-// Types
-interface Manga {
-  id: string;
-  title: string;
-  coverImage: string;
-  author: string;
-  status: 'Reading' | 'Completed' | 'Plan to Read';
-  lastRead?: string;
-  chaptersRead?: number;
-  totalChapters?: number;
-  isPurchased: boolean;
-}
+import { Manga } from '@/lib/types';
 
 export default function MangaDashboard() {
   const router = useRouter();
@@ -40,59 +28,10 @@ export default function MangaDashboard() {
   const [purchased, setPurchased] = useState<Manga[]>([]);
 
   useEffect(() => {
-    // Simulate fetching favorites
-    setFavorites([
-      {
-        id: '1',
-        title: 'One Piece',
-        coverImage: '/api/placeholder/200/300',
-        author: 'Eiichiro Oda',
-        status: 'Reading',
-        lastRead: '2024-03-15',
-        chaptersRead: 1084,
-        totalChapters: 1108,
-        isPurchased: true,
-      },
-      {
-        id: '2',
-        title: 'Jujutsu Kaisen',
-        coverImage: '/api/placeholder/200/300',
-        author: 'Gege Akutami',
-        status: 'Reading',
-        lastRead: '2024-03-20',
-        chaptersRead: 253,
-        totalChapters: 253,
-        isPurchased: false,
-      },
-    ]);
-
-    setPurchased([
-      {
-        id: '1',
-        title: 'One Piece',
-        coverImage: '/api/placeholder/200/300',
-        author: 'Eiichiro Oda',
-        status: 'Reading',
-        lastRead: '2024-03-15',
-        chaptersRead: 1084,
-        totalChapters: 1108,
-        isPurchased: true,
-      },
-      {
-        id: '3',
-        title: 'Chainsaw Man',
-        coverImage: '/api/placeholder/200/300',
-        author: 'Tatsuki Fujimoto',
-        status: 'Completed',
-        lastRead: '2024-02-28',
-        chaptersRead: 146,
-        totalChapters: 146,
-        isPurchased: true,
-      },
-    ]);
+   
   }, []);
 
-  const handleCardClick = (mangaId: string) => {
+  const handleCardClick = (mangaId: number) => {
     router.push(`/manga/${mangaId}`);
   };
 
@@ -105,17 +44,17 @@ export default function MangaDashboard() {
           !(e.target as HTMLElement).closest('.dropdown-trigger') &&
           !(e.target as HTMLElement).closest('button')
         ) {
-          handleCardClick(manga.id);
+          handleCardClick(manga.sId);
         }
       }}
     >
       <CardContent className="p-4">
         <div className="flex space-x-4">
-          <img
+          {/* <img
             src={manga.coverImage}
             alt={manga.title}
             className="h-40 w-28 object-cover rounded"
-          />
+          /> */}
           <div className="flex flex-col justify-between flex-1">
             <div>
               <div className="flex justify-between items-start">
@@ -136,9 +75,9 @@ export default function MangaDashboard() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <p className="text-sm text-gray-500">{manga.author}</p>
+              <p className="text-sm text-gray-500">{manga.authorDisplayName}</p>
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <div className="flex items-center text-sm">
                 <Clock className="mr-2 h-4 w-4" />
                 Last read: {manga.lastRead}
@@ -151,7 +90,7 @@ export default function MangaDashboard() {
                 <Star className="mr-2 h-4 w-4" />
                 Status: {manga.status}
               </div>
-            </div>
+            </div> */}
             <Button className="mt-2">Continue Reading</Button>
           </div>
         </div>
@@ -172,7 +111,7 @@ export default function MangaDashboard() {
         <TabsContent value="favorites">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {favorites.map((manga) => (
-              <MangaCard key={manga.id} manga={manga} />
+              <MangaCard key={manga.sId} manga={manga} />
             ))}
           </div>
         </TabsContent>
@@ -180,7 +119,7 @@ export default function MangaDashboard() {
         <TabsContent value="purchased">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {purchased.map((manga) => (
-              <MangaCard key={manga.id} manga={manga} />
+              <MangaCard key={manga.sId} manga={manga} />
             ))}
           </div>
         </TabsContent>

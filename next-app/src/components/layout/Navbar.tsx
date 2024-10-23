@@ -112,6 +112,12 @@ export default function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
+                    <Link href="/topup" className="flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      topup
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
                     <Link href="/settings" className="flex items-center">
                       <Settings className="mr-2 h-4 w-4" />
                       Settings
@@ -175,6 +181,7 @@ export default function Navbar() {
                     </li>
                     <li><Link href="/profile" className="block py-2">Profile</Link></li>
                     <li><Link href="/community" className="block py-2">community</Link></li>
+                    <li><Link href="/topup" className="block py-2">topup</Link></li>
                     <li><Link href="/settings" className="block py-2">Settings</Link></li>
                     <li><Button onClick={signOut} className="mt-4">Sign Out</Button></li>
                   </>

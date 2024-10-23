@@ -164,6 +164,7 @@ export default function Home() {
 
   useEffect(() => {
     console.log("mangaList has been updated:", mangaList);
+    console.log(mangaList[0]?.coverImageUrl)
   }, [mangaList]);
 
   console.log("Rendering component. mangaList:", mangaList);
@@ -212,7 +213,7 @@ export default function Home() {
       transition: { type: "spring", stiffness: 100 }
     }
   };
-
+  
   return (
     <AnimatePresence>
       <motion.div 
@@ -233,7 +234,7 @@ export default function Home() {
                   className="absolute inset-0"
                 >
                   <CldImage 
-                    src={manga.cover}
+                    src={manga.cover + '.png'}
                     alt={manga.title}
                     fill
                     style={{objectFit: "cover"}}
