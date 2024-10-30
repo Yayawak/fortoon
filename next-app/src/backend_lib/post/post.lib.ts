@@ -28,8 +28,9 @@ export const countPostLikes = async (postId: number) => {
         const [rs] = await dbConnection.execute<RowDataPacket[]>(`
         select count(*) as countLike
         from PostInteraction pi
-        where where postId = ${postId}
+        where postId = ${postId}
     `)
+    console.log(rs)
 
         return rs[0].countLike
     } catch (error) {

@@ -17,8 +17,13 @@ export async function GET(req: NextRequest, { params }: { params: { storyId: str
 
     // Verify the user's token
     const verifiedRes = await verifyToken(req);
-    if (verifiedRes.status != 200) {
-        return NextResponse.json(stdRes, {status: stdRes.status})
+    // console.log("ts")
+    console.log(verifiedRes)
+    if (verifiedRes.status !== 200) {
+        // console.log("can no login")
+        stdRes.status = verifiedRes.status
+
+        return NextResponse.json(verifiedRes, {status: stdRes.status})
     }
     const userId = verifiedRes.status === 200 ? verifiedRes.data.uId : null; // Get userId only if verified
 
@@ -34,6 +39,8 @@ export async function GET(req: NextRequest, { params }: { params: { storyId: str
         WHERE 
             s.sId = ?
     `, [storyId]);
+
+    // console.log(rs)
 
     if (rs.length === 0) {
         stdRes.msg = "Story not found";
