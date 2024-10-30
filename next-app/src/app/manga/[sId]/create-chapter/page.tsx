@@ -201,17 +201,16 @@ export default function CreateChapter() {
                 imagePreviews.map((image, index) => (
                   <div
                     key={index}
-                    className="relative flex-shrink-0"
+                    className="relative flex-shrink-0 w-96 h-[50vh]"
                     draggable
                     onDragStart={() => handleDragStart(index)}
                     onDragOver={(e) => handleDragOver(e, index)}
                     onDragEnd={handleDragEnd}
-                    style={{ width: '100%' }}
                   >
                     <img
                       src={image.url}
                       alt={`Preview ${index + 1}`}
-                      className="object-cover w-full h-64"
+                      className="object-cover w-full h-full"
                     />
                     <p className="text-sm text-center mt-2">{image.name}</p> {/* Display file name */}
                     <button

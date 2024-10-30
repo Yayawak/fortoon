@@ -4,5 +4,6 @@ export type ImageType =
     "profilePicture"
 
 export const setStandardImageName = (imageName: string , imageType: ImageType) => {
-    return `${imageType}-${imageName}-${new Date()}}`
+    const d = new Date()
+    return `${imageType}-${imageName}-${d.toISOString()}`
 }
