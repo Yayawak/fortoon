@@ -13,8 +13,6 @@ export default function Login() {
   const { t, theme } = useSettings();
   const [isLoading, setIsLoading] = useState(false);
 
-
-
   useEffect(() => {
     if (loginSuccess) {
       console.log("Successfully logged in");

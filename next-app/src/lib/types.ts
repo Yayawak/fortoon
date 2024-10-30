@@ -112,11 +112,12 @@ export interface Chapter {
 export interface Review {
   id: number;
   user: string;
-  avatar: string;
   rating: number;
   comment: string;
   likes: number;
-  date: string;
+  avatar?: string;
+  createdAt: string;
+  isOwner: boolean;
 }
 
 export interface Manga {
@@ -137,3 +138,28 @@ export interface PostCardProps {
   currentUserId: number | undefined;
   onPostUpdate: () => void;
 }
+
+export interface PostFormData {
+  title: string;
+  content: string;
+  images: File[];
+}
+
+export interface ReplyFormData {
+  title: string;
+  content: string;
+  images: File[];
+}
+// Extend Post type to include likes
+export interface EnhancedPost extends Post {
+  likes?: number;
+  isLiked?: boolean;
+}
+
+export interface MangaFormData {
+  title: string;
+  description: string;
+  genre: string;
+  coverImage: File | null;
+}
+

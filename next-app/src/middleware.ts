@@ -4,7 +4,7 @@ import { verifyToken } from '@/backend_lib/auth/auth.cookie';
 
 export async function middleware(request: NextRequest) {
   const protectedPaths = [
-    // '/create-manga',
+     '/create-manga',
      '/profile']
 
   const isProtectedPath = protectedPaths.some(path => 

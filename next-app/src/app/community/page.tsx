@@ -27,22 +27,7 @@ import { CldImage } from 'next-cloudinary';
 import { useSettings } from '@/contexts/SettingsContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from "@/hooks/use-toast";
-interface PostFormData {
-  title: string;
-  content: string;
-  images: File[];
-}
-
-interface ReplyFormData {
-  title: string;
-  content: string;
-  images: File[];
-}
-// Extend Post type to include likes
-interface EnhancedPost extends Post {
-  likes?: number;
-  isLiked?: boolean;
-}
+import { PostFormData, ReplyFormData, EnhancedPost } from '@/lib/types';
 
 const PostCard: React.FC<{ 
   post: EnhancedPost; 

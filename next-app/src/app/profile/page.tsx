@@ -19,11 +19,11 @@ export default function Profile() {
   const [showManga, setShowManga] = useState(false);
 
   // Mock data for user's manga - could be fetched from an API based on user.uId
-  const userManga = [
-    { id: 1, title: "My Hero Academia", cover: "/api/placeholder/200/300", chapters: 10 },
-    { id: 2, title: "One Piece", cover: "/api/placeholder/200/300", chapters: 15 },
-    { id: 3, title: "Naruto", cover: "/api/placeholder/200/300", chapters: 20 },
-  ];
+  // const userManga = [
+  //   { id: 1, title: "My Hero Academia", cover: "/api/placeholder/200/300", chapters: 10 },
+  //   { id: 2, title: "One Piece", cover: "/api/placeholder/200/300", chapters: 15 },
+  //   { id: 3, title: "Naruto", cover: "/api/placeholder/200/300", chapters: 20 },
+  // ];
 
   return (
     <div className="max-w-4xl mx-auto p-4">

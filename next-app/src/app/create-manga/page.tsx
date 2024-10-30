@@ -8,14 +8,7 @@ import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext'; 
-// import { getCurrentUser } from '@/lib/auth';
-
-interface MangaFormData {
-  title: string;
-  description: string;
-  genre: string;
-  coverImage: File | null;
-}
+import { MangaFormData } from '@/lib/types';
 
 const CreateManga: React.FC = () => {
   const router = useRouter();

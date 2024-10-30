@@ -1,7 +1,9 @@
 'use client'
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import type { FormData,FormErrors } from '@/lib/types';
+import { useSettings } from "@/contexts/SettingsContext";
+import { Loader2 } from "lucide-react";
+import type { FormData, FormErrors } from '@/lib/types';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +17,8 @@ const RegisterForm = () => {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const router = useRouter();
+  const { theme } = useSettings();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -28,6 +32,7 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (!validateForm()) {
         return;
@@ -65,6 +70,8 @@ const RegisterForm = () => {
       }
     } catch (error) {
       setErrors({ general: 'An error occurred. Please try again.' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,126 +95,153 @@ const RegisterForm = () => {
 
 
   return (
-    <div className="max-w-md mx-auto mt-8">
-      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <h2 className="text-2xl mb-4 text-center">Register</h2>
-        {errors.general && <p className="text-red-500 text-xs italic mb-4">{errors.general}</p>}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-            Username
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="username"
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-          {errors.username && <p className="text-red-500 text-xs italic">{errors.username}</p>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-            Password
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-            id="password"
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          {errors.password && <p className="text-red-500 text-xs italic">{errors.password}</p>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="displayName">
-            Display Name
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="displayName"
-            type="text"
-            name="displayName"
-            value={formData.displayName}
-            onChange={handleChange}
-            required
-          />
-          {errors.displayName && <p className="text-red-500 text-xs italic">{errors.displayName}</p>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="sex">
-            Sex
-          </label>
-          <select
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="sex"
-            name="sex"
-            value={formData.sex}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select</option>
-            <option value="m">Male</option>
-            <option value="f">Female</option>
-          </select>
-          {errors.sex && <p className="text-red-500 text-xs italic">{errors.sex}</p>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-            Email
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          {errors.email && <p className="text-red-500 text-xs italic">{errors.email}</p>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="profilepic">
-            Profile Picture
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="profilepic"
-            type="file"
-            name="profilepic"
-            onChange={handleChange}
-            accept="image/*"
-          />
-          {errors.profilePic && <p className="text-red-500 text-xs italic">{errors.profilepic}</p>}
-        </div>
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="age">
-            Age
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="age"
-            type="number"
-            name="age"
-            value={formData.age}
-            onChange={handleChange}
-            required
-          />
-          {errors.age && <p className="text-red-500 text-xs italic">{errors.age}</p>}
-        </div>
-        <div className="flex items-center justify-between">
+    <div className={`min-h-screen flex items-center justify-center ${
+      theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
+    }`}>
+      <div className={`p-8 rounded-lg shadow-md w-full max-w-md ${
+        theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+      }`}>
+        <h2 className="text-3xl font-bold text-center mb-6">Register</h2>
+        {errors.general && <p className="text-red-500 mb-4 text-center">{errors.general}</p>}
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="username" className="block text-sm font-medium mb-2">
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+              }`}
+              placeholder="Your username"
+              required
+            />
+            {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-sm font-medium mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+              }`}
+              placeholder="Your password"
+              required
+            />
+            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="displayName" className="block text-sm font-medium mb-2">
+              Display Name
+            </label>
+            <input
+              type="text"
+              id="displayName"
+              name="displayName"
+              value={formData.displayName}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+              }`}
+              placeholder="Your display name"
+              required
+            />
+            {errors.displayName && <p className="text-red-500 text-xs mt-1">{errors.displayName}</p>}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="sex" className="block text-sm font-medium mb-2">
+              Sex
+            </label>
+            <select
+              id="sex"
+              name="sex"
+              value={formData.sex}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+              }`}
+              required
+            >
+              <option value="">Select</option>
+              <option value="m">Male</option>
+              <option value="f">Female</option>
+            </select>
+            {errors.sex && <p className="text-red-500 text-xs mt-1">{errors.sex}</p>}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+              }`}
+              placeholder="Your email"
+              required
+            />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="profilepic" className="block text-sm font-medium mb-2">
+              Profile Picture
+            </label>
+            <input
+              type="file"
+              id="profilepic"
+              name="profilepic"
+              onChange={handleChange}
+              className={`w-full px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+              }`}
+              accept="image/*"
+            />
+            {errors.profilePic && <p className="text-red-500 text-xs mt-1">{errors.profilepic}</p>}
+          </div>
+          <div className="mb-6">
+            <label htmlFor="age" className="block text-sm font-medium mb-2">
+              Age
+            </label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              value={formData.age}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+              }`}
+              placeholder="Your age"
+              required
+            />
+            {errors.age && <p className="text-red-500 text-xs mt-1">{errors.age}</p>}
+          </div>
           <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="submit"
+            className="w-full px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 flex items-center justify-center"
+            disabled={isLoading}
           >
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+            ) : null}
             Register
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };
