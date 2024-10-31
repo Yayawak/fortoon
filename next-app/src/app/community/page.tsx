@@ -28,31 +28,62 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from "@/hooks/use-toast";
 import { PostFormData, ReplyFormData, EnhancedPost } from '@/lib/types';
+import { user } from '@/contexts/AuthContext';
 
 const PostCard: React.FC<{ 
   post: EnhancedPost; 
   level?: number;
-  currentUserId: number | undefined;
   onPostUpdate: () => void;
 }> = ({ 
   post, 
   level = 0,
-  currentUserId,
   onPostUpdate 
 }) => {
   const [isReplying, setIsReplying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes || 0);
-  const [isLiked, setIsLiked] = useState(post.isLiked || false);
+  const [isLiked, setIsLiked] = useState(false);
   const { theme } = useSettings();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [replyFormData, setReplyFormData] = useState<ReplyFormData>({
     title: '',
     content: '',
     images: []
   });
+
+  // Check if user has liked the post
+  useEffect(() => {
+    const checkLikeStatus = async () => {
+      try {
+        const response = await fetch(`/api/community/post/${post.pId}/like`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Important for cookies
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch like status');
+        }
+
+        const result = await response.json();
+        if (result.data) {
+          setIsLiked(result.data.isLiked);
+          setLikeCount(result.data.likeCount);
+        }
+      } catch (error) {
+        console.error('Error checking like status:', error);
+      }
+    };
+
+    if (user?.uId) {
+      checkLikeStatus();
+    }
+  }, [post.pId, user?.uId]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -119,19 +150,46 @@ const PostCard: React.FC<{
     : post.content;
 
   const handleLike = async () => {
+    if (!user?.uId) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to like posts",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const response = await fetch(`/api/community/post/${post.pId}/like`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important for cookies
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to like post');
+        throw new Error('Failed to update like status');
       }
+
+      const result = await response.json();
       
+      // Update local state
       setIsLiked(!isLiked);
       setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-    } catch (err) {
-      console.error('Error liking post:', err);
+
+      toast({
+        title: isLiked ? "Post Unliked" : "Post Liked",
+        description: result.msg || (isLiked ? "Successfully unliked the post" : "Successfully liked the post"),
+      });
+
+    } catch (error) {
+      console.error('Error updating like:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update like status",
+        variant: "destructive"
+      });
     }
   };
 
@@ -155,7 +213,7 @@ const PostCard: React.FC<{
     }
   };
 
-  const isOwnPost = post.posterId === currentUserId;
+  const isOwnPost = post.posterId === user?.uId;
 
   return (
     <motion.div
@@ -167,9 +225,9 @@ const PostCard: React.FC<{
     >
       <Card className={`mb-4 ${isOwnPost ? 'border-primary/50 border-2' : ''} 
         hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1
-        ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white'}`}>
+        ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between text-current">
             <motion.span
               whileHover={{ scale: 1.01 }}
               className="text-xl font-bold"
@@ -187,7 +245,7 @@ const PostCard: React.FC<{
               </Button>
             )}
           </CardTitle>
-          <CardDescription className="flex justify-between items-center">
+          <CardDescription className="flex justify-between items-center text-gray-600 dark:text-gray-400">
             <span className="font-medium">User ID: {post.posterId}</span>
             <span className="text-muted-foreground">
               {new Date(post.createdAt).toLocaleString()}
@@ -195,7 +253,7 @@ const PostCard: React.FC<{
           </CardDescription>
         </CardHeader>
         
-        <CardContent>
+        <CardContent className="text-current">
           <motion.div 
             className="mb-4"
             initial={false}
@@ -243,11 +301,15 @@ const PostCard: React.FC<{
             <motion.button
               whileTap={{ scale: 0.9 }}
               className={`flex items-center gap-2 p-2 rounded-full
-                ${isLiked ? 'text-red-500' : ''} 
-                hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
+                ${isLiked 
+                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20' 
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700'} 
+                transition-colors`}
               onClick={handleLike}
             >
-              <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
+              <Heart 
+                className={`h-5 w-5 transition-colors ${isLiked ? 'fill-current' : ''}`} 
+              />
               <span>{likeCount}</span>
             </motion.button>
             
@@ -352,7 +414,7 @@ const PostCard: React.FC<{
                 key={childPost.pId} 
                 post={childPost} 
                 level={level + 1}
-                currentUserId={currentUserId}
+                currentUserId={user?.uId}
                 onPostUpdate={onPostUpdate}
               />
             ))}
@@ -445,6 +507,25 @@ const CommunityPage: React.FC = () => {
 
   const handleSubmitPost = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (postFormData.title.trim().length < 3) {
+      toast({
+        title: "Error",
+        description: "Title must be at least 3 characters long",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (postFormData.content.trim().length < 10) {
+      toast({
+        title: "Error",
+        description: "Content must be at least 10 characters long",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -488,11 +569,13 @@ const CommunityPage: React.FC = () => {
   const userPosts = posts.filter(post => post.posterId === user?.uId);
 
   return (
-    <div className={`container mx-auto p-4 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50'}`}>
-      <Card className="mb-6">
+    <div className="container mx-auto p-4 bg-background text-foreground">
+      <Card>
         <CardHeader>
           <CardTitle>Create a New Post</CardTitle>
-          <CardDescription>Share your thoughts with the community</CardDescription>
+          <CardDescription>
+            Share your thoughts with the community
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmitPost} className="space-y-4">
@@ -506,6 +589,7 @@ const CommunityPage: React.FC = () => {
                 placeholder="Enter post title" 
                 required
                 disabled={isSubmitting}
+                className="bg-background"
               />
             </div>
             <div>
@@ -518,7 +602,7 @@ const CommunityPage: React.FC = () => {
                 placeholder="What's on your mind?"
                 required
                 disabled={isSubmitting}
-                className="w-full min-h-[100px] p-2 border rounded-md"
+                className="w-full min-h-[100px] p-2 border rounded-md bg-background"
               />
             </div>
             <div>
@@ -531,13 +615,13 @@ const CommunityPage: React.FC = () => {
                 onChange={handleFileChange}
                 multiple
                 disabled={isSubmitting}
+                className="bg-background"
               />
             </div>
             <Button 
               type="submit" 
               disabled={isSubmitting}
-              className="w-full md:w-auto transition-all duration-300
-                hover:scale-105 active:scale-95"
+              className="w-full md:w-auto"
             >
               {isSubmitting ? (
                 <div className="flex items-center space-x-2">

@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext'; 
 import { MangaFormData } from '@/lib/types';
+import Image from 'next/image';
+import { useSettings } from '@/contexts/SettingsContext';
 
 const CreateManga: React.FC = () => {
   const router = useRouter();
@@ -16,6 +18,7 @@ const CreateManga: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth(); 
+  const { theme } = useSettings();
 
   const [formData, setFormData] = useState<MangaFormData>({
     title: '',
@@ -24,25 +27,7 @@ const CreateManga: React.FC = () => {
     coverImage: null,
   });
 
-  // useEffect(() => {
-  //   const checkAuth = async () => {
-  //     try {
-  //       const userData = await getCurrentUser();
-  //       if (!userData) {
-  //         router.replace('/login');
-  //         return;
-  //       }
-  //       setUser(userData);
-  //     } catch (error) {
-  //       console.error('Authentication error:', error);
-  //       router.replace('/login');
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   checkAuth();
-  // }, [router]);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -51,7 +36,14 @@ const CreateManga: React.FC = () => {
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, coverImage: e.target.files![0] }));
+      const file = e.target.files[0];
+      setFormData(prev => ({ ...prev, coverImage: file }));
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -127,80 +119,130 @@ const CreateManga: React.FC = () => {
   // }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <Card className="w-full">
-        <CardHeader>
-          <h1 className="text-2xl font-bold text-center">Create New Manga</h1>
-          {/* <p className="text-center text-gray-600">Welcome, {user.username}!</p> */}
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                type="text"
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows={3}
-                required
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="genre">Genre</Label>
-              <Input
-                type="text"
-                id="genre"
-                name="genre"
-                value={formData.genre}
-                onChange={handleInputChange}
-                required
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="coverImage">Cover Image</Label>
-              <Input
-                type="file"
-                id="coverImage"
-                name="coverImage"
-                onChange={handleFileChange}
-                accept="image/*"
-                disabled={isSubmitting}
-              />
-            </div>
-            <CardFooter className="flex justify-end">
-              <Button 
-                type="submit" 
-                className="bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600 transition-all duration-300"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Creating...</span>
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="max-w-4xl mx-auto p-4">
+        <Card className={`w-full ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+          <CardHeader>
+            <h1 className={`text-2xl font-bold text-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              Create New Manga
+            </h1>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title" className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
+                  Title
+                </Label>
+                <Input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  required
+                  disabled={isSubmitting}
+                  className={`w-full ${
+                    theme === 'dark' 
+                      ? 'bg-gray-700 text-white border-gray-600' 
+                      : 'bg-white text-gray-900 border-gray-300'
+                  }`}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description" className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
+                  Description
+                </Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={3}
+                  required
+                  disabled={isSubmitting}
+                  className={`w-full ${
+                    theme === 'dark' 
+                      ? 'bg-gray-700 text-white border-gray-600' 
+                      : 'bg-white text-gray-900 border-gray-300'
+                  }`}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="genre" className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
+                  Genre
+                </Label>
+                <Input
+                  type="text"
+                  id="genre"
+                  name="genre"
+                  value={formData.genre}
+                  onChange={handleInputChange}
+                  required
+                  disabled={isSubmitting}
+                  className={`w-full ${
+                    theme === 'dark' 
+                      ? 'bg-gray-700 text-white border-gray-600' 
+                      : 'bg-white text-gray-900 border-gray-300'
+                  }`}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="coverImage" className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
+                  Cover Image
+                </Label>
+                <Input
+                  type="file"
+                  id="coverImage"
+                  name="coverImage"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  disabled={isSubmitting}
+                  className={`cursor-pointer ${
+                    theme === 'dark' 
+                      ? 'bg-gray-700 text-white border-gray-600' 
+                      : 'bg-white text-gray-900 border-gray-300'
+                  }`}
+                />
+                {imagePreview && (
+                  <div className="mt-4">
+                    <Image 
+                      src={imagePreview} 
+                      alt="Cover preview" 
+                      width={300}
+                      height={200}
+                      className="rounded-lg shadow-md"
+                    />
                   </div>
-                ) : (
-                  'Create Manga'
                 )}
-              </Button>
-            </CardFooter>
-          </form>
-        </CardContent>
-      </Card>
+              </div>
+
+              <CardFooter className="flex justify-end px-0">
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className={`${
+                    theme === 'dark' 
+                      ? 'bg-blue-600 hover:bg-blue-700' 
+                      : 'bg-blue-500 hover:bg-blue-600'
+                  } text-white transition-colors`}
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Creating...</span>
+                    </div>
+                  ) : (
+                    'Create Manga'
+                  )}
+                </Button>
+              </CardFooter>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

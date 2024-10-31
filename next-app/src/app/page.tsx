@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Search, Star, TrendingUp, Clock, MapPin } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";

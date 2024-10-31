@@ -56,6 +56,7 @@ export interface AuthContextType {
   loginSuccess: boolean;
   signIn: (username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 export interface SettingsContextType {
@@ -107,17 +108,17 @@ export interface Chapter {
   chapterSequence: number;
   price: number;
   images: string[];
+  hasAccess?: boolean;
 }
 
 export interface Review {
-  id: number;
-  user: string;
+  rsId: number;
+  reviewerId: number;
+  username: string;
   rating: number;
-  comment: string;
-  likes: number;
-  avatar?: string;
-  createdAt: string;
-  isOwner: boolean;
+  email: string;
+  review: string;
+  reviewDatetime: string;
 }
 
 export interface Manga {
@@ -163,3 +164,10 @@ export interface MangaFormData {
   coverImage: File | null;
 }
 
+export interface EnhancedPost extends Post {
+  authorDisplayName?: string;
+  authorAvatarUrl?: string;
+  likeCount?: number;
+  isLiked?: boolean;
+  
+}
