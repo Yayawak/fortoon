@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Heart, MessageSquare, Share2, Trash2, Sun, Moon } from 'lucide-react';
+import { Heart, MessageSquare, Share2, Trash2, Sun, Moon, Check, Copy } from 'lucide-react';
 import { 
   Card,
   CardContent,
@@ -215,6 +215,49 @@ const PostCard: React.FC<{
 
   const isOwnPost = post.posterId === user?.uId;
 
+  const handleShare = async () => {
+    const postUrl = `${window.location.origin}/community/post/${post.pId}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: post.title,
+          text: post.content.substring(0, 100) + '...',
+          url: postUrl,
+        });
+        
+        toast({
+          title: "Shared Successfully",
+          description: "The post has been shared!",
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          await copyToClipboard(postUrl);
+        }
+      }
+    } else {
+      await copyToClipboard(postUrl);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Link Copied!",
+        description: "Post link copied to clipboard",
+      });
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to copy link to clipboard",
+      });
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -330,6 +373,7 @@ const PostCard: React.FC<{
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-2 p-2 rounded-full
                 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              onClick={handleShare}
             >
               <Share2 className="h-5 w-5" />
               <span>Share</span>
