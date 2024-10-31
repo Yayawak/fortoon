@@ -40,7 +40,7 @@ CREATE TABLE `Chapter` (
 
 LOCK TABLES `Chapter` WRITE;
 /*!40000 ALTER TABLE `Chapter` DISABLE KEYS */;
-INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,10),('ราตรีแสนสุข',15,23,1,0),('i\'am solo',16,1,2,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0),('i\'am solo',24,1,5,0),('The Strongest of the Human Race',25,26,2,0);
+INSERT INTO `Chapter` VALUES ('',13,1,1,10),('',15,23,1,0),('i\'am solo',16,1,2,0),('Gods Vs Mankind\'s Final Struggle',23,26,1,0),('i\'am solo',24,1,5,0),('The Strongest of the Human Race',25,26,2,0);
 /*!40000 ALTER TABLE `Chapter` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -148,7 +148,7 @@ CREATE TABLE `Post` (
   KEY `Post_Chapter_FK` (`refId`),
   CONSTRAINT `Post_Post_FK` FOREIGN KEY (`parentPostId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `Post_User_FK` FOREIGN KEY (`posterId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -157,7 +157,11 @@ CREATE TABLE `Post` (
 
 LOCK TABLES `Post` WRITE;
 /*!40000 ALTER TABLE `Post` DISABLE KEYS */;
+<<<<<<< HEAD
 INSERT INTO `Post` VALUES ('concerto',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58',0,NULL,'story'),('where is saran',7,'5555555555555555555',NULL,2,'2024-10-16 13:56:03',0,NULL,'story'),('nepchar',8,'nlp so so end',NULL,1,'2024-10-16 15:41:04',0,NULL,'story'),('nepchar',9,'charcharset utf64',8,1,'2024-10-18 18:11:31',0,NULL,'story'),('narjar',10,'eeeeiiieieieieieieieieie',6,1,'2024-10-18 18:17:11',0,NULL,'story'),('kiki',11,'bajaha na',10,1,'2024-10-18 18:17:50',0,NULL,'story'),('kiki',12,'bajaha na',10,1,'2024-10-18 18:18:29',0,NULL,'story'),('kiki',13,'bajaha na',10,1,'2024-10-19 07:24:00',0,NULL,'story'),('nepchar',14,'charcharset utf64',NULL,1,'2024-10-19 09:04:09',0,NULL,'community'),('nepchar',17,'charcharset utf64',NULL,1,'2024-10-19 09:30:59',0,NULL,'community'),('nepchar',18,'charcharset utf64',NULL,1,'2024-10-19 09:33:39',1,1,'story');
+=======
+INSERT INTO `Post` VALUES ('concerto',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58',0,NULL,'story'),('where is saran',7,'5555555555555555555',NULL,2,'2024-10-16 13:56:03',0,NULL,'story'),('nepchar',8,'nlp so so end',NULL,1,'2024-10-16 15:41:04',0,NULL,'story'),('nepchar',9,'charcharset utf64',8,1,'2024-10-18 18:11:31',0,NULL,'story'),('narjar',10,'eeeeiiieieieieieieieieie',6,1,'2024-10-18 18:17:11',0,NULL,'story'),('kiki',11,'bajaha na',10,1,'2024-10-18 18:17:50',0,NULL,'story'),('kiki',12,'bajaha na',10,1,'2024-10-18 18:18:29',0,NULL,'story'),('kiki',13,'bajaha na',10,1,'2024-10-19 07:24:00',0,NULL,'story'),('nepchar',14,'charcharset utf64',NULL,1,'2024-10-19 09:04:09',0,NULL,'community'),('nepchar',17,'charcharset utf64',NULL,1,'2024-10-19 09:30:59',0,NULL,'community'),('nepchar',18,'charcharset utf64',NULL,1,'2024-10-19 09:33:39',0,1,'story'),('test',19,'teste',NULL,2,'2024-10-23 05:21:37',0,NULL,'community'),('test',20,'test',NULL,2,'2024-10-23 05:22:18',0,NULL,'community'),('นิม',21,'ทำไงดีครับ เพื่อนไม่แก้ เส้นapiให้ อีกไม่กี่วันก็ต้องส่งแล้ว',NULL,2,'2024-10-23 05:35:19',0,NULL,'community'),('นิมตื่น',22,'เพื่อนนอนเหมมือนตายทำไงดีครับ',NULL,2,'2024-10-23 05:36:50',0,NULL,'community'),('จะเครซี่',23,'นอยมาก',22,2,'2024-10-23 05:39:48',0,NULL,'community'),('t',24,'t',NULL,2,'2024-10-23 11:23:54',0,NULL,'community'),('t',25,'t',23,2,'2024-10-23 11:24:06',0,NULL,'community'),('t',26,'t',NULL,2,'2024-10-23 11:24:16',0,NULL,'community'),('t',27,'t',NULL,2,'2024-10-23 11:25:01',0,NULL,'community'),('t',28,'t',NULL,2,'2024-10-23 11:29:43',0,NULL,'community'),('t',29,'t',NULL,2,'2024-10-23 12:07:13',0,NULL,'community'),('t',30,'t',NULL,2,'2024-10-23 12:09:15',0,NULL,'community'),('t',31,'t',NULL,2,'2024-10-23 12:11:04',0,NULL,'community'),('t',32,'t',NULL,2,'2024-10-23 12:33:55',0,NULL,'community'),('หาการ์ตูนสนุกอ่าน',33,'มีเรื่องไหนแนะนำมั้งมั้ยครับ',NULL,2,'2024-10-23 14:27:17',0,NULL,'community'),('sss',34,'sssssssssssss',NULL,2,'2024-10-31 08:57:05',0,NULL,'community');
+>>>>>>> 73fc3ac04db661fc9ad230f1f5ae56e0bc796ddd
 /*!40000 ALTER TABLE `Post` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -175,7 +179,7 @@ CREATE TABLE `PostImage` (
   PRIMARY KEY (`piId`),
   KEY `ChapterImage_Chapter_FK` (`postId`) USING BTREE,
   CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -184,7 +188,7 @@ CREATE TABLE `PostImage` (
 
 LOCK TABLES `PostImage` WRITE;
 /*!40000 ALTER TABLE `PostImage` DISABLE KEYS */;
-INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6),(14,'post-image-2024-10-16T15:41:04.018Z-02.jpg',8),(15,'post-image-2024-10-18T18:11:32.011Z-02.jpg',9),(16,'post-image-2024-10-18T18:17:50.502Z-',11),(17,'post-image-2024-10-18T18:18:29.216Z-',12),(18,'post-image-2024-10-19T07:24:00.333Z-0_png.rf.5eaf4a99d1c7643441a8015e0b01b1f2.jpg',13),(19,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.078c6d035baa4477f2ec0aa2adc39f39.jpg',13),(20,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.ab4b52897ac361aacf27bb33c18eb652.jpg',13),(21,'post-image-2024-10-19T09:04:09.511Z-02.jpg',14);
+INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6),(14,'post-image-2024-10-16T15:41:04.018Z-02.jpg',8),(15,'post-image-2024-10-18T18:11:32.011Z-02.jpg',9),(16,'post-image-2024-10-18T18:17:50.502Z-',11),(17,'post-image-2024-10-18T18:18:29.216Z-',12),(18,'post-image-2024-10-19T07:24:00.333Z-0_png.rf.5eaf4a99d1c7643441a8015e0b01b1f2.jpg',13),(19,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.078c6d035baa4477f2ec0aa2adc39f39.jpg',13),(20,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.ab4b52897ac361aacf27bb33c18eb652.jpg',13),(21,'post-image-2024-10-19T09:04:09.511Z-02.jpg',14),(22,'post-image-2024-10-23T05:21:37.849Z-undefined',19),(23,'post-image-2024-10-23T12:33:55.953Z-images.jpg',32);
 /*!40000 ALTER TABLE `PostImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -204,7 +208,7 @@ CREATE TABLE `PostInteraction` (
   KEY `PostInteraction_User_FK` (`likerId`),
   CONSTRAINT `PostInteraction_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `PostInteraction_User_FK` FOREIGN KEY (`likerId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -213,7 +217,7 @@ CREATE TABLE `PostInteraction` (
 
 LOCK TABLES `PostInteraction` WRITE;
 /*!40000 ALTER TABLE `PostInteraction` DISABLE KEYS */;
-INSERT INTO `PostInteraction` VALUES (1,11,1),(3,11,2);
+INSERT INTO `PostInteraction` VALUES (12,6,2),(11,7,2),(13,10,2),(1,11,2),(4,18,2),(3,19,2),(2,20,2),(7,21,2),(6,22,2),(5,23,2),(45,28,2),(44,29,2),(21,30,2),(20,31,2),(19,32,2),(14,33,2),(15,34,2);
 /*!40000 ALTER TABLE `PostInteraction` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -260,7 +264,7 @@ CREATE TABLE `ReviewStory` (
   KEY `storyId` (`storyId`),
   CONSTRAINT `ReviewStory_ibfk_1` FOREIGN KEY (`reviewerId`) REFERENCES `User` (`uId`) ON DELETE CASCADE,
   CONSTRAINT `ReviewStory_ibfk_2` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -269,88 +273,9 @@ CREATE TABLE `ReviewStory` (
 
 LOCK TABLES `ReviewStory` WRITE;
 /*!40000 ALTER TABLE `ReviewStory` DISABLE KEYS */;
-INSERT INTO `ReviewStory` VALUES (2,5,'so bad',7,1,'2024-10-19 15:10:59'),(3,1,'so cliche',1,26,'2024-10-19 15:12:41'),(4,2,'eiei',2,1,'2024-10-30 13:44:27');
+INSERT INTO `ReviewStory` VALUES (1,4,'not bad',2,1,'2024-10-27 07:05:14');
 /*!40000 ALTER TABLE `ReviewStory` ENABLE KEYS */;
 UNLOCK TABLES;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER recal_rating_on_insert
-AFTER INSERT ON ReviewStory
-FOR EACH ROW
-BEGIN
-    UPDATE Story s
-    SET rating = (
-        SELECT ROUND(AVG(rating), 2)
-        FROM ReviewStory
-        WHERE storyId = NEW.storyId
-    )
-    WHERE s.sId = NEW.storyId;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER recal_rating_update
-AFTER UPDATE ON ReviewStory
-FOR EACH ROW
-BEGIN
-    UPDATE Story s
-    SET s.rating = (
-        SELECT ROUND(AVG(rating), 2)
-        FROM ReviewStory
-        WHERE storyId = NEW.storyId
-    )
-    WHERE s.sId = NEW.storyId;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER recal_rating_del
-AFTER DELETE ON ReviewStory
-FOR EACH ROW
-BEGIN
-    UPDATE Story s
-    SET s.rating = COALESCE(
-        (SELECT ROUND(AVG(rating), 2)
-        FROM ReviewStory
-        WHERE storyId = OLD.storyId),
-        0.00
-    )
-    WHERE s.sId = OLD.storyId;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `Story`
@@ -366,12 +291,11 @@ CREATE TABLE `Story` (
   `postedDatetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `authorId` int(10) unsigned NOT NULL,
   `coverImageUrl` varchar(200) NOT NULL,
-  `rating` float NOT NULL,
   PRIMARY KEY (`sId`),
   UNIQUE KEY `title` (`title`),
   KEY `Story_User_FK` (`authorId`),
   CONSTRAINT `Story_User_FK` FOREIGN KEY (`authorId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -380,7 +304,7 @@ CREATE TABLE `Story` (
 
 LOCK TABLES `Story` WRITE;
 /*!40000 ALTER TABLE `Story` DISABLE KEYS */;
-INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'storyCover-Solo-Leveling-Ragnarok_Cover.png-2024-10-23T14:16:32.863Z',3.5),(23,'demon slayee','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'storyCover-02.jpg-2024-10-23T14:18:25.834Z',5),(26,'record of ragnarock','กพันปีเทพเจ้าจะมาประชุมลงมติอารยธรรมของมนุษยชาติจะดำรงอยู่ต่อหรือไม่ เหล่าเจ้าเทพเจ้าลงมติเป็นเสียงเดียวกันถึงเวลาที่อารยธรรมของมนุษย์ต้องจบเพียงเท่านี้ แต่วัลคีรีสาว Brunhild ไม่เห็นด้วย จึงเกิดเป็นศึกที่ไม่เคยเกิดขึ้นมาก่อน ตัวแทนจากประวัติศาสตร์มนุษยชาติจะต้องลงสังเวียนประลองยุทธกับเทพในการต่อสู้ตัวต่อตัวใน 13 ศึกเพื่อตัดสินชะตาของมวลมนุษยชาติ','2024-10-14 16:54:02',2,'storyCover-cover.jpg-2024-10-23T14:18:40.881Z',0);
+INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[ Redice  !]       ','2024-09-26 15:19:00',1,'storyCover-2024-10-16T14:59:25.385Z-02.jpg'),(23,'demon slayee','Learning to destroy demons wont be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know whats going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'storyCover-2024-10-16T14:58:12.621Z-02.jpg'),(26,'record of ragnarock','   Brunhild    13 ','2024-10-14 16:54:02',2,'cover.jpg'),(27,'demon sliyehe','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-23 10:37:13',2,'Screenshot 2024-10-23 093310.png'),(28,'test','test','2024-10-23 10:41:49',2,'storyCover-Wed Oct 23 2024 10:41:48 GMT+0000 (Coordinated Universal Time)-image_no_grid.png'),(29,'t','t','2024-10-23 11:22:36',2,'storyCover-Wed Oct 23 2024 11:22:34 GMT+0000 (Coordinated Universal Time)-images.jpg');
 /*!40000 ALTER TABLE `Story` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -466,7 +390,7 @@ CREATE TABLE `User` (
   UNIQUE KEY `username` (`username`),
   KEY `User_Rank_FK` (`rankId`),
   CONSTRAINT `User_Rank_FK` FOREIGN KEY (`rankId`) REFERENCES `Rank` (`rId`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -475,7 +399,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,22,'m',10,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',20,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL),(10,8,'m',0,1,'rakan88888','rakan','rakan@lover.th','2024-10-15 13:07:25','rakan','user-Tue Oct 15 2024 13:07:23 GMT+0000 (Coordinated Universal Time)-02.jpg',NULL);
+INSERT INTO `User` VALUES (1,22,'m',25,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image.png','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',4700,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-image.png','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image.png',NULL),(10,8,'m',0,1,'rakan88888','rakan','rakan@lover.th','2024-10-15 13:07:25','rakan','user-Tue Oct 15 2024 13:07:23 GMT+0000 (Coordinated Universal Time)-02.jpg',NULL),(11,1243546,'m',0,1,'assfdgfhjhjkj','asdsfgfg','dsff@gmail.com','2024-10-19 13:57:38','asfdgfgh',NULL,NULL);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -488,4 +412,8 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+<<<<<<< HEAD
 -- Dump completed on 2024-10-31 12:45:31
+=======
+-- Dump completed on 2024-10-31 11:29:11
+>>>>>>> 73fc3ac04db661fc9ad230f1f5ae56e0bc796ddd

@@ -56,6 +56,7 @@ export interface AuthContextType {
   loginSuccess: boolean;
   signIn: (username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 export interface SettingsContextType {
@@ -107,16 +108,17 @@ export interface Chapter {
   chapterSequence: number;
   price: number;
   images: string[];
+  hasAccess?: boolean;
 }
 
 export interface Review {
-  id: number;
-  user: string;
-  avatar: string;
+  rsId: number;
+  reviewerId: number;
+  username: string;
   rating: number;
-  comment: string;
-  likes: number;
-  date: string;
+  email: string;
+  review: string;
+  reviewDatetime: string;
 }
 
 export interface Manga {
@@ -137,3 +139,40 @@ export interface PostCardProps {
   currentUserId: number | undefined;
   onPostUpdate: () => void;
 }
+
+export interface PostFormData {
+  title: string;
+  content: string;
+  images: File[];
+}
+
+export interface ReplyFormData {
+  title: string;
+  content: string;
+  images: File[];
+}
+// Extend Post type to include likes
+export interface EnhancedPost extends Post {
+  likes?: number;
+  isLiked?: boolean;
+}
+
+export interface MangaFormData {
+  title: string;
+  description: string;
+  genre: string;
+  coverImage: File | null;
+}
+
+export interface EnhancedPost extends Post {
+  authorDisplayName?: string;
+  authorAvatarUrl?: string;
+  likeCount?: number;
+  isLiked?: boolean;
+  
+}
+
+export type Genre = {
+  gId: number;
+  genreName: string;
+};

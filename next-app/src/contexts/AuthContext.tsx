@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/auth/logout', {
+      const response = await fetch('/api/auth/signout', {
         method: 'POST',
         credentials: 'include',
       });
@@ -109,6 +109,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const response = await fetch('/api/auth/login/byCookie', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.data);
+      }
+    } catch (error) {
+      console.error('User refresh failed:', error);
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -116,6 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loginSuccess,
     signIn,
     signOut,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
