@@ -48,23 +48,38 @@ export async function deleteAllImagesForPost(postId: number) {
 
 
 // Helper function to retrieve all posts from the database
-export async function getAllPosts() {
-    const [posts] = await dbConnection.execute<RowDataPacket[]>(`
-        SELECT 
-            p.pId, p.title, p.content, p.parentPostId, p.posterId, p.createdAt, p.hidden,
-            GROUP_CONCAT(pi.url) AS images,
-            u.displayName as posterName,
-            COUNT(DISTINCT pint.likerId) as likeCount
-        FROM Post p
-        LEFT JOIN PostImage pi ON p.pId = pi.postId
-        LEFT JOIN User u ON p.posterId = u.uId
-        LEFT JOIN PostInteraction pint ON p.pId = pint.postId
-        GROUP BY p.pId
-        ORDER BY p.createdAt DESC
-    `);
+export async function getAllPosts(userId: number | null = null): Promise<any[]> {
+    let query = `
+            SELECT 
+                p.*,
+                u.username as posterName,
+                COUNT(DISTINCT pi.likerId) as likeCount,
+                ${userId ? 'MAX(CASE WHEN pi.likerId = ? THEN 1 ELSE 0 END) as isLiked' : '0 as isLiked'}
+            FROM Post p
+            LEFT JOIN User u ON p.posterId = u.uId
+            LEFT JOIN PostInteraction pi ON p.pId = pi.postId
+            GROUP BY p.pId, u.username
+            ORDER BY p.createdAt DESC
+        `;
 
-    // Return the list of posts with their associated images
-    return posts;
+    const [posts] = await dbConnection.execute(query, userId ? [userId] : []);
+
+    // Get images for all posts and ensure proper formatting
+    const postsWithImages = await Promise.all(
+        (posts as RowDataPacket[]).map(async (post) => {
+            const [images] = await dbConnection.execute<RowDataPacket[]>(
+                'SELECT url FROM PostImage WHERE postId = ?',
+                [post.pId]
+            );
+            return {
+                ...post,
+                images: images.length > 0 ? images.map(img => img.url) : [],
+                isLiked: Boolean(post.isLiked) // Ensure isLiked is a boolean
+            };
+        })
+    );
+
+    return postsWithImages;
 }
 
 
@@ -75,7 +90,7 @@ export async function getParentPostById(parentPostId: number) {
     `, [parentPostId]);
 
     // Return the post if found, otherwise return null
-    return rows.length > 0 ? rows[0] : null; 
+    return rows.length > 0 ? rows[0] : null;
 }
 
 
@@ -86,8 +101,8 @@ export function structurePosts(posts: any[]): any[] {
 
     // Initialize the postMap with posts
     posts.forEach(post => {
-        // Convert images from a comma-separated string to an array
-        post.images = post.images ? post.images.split(',') : []; // Split the string into an array or set to empty if no images
+        // Images are already an array from getAllPosts, no need to split
+        post.images = post.images || [];
 
         // Ensure likeCount is a number
         post.likeCount = parseInt(post.likeCount) || 0;
@@ -129,7 +144,7 @@ export function filterHiddenPostData(post: any) {
         }, {} as any);
 
     // Handle children separately due to recursive nature
-    filteredPost.children = post.children?.map((child: any) => 
+    filteredPost.children = post.children?.map((child: any) =>
         filterHiddenPostData(child)
     ) || [];
 

@@ -12,12 +12,19 @@ import { checkChapterExists } from '@/backend_lib/story/chapter_permission.lib';
 
 
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     const stdRes: IStandardResponse = {};
 
     try {
-        // Step 1: Retrieve all posts from the database
-        const posts = await getAllPosts();
+        // Get user ID from token if available (optional authentication)
+        let userId: number | null = null;
+        const verifiedRes = await verifyToken(req);
+        if (verifiedRes.status === 200) {
+            userId = verifiedRes.data.uId;
+        }
+
+        // Step 1: Retrieve all posts and likes from the database
+        const posts = await getAllPosts(userId);
 
         if (!posts || posts.length === 0) {
             stdRes.msg = "No posts found.";
