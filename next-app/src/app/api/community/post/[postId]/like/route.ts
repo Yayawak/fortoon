@@ -12,6 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: { postId: stri
 
     if (isPostExisted) {
         const likeCount = await countPostLikes(postId)
+        stdRes.msg = "Post liked count retrieved successfully."
         stdRes.data = {
             likeCount
         }

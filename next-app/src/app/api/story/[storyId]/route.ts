@@ -6,112 +6,47 @@ import { RowDataPacket } from 'mysql2';
 import { NextRequest, NextResponse } from 'next/server';
 import { ErrorMessage, GetErrorMesage } from '@/constant/error_message';
 import { updateStorySchema } from '@/schemes/story.scheme';
-import { updateStoryDetails} from './story.id.helper';
+import { 
+    fetchStoryDetails, 
+    fetchStoryChapters, 
+    fetchStoryGenres, 
+    processChaptersWithImages, 
+    updateStoryDetails
+} from './story.id.helper';
 import { uploadImage } from '@/backend_lib/image_uploading/image_upload.lib';
 import { setStandardImageName } from '@/backend_lib/image_uploading/image_namer.lib';
 
+
 export async function GET(req: NextRequest, { params }: { params: { storyId: string } }) {
     const { storyId } = params;
-
     const stdRes: IStandardResponse = {};
 
     // Verify the user's token
     const verifiedRes = await verifyToken(req);
-    // console.log("ts")
-    // console.log(verifiedRes)
-
-    const isAnonymous : boolean= verifiedRes.status !== 200;
-    const msg = isAnonymous ? "This Get story is for anonymous users" : "This Get story is for authenticated users"
-    console.log(msg.bgYellow)
-
-    if (verifiedRes.status !== 200) {
-        // console.log("can no login")
-        // stdRes.status = verifiedRes.status
-
-        // return NextResponse.json(verifiedRes, {status: stdRes.status})
-    }
-    const userId = verifiedRes.status === 200 ? verifiedRes.data.uId : null; // Get userId only if verified
+    const isAnonymous = verifiedRes.status !== 200;
+    const userId = verifiedRes.status === 200 ? verifiedRes.data.uId : null;
 
     // Step 1: Fetch the story details
-    const [rs] = await dbConnection.query<RowDataPacket[]>(`
-        SELECT 
-            s.*,
-            u.displayName AS authorDisplayName
-        FROM 
-            User u 
-        JOIN
-            Story s ON u.uId = s.authorId
-        WHERE 
-            s.sId = ?
-    `, [storyId]);
-
-    // console.log(rs)
-
+    const rs = await fetchStoryDetails(storyId);
     if (rs.length === 0) {
         stdRes.msg = "Story not found";
         return NextResponse.json(stdRes, { status: 404 });
     }
 
-    // Step 2: Fetch chapters for the current story
-    let [chapterRs] = await dbConnection.query<RowDataPacket[]>(`
-        SELECT * 
-        FROM Chapter c
-        WHERE c.storyId = ?  
-    `, [storyId]);
-
-    // Step 3: Fetch genres for the current story
-    let [genreRs] = await dbConnection.query<RowDataPacket[]>(`
-        SELECT g.gId, g.genreName 
-        FROM Genre g
-        JOIN StoryGenre sg ON g.gId = sg.genreId
-        WHERE sg.storyId = ?
-    `, [storyId]);
-
-    // Step 4: Process chapters with images based on user permissions
-    const chaptersWithImages = await Promise.all(chapterRs.map(async (chap) => {
-        const chapterId = chap.cId;
-
-        // Initialize images as an empty array
-        let images: any[] = [];
-
-        // Allow anonymous users to access free chapters (price = 0)
-        if (isAnonymous && chap.price === 0) {
-            let [imageRs] = await dbConnection.query<RowDataPacket[]>(`
-                SELECT imageSequenceNumber, url
-                FROM ChapterImage ci
-                WHERE ci.chapterId = ?  
-            `, [chapterId]);
-            images = imageRs;
-        }
-        // If the user is authenticated, check if they have read permission
-        else if (userId) {
-            const isReadable = await hasReadPermission(userId, chapterId);
-            if (isReadable) {
-                let [imageRs] = await dbConnection.query<RowDataPacket[]>(`
-                    SELECT imageSequenceNumber, url
-                    FROM ChapterImage ci
-                    WHERE ci.chapterId = ?  
-                `, [chapterId]);
-                images = imageRs;
-            }
-        }
-
-        return {
-            ...chap,
-            images
-        };
-    }));
+    // Step 2-4: Fetch and process all story data
+    const chapters = await fetchStoryChapters(storyId);
+    const genres = await fetchStoryGenres(storyId);
+    const chaptersWithImages = await processChaptersWithImages(chapters, isAnonymous, userId);
 
     // Step 5: Combine story, chapters, and genres into the response
     const data = {
         ...rs[0],
-        chapters: chaptersWithImages, // Include chapters with or without images
-        genres: genreRs // Include genres associated with the story
+        chapters: chaptersWithImages,
+        genres: genres
     };
 
     return NextResponse.json(data, { status: 200 });
 }
-
 
 
 

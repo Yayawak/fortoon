@@ -53,10 +53,12 @@ export async function getAllPosts() {
         SELECT 
             p.pId, p.title, p.content, p.parentPostId, p.posterId, p.createdAt, p.hidden,
             GROUP_CONCAT(pi.url) AS images,
-            u.displayName as posterName
+            u.displayName as posterName,
+            COUNT(DISTINCT pint.likerId) as likeCount
         FROM Post p
         LEFT JOIN PostImage pi ON p.pId = pi.postId
         LEFT JOIN User u ON p.posterId = u.uId
+        LEFT JOIN PostInteraction pint ON p.pId = pint.postId
         GROUP BY p.pId
         ORDER BY p.createdAt DESC
     `);
@@ -86,6 +88,9 @@ export function structurePosts(posts: any[]): any[] {
     posts.forEach(post => {
         // Convert images from a comma-separated string to an array
         post.images = post.images ? post.images.split(',') : []; // Split the string into an array or set to empty if no images
+
+        // Ensure likeCount is a number
+        post.likeCount = parseInt(post.likeCount) || 0;
 
         post.children = []; // Initialize an array for children
         postMap[post.pId] = post; // Map post by its ID
@@ -118,9 +123,10 @@ export function filterHiddenPostData(post: any) {
         content: post.content,
         images: post.images,
         posterName: post.posterName,
+        likeCount: post.likeCount,
         children: post.children?.map((child: any) => filterHiddenPostData(child)) || []
     };
-    console.log(filteredPost)
+    // console.log(filteredPost)
 
     // Remove title, content, and images if the post is hidden
     if (post.hidden == 1) {
