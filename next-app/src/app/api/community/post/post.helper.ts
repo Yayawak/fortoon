@@ -51,10 +51,12 @@ export async function deleteAllImagesForPost(postId: number) {
 export async function getAllPosts() {
     const [posts] = await dbConnection.execute<RowDataPacket[]>(`
         SELECT 
-            p.pId, p.title, p.content, p.parentPostId, p.posterId, p.createdAt,
-            GROUP_CONCAT(pi.url) AS images
+            p.pId, p.title, p.content, p.parentPostId, p.posterId, p.createdAt, p.hidden,
+            GROUP_CONCAT(pi.url) AS images,
+            u.displayName as posterName
         FROM Post p
         LEFT JOIN PostImage pi ON p.pId = pi.postId
+        LEFT JOIN User u ON p.posterId = u.uId
         GROUP BY p.pId
         ORDER BY p.createdAt DESC
     `);
@@ -104,4 +106,38 @@ export function structurePosts(posts: any[]): any[] {
     });
 
     return treePosts;
+}
+
+export function filterHiddenPostData(post: any) {
+    const filteredPost = {
+        pId: post.pId,
+        posterId: post.posterId,
+        createdAt: post.createdAt,
+        hidden: post.hidden,
+        title: post.title,
+        content: post.content,
+        images: post.images,
+        posterName: post.posterName,
+        children: post.children?.map((child: any) => filterHiddenPostData(child)) || []
+    };
+    console.log(filteredPost)
+
+    // Remove title, content, and images if the post is hidden
+    if (post.hidden == 1) {
+        delete filteredPost.title;
+        delete filteredPost.content;
+        delete filteredPost.images;
+    }
+
+    return filteredPost;
+}
+
+
+
+export async function checkUserOwnPost(postId: string, userId: string): Promise<boolean> {
+    const [postCheckRes] = await dbConnection.execute<RowDataPacket[]>(`
+        SELECT * FROM Post WHERE pId = ? AND posterId = ?
+    `, [postId, userId]);
+
+    return postCheckRes.length > 0;
 }

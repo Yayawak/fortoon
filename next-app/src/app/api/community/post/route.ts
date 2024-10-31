@@ -5,7 +5,7 @@ import { ErrorMessage, GetErrorMesage } from '@/constant/error_message';
 import { createPostSchema } from '@/schemes/post.scheme';
 import { IStandardResponse } from '@/types/IApiCommunication';
 import { NextRequest, NextResponse } from 'next/server';
-import { addImagesToPost, createPost, deleteAllImagesForPost, getParentPostById, structurePosts, } from './post.helper';
+import { addImagesToPost, createPost, deleteAllImagesForPost, filterHiddenPostData, getParentPostById, structurePosts, } from './post.helper';
 import { getAllPosts } from './post.helper';
 import { ConstructionIcon } from 'lucide-react';
 import { checkChapterExists } from '@/backend_lib/story/chapter_permission.lib';
@@ -24,8 +24,8 @@ export async function GET() {
             return NextResponse.json(stdRes, { status: 404 });
         }
 
-        // Step 2: Structure posts into a tree format using the helper function
-        const structuredPosts = structurePosts(posts);
+        // Step 2: Structure posts into a tree format and filter hidden post data
+        const structuredPosts = structurePosts(posts).map(post => filterHiddenPostData(post));
 
         // Step 3: Return the structured posts in the response
         stdRes.msg = "Posts retrieved successfully.";
@@ -39,6 +39,7 @@ export async function GET() {
         return NextResponse.json(stdRes, { status: 500 });
     }
 }
+
 
 
 
