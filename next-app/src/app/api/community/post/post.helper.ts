@@ -114,25 +114,30 @@ export function structurePosts(posts: any[]): any[] {
 }
 
 export function filterHiddenPostData(post: any) {
-    const filteredPost = {
-        pId: post.pId,
-        posterId: post.posterId,
-        createdAt: post.createdAt,
-        hidden: post.hidden,
-        title: post.title,
-        content: post.content,
-        images: post.images,
-        posterName: post.posterName,
-        likeCount: post.likeCount,
-        children: post.children?.map((child: any) => filterHiddenPostData(child)) || []
-    };
-    // console.log(filteredPost)
+    // Define properties that should always be included
+    const baseProperties = ['pId', 'posterId', 'createdAt', 'hidden'];
+    // Define properties that should be removed when post is hidden
+    const hiddenSensitiveProperties = ['title', 'content', 'images'];
 
-    // Remove title, content, and images if the post is hidden
-    if (post.hidden == 1) {
-        delete filteredPost.title;
-        delete filteredPost.content;
-        delete filteredPost.images;
+    // Create filtered post by copying all properties from original post
+    const filteredPost = Object.entries(post)
+        .reduce((acc, [key, value]) => {
+            // Skip children as it needs special handling
+            if (key === 'children') return acc;
+            acc[key] = value;
+            return acc;
+        }, {} as any);
+
+    // Handle children separately due to recursive nature
+    filteredPost.children = post.children?.map((child: any) => 
+        filterHiddenPostData(child)
+    ) || [];
+
+    // Remove sensitive properties if post is hidden
+    if (post.hidden === 1) {
+        hiddenSensitiveProperties.forEach(prop => {
+            delete filteredPost[prop];
+        });
     }
 
     return filteredPost;
