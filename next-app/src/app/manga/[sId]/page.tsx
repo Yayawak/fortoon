@@ -15,6 +15,7 @@ import { CldImage } from 'next-cloudinary';
 import { Manga, MangaDetailProps, Chapter, Review } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
+import { Genre } from "@/lib/types";
 
 // Add this new component for the review card
 const ReviewCard = ({ review, onEdit, isAuthor, theme }: { 
@@ -93,6 +94,12 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     review?: string;
   }>({});
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    introduction: '',
+    genres: [] as string[]
+  });
 
   useEffect(() => {
     const fetchManga = async () => {
@@ -448,6 +455,37 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     }
   }, [user?.uId]); // Only run when user ID changes
 
+  const handleUpdateManga = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const response = await fetch(`/api/story/${params.sId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editForm),
+      });
+
+      if (!response.ok) throw new Error('Failed to update manga');
+
+      const updatedManga = await response.json();
+      setManga(updatedManga.data);
+      setIsEditing(false);
+      
+      toast({
+        title: "Success",
+        description: "Manga updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update manga",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!manga) return <div>No manga data found</div>;
@@ -664,6 +702,103 @@ export default function MangaDetail({ params }: MangaDetailProps) {
           </div>
         </div>
       </div>
+
+      {/* Author Edit Section */}
+      {user?.uId === manga?.authorId && (
+        <div className="container mx-auto px-4 py-4">
+          <Button
+            onClick={() => {
+              if (!isEditing) {
+                setEditForm({
+                  title: manga.title,
+                  introduction: manga.introduction,
+                  genres: manga.genres || []
+                });
+              }
+              setIsEditing(!isEditing);
+            }}
+            variant={isEditing ? "destructive" : "default"}
+            className="mb-4"
+          >
+            {isEditing ? "Cancel Edit" : "Edit Manga"}
+          </Button>
+        </div>
+      )}
+
+      {/* Edit Form */}
+      {isEditing && user?.uId === manga?.authorId ? (
+        <div className="container mx-auto px-4 py-4">
+          <form onSubmit={handleUpdateManga} className="space-y-4">
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={editForm.title}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  title: e.target.value
+                }))}
+                className={theme === "dark" ? "bg-gray-700" : ""}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="introduction">Introduction</Label>
+              <Textarea
+                id="introduction"
+                value={editForm.introduction}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  introduction: e.target.value
+                }))}
+                className={`min-h-[200px] ${theme === "dark" ? "bg-gray-700" : ""}`}
+              />
+            </div>
+
+            {/* <div>
+              <Label>Genres</Label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {Genre?.map((genre) => (
+                  <Button
+                    key={genre.genreName}
+                    type="button"
+                    variant={editForm.genres.includes(genre.genreName) ? "default" : "outline"}
+                    onClick={() => {
+                      setEditForm(prev => ({
+                        ...prev,
+                        genres: prev.genres.includes(genre.genreName)
+                          ? prev.genres.filter(g => g !== genre.genreName)
+                          : [...prev.genres, genre.genreName]
+                      }));
+                    }}
+                    className="h-8"
+                  >
+                    {genre.genreName}
+                  </Button>
+                ))}
+              </div>
+            </div> */}
+
+            <div className="flex justify-end space-x-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </div>
+      ) : (
+        // Your existing manga detail content
+        <div className="container mx-auto px-4 py-8">
+          {/* ... rest of your existing JSX ... */}
+        </div>
+      )}
     </div>
   );
 }

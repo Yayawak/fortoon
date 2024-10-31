@@ -171,3 +171,8 @@ export interface EnhancedPost extends Post {
   isLiked?: boolean;
   
 }
+
+export type Genre = {
+  gId: number;
+  genreName: string;
+};

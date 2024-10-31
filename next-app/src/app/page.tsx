@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Search, Star, TrendingUp, Clock, MapPin } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
@@ -9,6 +9,7 @@ import { CldImage } from "next-cloudinary";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { motion, AnimatePresence } from "framer-motion";
+import { Genre } from "@/lib/types";
 
 type MangaItem = {
   sId: number;
@@ -63,6 +64,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+  const [genres, setGenres] = useState<Genre[]>([]);
+  const [selectedGenre, setSelectedGenre] = useState<number | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -189,6 +192,40 @@ export default function Home() {
     });
   };
 
+  const fetchGenres = useCallback(async () => {
+    try {
+      const response = await fetch('/api/genre');
+      if (!response.ok) throw new Error('Failed to fetch genres');
+      const data = await response.json();
+      console.log(data.data);
+      setGenres(data.data);
+    } catch (error) {
+      console.error('Error fetching genres:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchGenres();
+  }, [fetchGenres]);
+
+  useEffect(() => {
+    let filtered = mangaList;
+    
+    if (searchTerm) {
+      filtered = filtered.filter(manga => 
+        manga.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    if (selectedGenre) {
+      filtered = filtered.filter(manga => 
+        manga.genres.includes(selectedGenre)
+      );
+    }
+    
+    setFilteredMangaList(filtered);
+  }, [mangaList, searchTerm, selectedGenre]);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -297,6 +334,41 @@ export default function Home() {
                 />
                 <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </motion.div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Genre Filter Section */}
+        <motion.section
+          variants={fadeInVariants}
+          className="py-8 bg-gray-50 dark:bg-gray-800"
+        >
+          <div className="container mx-auto px-4">
+            <h3 className="text-xl font-semibold mb-4 text-center">Browse by Genre</h3>
+            <div className="flex flex-wrap gap-2 justify-center">
+              <button
+                onClick={() => setSelectedGenre(null)}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  selectedGenre === null 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                All
+              </button>
+              {genres.map((genre) => (
+                <button
+                  key={genre.gId}
+                  onClick={() => setSelectedGenre(genre.gId)}
+                  className={`px-4 py-2 rounded-full transition-colors ${
+                    selectedGenre === genre.gId 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {genre.genreName}
+                </button>
+              ))}
             </div>
           </div>
         </motion.section>
