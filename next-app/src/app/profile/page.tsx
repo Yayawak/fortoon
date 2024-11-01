@@ -117,7 +117,7 @@ export default function Profile() {
             : 'bg-gray-500'
           }`}>
           <CldImage 
-            src={user?.backgroundUrl || "bgUrl"}
+            src={user?.bgUrl || "bgUrl"}
             alt="bg picture" 
             width={128}
             height={128}
