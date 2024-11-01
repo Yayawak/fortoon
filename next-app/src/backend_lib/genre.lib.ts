@@ -32,7 +32,9 @@ export async function validateGenreIds(genreIds: number[]) {
     sql);
   // console.log(validGenresRs)
   const validGenreIds = validGenresRs.map(row => row.gId);
+  // console.log(validGenreIds)
   const invalidGenreIds = genreIds.filter(id => !validGenreIds.includes(id));
+  // console.log(invalidGenreIds)
 
   return {
       valid: invalidGenreIds.length === 0,

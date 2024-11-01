@@ -149,7 +149,6 @@ export async function POST(req: NextRequest) {
 
         await uploadImage(coverImage, filename)
 
-        console.log("ready to insert".america)
 
         try {
             // Start a transaction
@@ -173,12 +172,13 @@ export async function POST(req: NextRequest) {
 
             // If we have valid genres, insert them
             const genreIds = parsed.data.genreIds;
+            // console.log(genreIds)
             // Insert genre relationships
             for (const genreId of genreIds) {
-                await dbConnection.execute(`
-                        INSERT INTO StoryGenre (storyId, genreId)
-                        VALUES (?, ?)
-                    `, [storyId, genreId]);
+                const sql = `INSERT INTO StoryGenre (storyId, genreId) VALUES (?, ?)`;
+                console.log(sql)
+                const [rs] = await dbConnection.execute(sql, [storyId, genreId]);
+                console.log(rs)
             }
 
             // Commit the transaction
