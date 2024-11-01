@@ -4,6 +4,7 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { CldImage } from 'next-cloudinary';
 
 interface ChapterPageProps {
   params: {
@@ -144,11 +145,13 @@ export default function ChapterPage({ params }: ChapterPageProps) {
             currentChapter.images
               .sort((a, b) => a.imageSequenceNumber - b.imageSequenceNumber)
               .map((image) => (
-                <img 
+                <CldImage 
                   key={image.imageSequenceNumber}
                   src={image.url}
                   alt={`Page ${image.imageSequenceNumber}`}
                   className="mx-auto max-w-full"
+                  width={700}
+                  height={1000}
                 />
               ))
           ) : (
