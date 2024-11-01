@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { IStandardResponse } from "@/types/IApiCommunication";
 
 export async function POST(req: Request) {
     try {
@@ -11,11 +10,9 @@ export async function POST(req: Request) {
 
         // Get the cookie store
         const cookieStore = cookies();
-        
+
         // Clear the JWT token by setting an expired cookie
-        response.cookies.set({
-            name: 'jwt',
-            value: '',
+        cookieStore.set('token', '', {
             expires: new Date(0), // Set to epoch time to immediately expire
             path: '/',
             httpOnly: true,

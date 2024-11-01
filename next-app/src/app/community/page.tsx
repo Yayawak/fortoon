@@ -40,6 +40,11 @@ import {
 } from "@/components/ui/dialog";
 import { Toaster } from "@/components/ui/toaster";
 
+interface UserData {
+  displayName: string;
+  photoURL?: string;
+}
+
 const PostCard: React.FC<{ 
   post: EnhancedPost; 
   level?: number;
@@ -501,7 +506,7 @@ const CommunityPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
-  const { theme, setTheme } = useSettings();
+  const { theme } = useSettings();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -523,8 +528,12 @@ const CommunityPage: React.FC = () => {
       const visiblePosts = result.data.posts.filter((post: Post) => !post.hidden);
       setPosts(visiblePosts);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
-    } 
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to fetch posts",
+        variant: "destructive"
+      });
+    }
   };
 
   useEffect(() => {
@@ -538,11 +547,10 @@ const CommunityPage: React.FC = () => {
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      // Validate file types and sizes
       const files = Array.from(e.target.files);
       const validFiles = files.filter(file => {
         const isValidType = file.type.startsWith('image/');
-        const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
+        const isValidSize = file.size <= 5 * 1024 * 1024;
         
         if (!isValidType) {
           toast({
@@ -642,9 +650,8 @@ const CommunityPage: React.FC = () => {
   const userPosts = posts.filter(post => post.posterId === user?.uId);
 
   const trendingPosts = [...posts].sort((a, b) => {
-    // Sort by likeCount in descending order
     return (b.likeCount || 0) - (a.likeCount || 0);
-  }).slice(0, 10); // Get top 10 posts
+  }).slice(0, 10);
 
   return (
     <div className="container mx-auto p-4 bg-background text-foreground">
