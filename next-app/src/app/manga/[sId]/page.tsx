@@ -538,16 +538,15 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       // Clear any existing genres from FormData
       formData.delete('genres');
       
-      // Add each genre ID as a separate entry
-      editForm.genres.forEach(genreId => {
-        formData.append('genres[]', genreId.toString());
-      });
+      // Add genres as a string array
+      formData.append('genreIds', `[${editForm.genres.join(',')}]`);
 
       // Handle cover image
       const coverImageInput = e.currentTarget.querySelector('input[name="coverImage"]') as HTMLInputElement;
       if (coverImageInput?.files?.[0]) {
         formData.append('coverImage', coverImageInput.files[0]);
       }
+
 
       const response = await fetch(`/api/story/${params.sId}`, {
         method: 'PUT',
