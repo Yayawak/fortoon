@@ -91,16 +91,16 @@ const CreateManga: React.FC = () => {
 
     setIsSubmitting(true);
     
-    const formDataToSend = new FormData();
-    formDataToSend.append('authorId', user.uId.toString());
-    formDataToSend.append('title', formData.title);
-    formDataToSend.append('introduction', formData.description);
-    formDataToSend.append('genre', JSON.stringify(formData.genre));
-    if (formData.coverImage) {
-      formDataToSend.append('coverImage', formData.coverImage);
-    }
-
     try {
+      // First create the story
+      const formDataToSend = new FormData();
+      formDataToSend.append('authorId', user.uId.toString());
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('introduction', formData.description);
+      if (formData.coverImage) {
+        formDataToSend.append('coverImage', formData.coverImage);
+      }
+
       const response = await fetch(`/api/story`, {
         method: 'POST',
         body: formDataToSend,
@@ -121,11 +121,35 @@ const CreateManga: React.FC = () => {
         throw new Error(result.msg || 'Failed to create story');
       }
 
+      const storyId = result.data.storyId;
+      
+      if (!storyId) {
+        throw new Error('Story ID not found in response');
+      }
+
+      // Then update the genres
+      if (formData.genre.length > 0) {
+        const genreResponse = await fetch(`/api/story/${storyId}/genre`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            genreIds: formData.genre
+          }),
+        });
+
+        if (!genreResponse.ok) {
+          throw new Error('Failed to update genres');
+        }
+      }
+
       toast({
         title: "Success",
         description: "Story created successfully!",
       });
-      router.push(`/profile`);
+      
+      router.push(`/manga/${storyId}`);
     } catch (error) {
       console.error('Error creating story:', error);
       toast({

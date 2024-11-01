@@ -533,6 +533,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     e.preventDefault();
     
     try {
+      // First update the basic manga details
       const formData = new FormData(e.currentTarget);
       
       // Clear any existing genres from FormData
@@ -553,10 +554,29 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Failed to update manga');
+      if (!response.ok) throw new Error('Failed to update manga details');
 
-      const updatedManga = await response.json();
-      setManga(updatedManga.data);
+      // Update genres using JSON
+      const genreResponse = await fetch(`/api/story/${params.sId}/genre`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          genreIds: editForm.genres.map(Number)  // Ensure all IDs are numbers
+        }),
+      });
+
+      if (!genreResponse.ok) {
+        const errorData = await genreResponse.json();
+        throw new Error(errorData.msg || 'Failed to update genres');
+      }
+
+      // Fetch the updated manga data
+      const updatedMangaResponse = await fetch(`/api/story/${params.sId}`);
+      const updatedMangaData = await updatedMangaResponse.json();
+      setManga(updatedMangaData);
+      
       setIsEditing(false);
       
       toast({
@@ -565,10 +585,10 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       });
 
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to update manga",
+        description: error.message || "Failed to update manga",
         variant: "destructive"
       });
     }
