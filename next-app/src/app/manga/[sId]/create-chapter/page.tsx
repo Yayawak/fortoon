@@ -153,9 +153,9 @@ export default function CreateChapter() {
       formData.append('chapterName', chapterName);
       formData.append('priceType', priceType);
       if (priceType === 'coin') {
-        formData.append('coinPrice', coinPrice.toString());
+        formData.append('price', coinPrice.toString());
       } else if (priceType === 'free') {
-        formData.append('freePrice', '0');
+        formData.append('price', '0');
       }
       
       // Update the field name to 'imageChapterFiles'

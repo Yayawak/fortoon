@@ -130,7 +130,7 @@ export default function Home() {
     console.log(mangaList[0]?.coverImageUrl);
   }, [mangaList]);
 
-  console.log("Rendering component. mangaList:", mangaList);
+  // console.log("Rendering component. mangaList:", mangaList);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newSearchTerm = event.target.value.toLowerCase();

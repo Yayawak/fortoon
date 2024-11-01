@@ -60,7 +60,7 @@ export default function Navbar() {
     if (user) {
       fetchBalance();
     }
-  }, [toast, user]);
+  }, [user]);
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
