@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import { useSettings } from "@/contexts/SettingsContext";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowUp } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CldImage } from 'next-cloudinary';
@@ -40,6 +40,9 @@ export default function ChapterPage({ params }: ChapterPageProps) {
   const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const fetchMangaData = async () => {
@@ -71,6 +74,35 @@ export default function ChapterPage({ params }: ChapterPageProps) {
 
     fetchMangaData();
   }, [params.sId, params.cId]);
+
+  useEffect(() => {
+    const controlNavbar = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Show/hide navbar based on scroll direction
+      if (currentScrollY > lastScrollY) {
+        setShowNavbar(false); // Scrolling down
+      } else {
+        setShowNavbar(true); // Scrolling up
+      }
+
+      // Show/hide scroll-to-top button
+      if (currentScrollY > 400) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', controlNavbar);
+    return () => window.removeEventListener('scroll', controlNavbar);
+  }, [lastScrollY]);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   if (loading) {
     return (
@@ -106,7 +138,10 @@ export default function ChapterPage({ params }: ChapterPageProps) {
     <div className={`min-h-screen ${
       theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
     }`}>
-      <nav className="fixed top-0 left-0 right-0 bg-gray-800 text-white z-50">
+      {/* Navbar with transition */}
+      <nav className={`fixed top-0 left-0 right-0 bg-gray-800 text-white z-50 transition-transform duration-300 ${
+        showNavbar ? 'translate-y-0' : '-translate-y-full'
+      }`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href={`/manga/${params.sId}`} className="flex items-center">
             <ChevronLeft className="w-6 h-6 mr-2" />
@@ -114,10 +149,7 @@ export default function ChapterPage({ params }: ChapterPageProps) {
           </Link>
           <div className="flex items-center space-x-4">
             {prevChapter && (
-              <Button 
-                variant="outline" 
-                asChild
-              >
+              <Button variant="outline" asChild>
                 <Link href={`/manga/${params.sId}/chapter/${prevChapter.cId}`}>
                   Previous Chapter
                 </Link>
@@ -133,6 +165,18 @@ export default function ChapterPage({ params }: ChapterPageProps) {
           </div>
         </div>
       </nav>
+
+      {/* Scroll to top button */}
+      <Button
+        variant="secondary"
+        size="icon"
+        className={`fixed bottom-4 right-4 rounded-full transition-opacity duration-300 z-50 ${
+          showScrollTop ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={scrollToTop}
+      >
+        <ArrowUp className="h-5 w-5" />
+      </Button>
 
       <div className="container mx-auto px-4 pt-20 pb-8">
         <h1 className="text-2xl font-bold mb-4">

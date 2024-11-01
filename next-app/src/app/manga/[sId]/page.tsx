@@ -139,23 +139,17 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         }
         const mangaData = await mangaResponse.json();
 
-        // Only check access if user is logged in AND is not the author
-        if (user?.uId && user.uId !== mangaData.authorId) {
-          // Check chapter access only for this story
-          const chapterResponse = await fetch(`/api/story/${params.sId}`);
-          const accessData = await chapterResponse.json();
-          
-          mangaData.chapters = mangaData.chapters.map((chapter: Chapter) => ({
-            ...chapter,
-            hasAccess: accessData.includes(chapter.cId)
-          }));
-        } else {
-          // If user is author or not logged in, set hasAccess accordingly
-          mangaData.chapters = mangaData.chapters.map((chapter: Chapter) => ({
-            ...chapter,
-            hasAccess: user?.uId === mangaData.authorId || chapter.price === 0
-          }));
-        }
+        // Set hasAccess based on:
+        // 1. User is author
+        // 2. Chapter is free (price === 0)
+        // 3. Chapter has images (meaning it's purchased)
+        mangaData.chapters = mangaData.chapters.map((chapter: Chapter) => ({
+          ...chapter,
+          hasAccess: 
+            user?.uId === mangaData.authorId || 
+            chapter.price === 0 || 
+            (chapter.images && chapter.images.length > 0)
+        }));
 
         setManga(mangaData);
         fetchReviews();
@@ -423,7 +417,20 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to purchase chapter');
+        // If the chapter is already purchased, update the UI to show "Read Now"
+        if (data.msg === "Chapter already purchased or accessible") {
+          setManga(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              chapters: prev.chapters.map(ch => 
+                ch.cId === chapterId ? { ...ch, hasAccess: true } : ch
+              )
+            };
+          });
+          return;
+        }
+        throw new Error(data.msg || 'Failed to purchase chapter');
       }
 
       toast({

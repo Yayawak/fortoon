@@ -6,7 +6,6 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import Image from 'next/image';
 
 // TypeScript type for file previews
 type FilePreview = {
@@ -190,7 +189,7 @@ export default function EditChapter() {
         formData.append('price', chapterData.price.toString());
       }
 
-      const response = await fetch(`/api/story/${mangaId}/chapter/${chapterId}`, {
+      const response = await fetch(`/api/story/${mangaId}/chapters/${chapterId}`, {
         method: 'PUT',
         body: formData,
       });
@@ -295,12 +294,10 @@ export default function EditChapter() {
                     onDragOver={(e) => handleDragOver(e, index)}
                     onDragEnd={handleDragEnd}
                   >
-                    <Image
+                    <img
                       src={image.url}
                       alt={`Preview ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      unoptimized
+                      className="object-cover w-full h-full"
                     />
                     <p className="text-sm text-center mt-2">{image.name}</p> {/* Display file name */}
                     <button
