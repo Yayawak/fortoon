@@ -4,8 +4,26 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useSettings } from "@/contexts/SettingsContext";
 import { Button } from "@/components/ui/button";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 // TypeScript type for file previews
 type FilePreview = {
@@ -39,6 +57,13 @@ export default function EditChapter() {
     images: string[];
   } | null>(null);
 
+  // Add new state for editable fields
+  const [editForm, setEditForm] = useState({
+    name: '',
+    priceType: 'free' as 'free' | 'coin',
+    coinPrice: 0
+  });
+
   // Fetch existing chapter data
   useEffect(() => {
     const fetchChapterData = async () => {
@@ -48,6 +73,13 @@ export default function EditChapter() {
         
         const data = await response.json();
         setChapterData(data);
+        
+        // Set initial form values
+        setEditForm({
+          name: data.name,
+          priceType: data.price > 0 ? 'coin' : 'free',
+          coinPrice: data.price || 0
+        });
 
         // Convert existing images to FilePreview format
         const previews = data.images.map((imageUrl: string, index: number) => ({
@@ -177,19 +209,18 @@ export default function EditChapter() {
   // Modify handleFinish to use PUT request
   const handleFinish = async () => {
     try {
-      // Create FormData to send files
       const formData = new FormData();
+      
+      // Add chapter info
+      formData.append('name', editForm.name);
+      formData.append('price', editForm.priceType === 'free' ? '0' : editForm.coinPrice.toString());
+      
+      // Add images
       chapterImages.forEach((file, index) => {
         formData.append('images', file);
       });
 
-      // Add chapter data
-      if (chapterData) {
-        formData.append('name', chapterData.name);
-        formData.append('price', chapterData.price.toString());
-      }
-
-      const response = await fetch(`/api/story/${mangaId}/chapters/${chapterId}`, {
+      const response = await fetch(`/api/story/${mangaId}/chapter/${chapterId}`, {
         method: 'PUT',
         body: formData,
       });
@@ -206,7 +237,7 @@ export default function EditChapter() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update chapter",
+        description: error instanceof Error ? error.message : "Failed to update chapter",
         variant: "destructive"
       });
     }
@@ -219,19 +250,82 @@ export default function EditChapter() {
   }
 
   return (
-    <div className={`min-h-screen ${
-      theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
-    }`}>
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Edit Chapter</h1>
-        {chapterData && (
-          <div className="mb-6">
-            <p className="text-lg">Chapter Name: {chapterData.name}</p>
-            <p className="text-lg">Price: {chapterData.price}</p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Chapter Info Card */}
+          <Card className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white text-gray-900'}`}>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="chapterName" className="text-lg font-semibold mb-2">
+                    Chapter Name
+                  </Label>
+                  <Input
+                    id="chapterName"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Enter chapter name"
+                    className={`mt-1 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white text-gray-900'}`}
+                  />
+                </div>
+
+                {/* Price Selection */}
+                <div className="mt-6">
+                  <Label className="text-lg font-semibold mb-4">
+                    Price Setting
+                  </Label>
+                  <div className="mt-2">
+                    <div className="flex items-center space-x-2">
+                      <input 
+                        type="radio" 
+                        value="free" 
+                        id="free" 
+                        name="price-type" 
+                        checked={editForm.priceType === 'free'}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, priceType: e.target.value as 'free' | 'coin' }))}
+                        className="h-4 w-4" 
+                      />
+                      <Label htmlFor="free">Free Chapter</Label>
+                    </div>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <input 
+                        type="radio" 
+                        value="coin" 
+                        id="coin" 
+                        name="price-type"
+                        checked={editForm.priceType === 'coin'}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, priceType: e.target.value as 'free' | 'coin' }))}
+                        className="h-4 w-4" 
+                      />
+                      <Label htmlFor="coin">Paid Chapter</Label>
+                    </div>
+                  </div>
+
+                  {editForm.priceType === 'coin' && (
+                    <div className="mt-4">
+                      <Label htmlFor="coinPrice">Coin Price</Label>
+                      <Input
+                        id="coinPrice"
+                        type="number"
+                        min="1"
+                        max="999"
+                        value={editForm.coinPrice}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, coinPrice: Number(e.target.value) }))}
+                        className={`mt-1 w-32 ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white text-gray-900'}`}
+                      />
+                      <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Enter price between 1-999 coins
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <div>
             <label htmlFor="images" className="block text-sm font-medium mb-2">
               Upload Chapter Images (Max 50)
