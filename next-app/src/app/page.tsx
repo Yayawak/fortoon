@@ -18,7 +18,7 @@ type MangaItem = {
   introduction: string;
   postedDatetime: string;
   chapters: Array<number>;
-  genres: Array<string>;
+  genres: Array<{ gId: number; genreName: string }>;
 
   authorId: number;
   authorDisplayName: string;
@@ -219,7 +219,7 @@ export default function Home() {
     
     if (selectedGenre) {
       filtered = filtered.filter(manga => 
-        manga.genres.includes(selectedGenre)
+        manga.genres.some(genre => genre.gId === selectedGenre)
       );
     }
     
@@ -344,7 +344,6 @@ export default function Home() {
           className="py-8 bg-gray-50 dark:bg-gray-800"
         >
           <div className="container mx-auto px-4">
-            <h3 className="text-xl font-semibold mb-4 text-center">Browse by Genre</h3>
             <div className="flex flex-wrap gap-2 justify-center">
               <button
                 onClick={() => setSelectedGenre(null)}
