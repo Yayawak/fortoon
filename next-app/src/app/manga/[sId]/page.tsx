@@ -26,6 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useRouter } from 'next/navigation';
 
 // Add this new component for the review card
 const ReviewCard = ({ review, onEdit, isAuthor, theme }: { 
@@ -72,7 +73,11 @@ const ReviewCard = ({ review, onEdit, isAuthor, theme }: {
           size="sm"
           onClick={onEdit}
           className={`
-            ${theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}
+            hover:text-white
+            ${theme === "dark" 
+              ? "hover:bg-gray-700 text-white" 
+              : "hover:bg-blue-500 text-gray-900"
+            }
           `}
         >
           Edit
@@ -110,14 +115,9 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     introduction: '',
     genres: [] as string[]
   });
-  const [isChapterDialogOpen, setIsChapterDialogOpen] = useState(false);
-  const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
-  const [chapterForm, setChapterForm] = useState({
-    name: '',
-    price: 0,
-  });
+  const router = useRouter();
 
   useEffect(() => {
     const fetchManga = async () => {
@@ -137,13 +137,12 @@ export default function MangaDetail({ params }: MangaDetailProps) {
 
         // If user is logged in, fetch chapter access status
         if (user?.uId) {
-          const accessResponse = await fetch(`/api/story/${params.sId}/access?userId=${user.uId}`);
-          if (accessResponse.ok) {
-            const accessData = await accessResponse.json();
+          const Response = await fetch(`/api/story/${params.sId}/`);
+          if (Response.ok) {
+            const Data = await Response.json();
             // Merge access data with manga chapters
             mangaData.chapters = mangaData.chapters.map((chapter: Chapter) => ({
               ...chapter,
-              hasAccess: accessData.some((access: any) => access.chapterId === chapter.cId)
             }));
           }
         }
@@ -308,7 +307,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   }) => (
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
-        <Label htmlFor="rating" className="text-sm font-medium">
+        <Label htmlFor="rating" className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
           Rating
         </Label>
         <div className="mt-2">
@@ -322,7 +321,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
             required
             className={`
               ${formErrors.rating ? "border-red-500" : ""}
-              ${theme === "dark" ? "bg-gray-700 border-gray-600" : ""}
+              ${theme === "dark" ? "bg-gray-700 border-gray-600 text-white" : "bg-white text-gray-900"}
             `}
           />
           {formErrors.rating && (
@@ -331,7 +330,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         </div>
       </div>
       <div>
-        <Label htmlFor="review" className="text-sm font-medium">
+        <Label htmlFor="review" className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
           Your Review
         </Label>
         <div className="mt-2">
@@ -343,7 +342,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
             className={`
               min-h-[120px]
               ${formErrors.review ? "border-red-500" : ""}
-              ${theme === "dark" ? "bg-gray-700 border-gray-600" : ""}
+              ${theme === "dark" ? "bg-gray-700 border-gray-600 text-white" : "bg-white text-gray-900"}
             `}
           />
           {formErrors.review && (
@@ -397,6 +396,15 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   };
 
   const handlePurchaseChapter = async (chapterId: number, price: number) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Please login to purchase chapters",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsPurchasing(true);
     try {
       const response = await fetch(`/api/payment/chapter/${chapterId}`, {
@@ -405,33 +413,16 @@ export default function MangaDetail({ params }: MangaDetailProps) {
           'Content-Type': 'application/json',
         },
       });
+
       const data = await response.json();
 
       if (!response.ok) {
-        if (data.msg === "Chapter already purchased or accessible") {
-          // Update local state to show Read Now button
-          setManga(prev => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              chapters: prev.chapters.map(ch => 
-                ch.cId === chapterId ? { ...ch, hasAccess: true } : ch
-              )
-            };
-          });
-          toast({
-            title: "Info",
-            description: "You already have access to this chapter",
-          });
-          return;
-        }
-        throw new Error(data.msg || 'Failed to purchase chapter');
+        throw new Error(data.message || 'Failed to purchase chapter');
       }
 
-      // Purchase successful
       toast({
         title: "Success",
-        description: `Chapter purchased successfully`,
+        description: "Chapter purchased successfully",
       });
 
       // Update local state to show Read Now button
@@ -448,7 +439,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to purchase chapter",
         variant: "destructive"
       });
     } finally {
@@ -504,81 +495,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     }
   };
 
-  const handleAddChapter = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(`/api/story/${params.sId}/chapter`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(chapterForm),
-      });
-
-      if (!response.ok) throw new Error('Failed to add chapter');
-
-      const data = await response.json();
-      setManga(prev => ({
-        ...prev!,
-        chapters: [...prev!.chapters, data.data],
-      }));
-
-      setIsChapterDialogOpen(false);
-      setChapterForm({ name: '', price: 0 });
-      
-      toast({
-        title: "Success",
-        description: "Chapter added successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add chapter",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleEditChapter = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingChapter) return;
-
-    try {
-      const response = await fetch(`/api/story/${params.sId}/chapter/${editingChapter.cId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(chapterForm),
-      });
-
-      if (!response.ok) throw new Error('Failed to update chapter');
-
-      const data = await response.json();
-      setManga(prev => ({
-        ...prev!,
-        chapters: prev!.chapters.map(ch => 
-          ch.cId === editingChapter.cId ? data.data : ch
-        ),
-      }));
-
-      setIsChapterDialogOpen(false);
-      setEditingChapter(null);
-      setChapterForm({ name: '', price: 0 });
-      
-      toast({
-        title: "Success",
-        description: "Chapter updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update chapter",
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleDeleteChapter = async () => {
     if (!chapterToDelete) return;
 
@@ -609,38 +525,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       });
     }
   };
-
-  // Add this component for the chapter form
-  const ChapterForm = ({ onSubmit }: { onSubmit: (e: React.FormEvent) => Promise<void> }) => (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="name">Chapter Name</Label>
-        <Input
-          id="name"
-          value={chapterForm.name}
-          onChange={(e) => setChapterForm(prev => ({ ...prev, name: e.target.value }))}
-          className={theme === "dark" ? "bg-gray-700" : ""}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="price">Price</Label>
-        <Input
-          id="price"
-          type="number"
-          min="0"
-          step="0.01"
-          value={chapterForm.price}
-          onChange={(e) => setChapterForm(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
-          className={theme === "dark" ? "bg-gray-700" : ""}
-          required
-        />
-      </div>
-      <Button type="submit" className="w-full">
-        {editingChapter ? "Update Chapter" : "Add Chapter"}
-      </Button>
-    </form>
-  );
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -719,15 +603,34 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                 <p className="text-lg leading-relaxed whitespace-pre-line">
                   {manga.introduction}
                 </p>
+                      {/* Author Edit Section */}
+      {user?.uId === manga?.authorId && (
+        <div className="container mx-auto px-4 py-4">
+          <Button
+            onClick={() => {
+              if (!isEditing) {
+                setEditForm({
+                  title: manga.title,
+                  introduction: manga.introduction,
+                  genres: manga.genres || []
+                });
+              }
+              setIsEditing(!isEditing);
+            }}
+            variant={isEditing ? "destructive" : "default"}
+            className="mb-4"
+          >
+            {isEditing ? "Cancel Edit" : "Edit Manga"}
+          </Button>
+        </div>
+      )}
               </TabsContent>
 
               <TabsContent value="chapters" className="mt-4">
                 {user?.uId === manga.authorId && (
                   <Button
                     onClick={() => {
-                      setEditingChapter(null);
-                      setChapterForm({ name: '', price: 0 });
-                      setIsChapterDialogOpen(true);
+                      router.push(`/manga/${manga.sId}/create-chapter`);
                     }}
                     className="mb-4"
                   >
@@ -767,12 +670,12 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => {
-                                    setEditingChapter(chapter);
-                                    setChapterForm({
-                                      name: chapter.name || '',
-                                      price: chapter.price,
-                                    });
-                                    setIsChapterDialogOpen(true);
+                                    console.log("Edit button clicked");
+                                    console.log("Chapter ID:", chapter.cId);
+                                    console.log("Manga ID:", manga.sId);
+                                    const editUrl = `/manga/${manga.sId}/chapter/${chapter.cId}/edit-chapter`;
+                                    console.log("Navigation URL:", editUrl);
+                                    router.push(editUrl);
                                   }}
                                 >
                                   <Pencil className="w-4 h-4" />
@@ -832,7 +735,8 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                           Share your thoughts about this story
                         </p>
                       </div>
-                      {user && (
+                      {/* Only show review button if user is logged in AND not the author */}
+                      {user && user.uId !== manga.authorId && (
                         <Dialog
                           open={isReviewDialogOpen}
                           onOpenChange={setIsReviewDialogOpen}
@@ -847,7 +751,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                             ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white"}
                           `}>
                             <DialogHeader>
-                              <DialogTitle>
+                              <DialogTitle className={theme === "dark" ? "text-white" : "text-gray-900"}>
                                 {editingReview ? "Edit Review" : "Write a Review"}
                               </DialogTitle>
                               <DialogDescription className={
@@ -901,27 +805,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         </div>
       </div>
 
-      {/* Author Edit Section */}
-      {user?.uId === manga?.authorId && (
-        <div className="container mx-auto px-4 py-4">
-          <Button
-            onClick={() => {
-              if (!isEditing) {
-                setEditForm({
-                  title: manga.title,
-                  introduction: manga.introduction,
-                  genres: manga.genres || []
-                });
-              }
-              setIsEditing(!isEditing);
-            }}
-            variant={isEditing ? "destructive" : "default"}
-            className="mb-4"
-          >
-            {isEditing ? "Cancel Edit" : "Edit Manga"}
-          </Button>
-        </div>
-      )}
+
 
       {/* Edit Form */}
       {isEditing && user?.uId === manga?.authorId ? (
@@ -997,15 +881,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
           {/* ... rest of your existing JSX ... */}
         </div>
       )}
-
-      <Dialog open={isChapterDialogOpen} onOpenChange={setIsChapterDialogOpen}>
-        <DialogContent className={theme === "dark" ? "bg-gray-800 text-white" : ""}>
-          <DialogHeader>
-            <DialogTitle>{editingChapter ? "Edit Chapter" : "Add New Chapter"}</DialogTitle>
-          </DialogHeader>
-          <ChapterForm onSubmit={editingChapter ? handleEditChapter : handleAddChapter} />
-        </DialogContent>
-      </Dialog>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>

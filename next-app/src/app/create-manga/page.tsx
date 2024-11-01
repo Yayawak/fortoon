@@ -88,7 +88,7 @@ const CreateManga: React.FC = () => {
         title: "Success",
         description: "Story created successfully!",
       });
-      router.push(`/manga/${result.id}`);
+      router.push(`/profile`);
     } catch (error) {
       console.error('Error creating story:', error);
       toast({

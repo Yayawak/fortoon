@@ -1,14 +1,11 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation'; // Use useParams for route parameters
+import React, { useState, useRef, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { useSettings } from "@/contexts/SettingsContext";
 import { Button } from "@/components/ui/button";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import Image from 'next/image';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 // TypeScript type for file previews
 type FilePreview = {
@@ -16,10 +13,14 @@ type FilePreview = {
   name: string;
 };
 
-export default function CreateChapter() {
+export default function EditChapter() {
+  const params = useParams();
+  const mangaId = params.sId as string;
+  const chapterId = params.cId as string;
   const { theme } = useSettings();
   const router = useRouter();
-  const { sId: mangaId } = useParams(); // Get the route params
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
 
   const [chapterImages, setChapterImages] = useState<File[]>([]); // State to hold images
   const [imagePreviews, setImagePreviews] = useState<FilePreview[]>([]); // To preview the images
@@ -28,11 +29,46 @@ export default function CreateChapter() {
   const [error, setError] = useState<string>(""); // To handle errors
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false); // For finish confirmation dialog
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false); // For empty images error dialog
-  const [chapterName, setChapterName] = useState<string>("");
-  const [priceType, setPriceType] = useState<'free' | 'coin'>('free');
-  const [coinPrice, setCoinPrice] = useState<number>(0);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Reference to the file input
+
+  // Add new state for chapter data
+  const [chapterData, setChapterData] = useState<{
+    name: string;
+    price: number;
+    images: string[];
+  } | null>(null);
+
+  // Fetch existing chapter data
+  useEffect(() => {
+    const fetchChapterData = async () => {
+      try {
+        const response = await fetch(`/api/manga/${mangaId}/chapters/${chapterId}`);
+        if (!response.ok) throw new Error('Failed to fetch chapter');
+        
+        const data = await response.json();
+        setChapterData(data);
+
+        // Convert existing images to FilePreview format
+        const previews = data.images.map((imageUrl: string, index: number) => ({
+          url: imageUrl,
+          name: `Image ${index + 1}`,
+        }));
+        
+        setImagePreviews(previews);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch chapter data",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchChapterData();
+  }, [mangaId, chapterId, toast]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []) as File[]; // Ensure that files are typed as File[]
@@ -128,179 +164,90 @@ export default function CreateChapter() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!chapterName.trim()) {
-      setError("Chapter name is required");
-      return;
-    }
-
-    if (priceType === 'coin' && (coinPrice <= 0 || coinPrice > 999)) {
-      setError("Please enter a valid coin price (1-999)");
-      return;
-    }
-
+    // Check if there are no images, show error dialog
     if (chapterImages.length === 0) {
       setIsErrorDialogOpen(true);
       return;
     }
 
+    // Open confirmation dialog before finishing
     setIsConfirmDialogOpen(true);
   };
 
-  // Handle finishing after confirmation
+  // Modify handleFinish to use PUT request
   const handleFinish = async () => {
     try {
+      // Create FormData to send files
       const formData = new FormData();
-      formData.append('chapterName', chapterName);
-      
-      // Append each image with a consistent field name
-      chapterImages.forEach((image, index) => {
-        formData.append('images', image);
+      chapterImages.forEach((file, index) => {
+        formData.append('images', file);
       });
 
-      const response = await fetch(`/api/manga/${mangaId}/chapters`, {
-        method: 'POST',
+      // Add chapter data
+      if (chapterData) {
+        formData.append('name', chapterData.name);
+        formData.append('price', chapterData.price.toString());
+      }
+
+      const response = await fetch(`/api/manga/${mangaId}/chapters/${chapterId}`, {
+        method: 'PUT',
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create chapter');
-      }
+      if (!response.ok) throw new Error('Failed to update chapter');
 
-      const data = await response.json();
-      router.push(`/manga/${mangaId}`); // Navigate back to manga page on success
+      toast({
+        title: "Success",
+        description: "Chapter updated successfully",
+      });
+
+      router.push(`/manga/${mangaId}`);
+      router.refresh();
     } catch (error) {
-      setError('Failed to create chapter. Please try again.');
-      setIsConfirmDialogOpen(false);
-      console.error('Error creating chapter:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update chapter",
+        variant: "destructive"
+      });
     }
   };
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+    </div>;
+  }
 
   return (
     <div className={`min-h-screen ${
       theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
     }`}>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Create New Chapter</h1>
+        <h1 className="text-3xl font-bold mb-6">Edit Chapter</h1>
+        {chapterData && (
+          <div className="mb-6">
+            <p className="text-lg">Chapter Name: {chapterData.name}</p>
+            <p className="text-lg">Price: {chapterData.price}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Chapter Name Input */}
-          <Card className={`${
-            theme === 'dark' ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white text-gray-900'
-          }`}>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="chapterName" className="text-lg font-semibold mb-2">
-                    Chapter Name
-                  </Label>
-                  <Input
-                    id="chapterName"
-                    value={chapterName}
-                    onChange={(e) => setChapterName(e.target.value)}
-                    placeholder="Enter chapter name"
-                    className={`mt-1 ${
-                      theme === 'dark' 
-                        ? 'bg-gray-700 border-gray-600 text-white' 
-                        : 'bg-white text-gray-900'
-                    }`}
-                  />
-                </div>
-
-                {/* Price Selection */}
-                <div className="mt-6">
-                  <Label className="text-lg font-semibold mb-4">
-                    Price Setting
-                  </Label>
-                  <div className="mt-2">
-                    <div className="flex items-center space-x-2">
-                      <input 
-                        type="radio" 
-                        value="free" 
-                        id="free" 
-                        name="price-type" 
-                        checked={priceType === 'free'}
-                        onChange={(e) => setPriceType(e.target.value as 'free' | 'coin')}
-                        className="h-4 w-4" 
-                      />
-                      <Label htmlFor="free" className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
-                        Free Chapter
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <input 
-                        type="radio" 
-                        value="coin" 
-                        id="coin" 
-                        name="price-type"
-                        checked={priceType === 'coin'}
-                        onChange={(e) => setPriceType(e.target.value as 'free' | 'coin')}
-                        className="h-4 w-4" 
-                      />
-                      <Label htmlFor="coin" className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
-                        Paid Chapter
-                      </Label>
-                    </div>
-                  </div>
-
-                  {priceType === 'coin' && (
-                    <div className="mt-4">
-                      <Label htmlFor="coinPrice">Coin Price</Label>
-                      <Input
-                        id="coinPrice"
-                        type="number"
-                        min="1"
-                        max="999"
-                        value={coinPrice}
-                        onChange={(e) => setCoinPrice(Number(e.target.value))}
-                        className={`mt-1 w-32 ${
-                          theme === 'dark' 
-                            ? 'bg-gray-700 border-gray-600 text-white' 
-                            : 'bg-white text-gray-900'
-                        }`}
-                      />
-                      <p className={`text-sm mt-1 ${
-                        theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                      }`}>
-                        Enter price between 1-999 coins
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Image Upload Section */}
-          <Card className={`${
-            theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'
-          }`}>
-            <CardContent className="p-6">
-              <Label htmlFor="images" className={`text-lg font-semibold mb-2 ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
-                Upload Chapter Images (Max 50)
-              </Label>
-              <Input
-                ref={fileInputRef}
-                type="file"
-                id="images"
-                name="images"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className={`mt-2 ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white' 
-                    : 'bg-white text-gray-900'
-                }`}
-              />
-              <p className={`text-sm mt-2 ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                Images uploaded: {chapterImages.length} / 50
-              </p>
-            </CardContent>
-          </Card>
+          <div>
+            <label htmlFor="images" className="block text-sm font-medium mb-2">
+              Upload Chapter Images (Max 50)
+            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              id="images"
+              name="images"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              className="w-full"
+            />
+            <p className="text-sm mt-2">Images uploaded: {chapterImages.length} / 50</p>
+          </div>
 
           {/* Toggle buttons for "Preview" and "Name" view modes */}
           <div className="flex gap-4 mb-4">
@@ -347,12 +294,10 @@ export default function CreateChapter() {
                     onDragOver={(e) => handleDragOver(e, index)}
                     onDragEnd={handleDragEnd}
                   >
-                    <Image
+                    <img
                       src={image.url}
                       alt={`Preview ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      unoptimized
+                      className="object-cover w-full h-full"
                     />
                     <p className="text-sm text-center mt-2">{image.name}</p> {/* Display file name */}
                     <button
@@ -418,26 +363,16 @@ export default function CreateChapter() {
 
           {/* Confirmation Dialog for Finish */}
           <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-            <AlertDialogContent className={
-              theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-            }>
+            <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
-                  Confirm Chapter Creation
-                </AlertDialogTitle>
-                <AlertDialogDescription className={
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                }>
-                  Chapter Name: {chapterName}<br />
-                  Price: {priceType === 'free' ? 'Free' : `${coinPrice} coins`}<br />
-                  Images: {chapterImages.length}
+                <AlertDialogTitle>Are you sure you want to update this chapter?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will update the existing chapter with your new changes.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction>Create Chapter</AlertDialogAction>
+                <AlertDialogCancel onClick={() => setIsConfirmDialogOpen(false)}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleFinish}>Confirm Update</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -446,9 +381,9 @@ export default function CreateChapter() {
           <AlertDialog open={isErrorDialogOpen} onOpenChange={setIsErrorDialogOpen}>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>No Images Uploaded</AlertDialogTitle>
+                <AlertDialogTitle>No Images Selected</AlertDialogTitle>
                 <AlertDialogDescription>
-                  You need to upload at least one image before finishing.
+                  You need to have at least one image in the chapter.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -456,7 +391,6 @@ export default function CreateChapter() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-
         </form>
       </div>
     </div>
