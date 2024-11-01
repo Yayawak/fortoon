@@ -12,6 +12,11 @@ import { MangaFormData } from '@/lib/types';
 import Image from 'next/image';
 import { useSettings } from '@/contexts/SettingsContext';
 
+interface Genre {
+  gId: number;
+  genreName: string;
+}
+
 const CreateManga: React.FC = () => {
   const router = useRouter();
   const { toast } = useToast();
@@ -23,11 +28,26 @@ const CreateManga: React.FC = () => {
   const [formData, setFormData] = useState<MangaFormData>({
     title: '',
     description: '',
-    genre: '',
+    genre: [],
     coverImage: null,
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const [genres, setGenres] = useState<Genre[]>([]);
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await fetch('/api/genre');
+        const data = await response.json();
+        setGenres(data.data);
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+      }
+    };
+    fetchGenres();
+  }, []);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -45,6 +65,15 @@ const CreateManga: React.FC = () => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleGenreChange = (gId: number) => {
+    setFormData(prev => ({
+      ...prev,
+      genre: prev.genre.includes(gId)
+        ? prev.genre.filter(id => id !== gId)
+        : [...prev.genre, gId]
+    }));
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -66,6 +95,7 @@ const CreateManga: React.FC = () => {
     formDataToSend.append('authorId', user.uId.toString());
     formDataToSend.append('title', formData.title);
     formDataToSend.append('introduction', formData.description);
+    formDataToSend.append('genre', JSON.stringify(formData.genre));
     if (formData.coverImage) {
       formDataToSend.append('coverImage', formData.coverImage);
     }
@@ -77,13 +107,20 @@ const CreateManga: React.FC = () => {
         credentials: 'include',
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(errorData);
+        if (result.msg2?.includes('Duplicated Key title')) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "This title already exists. Please choose a different title.",
+          });
+          return;
+        }
+        throw new Error(result.msg || 'Failed to create story');
       }
 
-      const result = await response.json();
-      console.log(result)
       toast({
         title: "Success",
         description: "Story created successfully!",
@@ -94,7 +131,7 @@ const CreateManga: React.FC = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create story. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to create story. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -170,23 +207,34 @@ const CreateManga: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="genre" className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
-                  Genre
+                <Label className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
+                  Genres
                 </Label>
-                <Input
-                  type="text"
-                  id="genre"
-                  name="genre"
-                  value={formData.genre}
-                  onChange={handleInputChange}
-                  required
-                  disabled={isSubmitting}
-                  className={`w-full ${
-                    theme === 'dark' 
-                      ? 'bg-gray-700 text-white border-gray-600' 
-                      : 'bg-white text-gray-900 border-gray-300'
-                  }`}
-                />
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {genres.map((genre) => (
+                    <div key={genre.gId} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={`genre-${genre.gId}`}
+                        checked={formData.genre.includes(genre.gId)}
+                        onChange={() => handleGenreChange(genre.gId)}
+                        className={`w-4 h-4 rounded ${
+                          theme === 'dark'
+                            ? 'bg-gray-700 border-gray-600'
+                            : 'bg-white border-gray-300'
+                        }`}
+                      />
+                      <Label 
+                        htmlFor={`genre-${genre.gId}`}
+                        className={`text-sm ${
+                          theme === 'dark' ? 'text-white' : 'text-gray-900'
+                        }`}
+                      >
+                        {genre.genreName}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-2">
