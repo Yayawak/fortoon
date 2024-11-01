@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { Star, MessageSquare, Book, ThumbsUp, Eye, Calendar, Clock, ChevronRight, Plus, Loader2, Share2, Pencil, Trash2 } from "lucide-react";
+import { Star, MessageSquare, Book, ThumbsUp, Eye, Calendar, Clock, ChevronRight, Plus, Loader2, Share2, Pencil, Trash2, ImageIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -543,6 +543,12 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         formData.append('genres[]', genreId.toString());
       });
 
+      // Handle cover image
+      const coverImageInput = e.currentTarget.querySelector('input[name="coverImage"]') as HTMLInputElement;
+      if (coverImageInput?.files?.[0]) {
+        formData.append('coverImage', coverImageInput.files[0]);
+      }
+
       const response = await fetch(`/api/story/${params.sId}`, {
         method: 'PUT',
         body: formData,
@@ -884,6 +890,72 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       {isEditing && user?.uId === manga?.authorId && (
         <div className="container mx-auto px-4 py-4">
           <form onSubmit={handleUpdateManga} className="space-y-6">
+            {/* Cover Image Selection */}
+            <div className="space-y-4">
+              <Label htmlFor="coverImage">Cover Image</Label>
+              <div className="flex flex-col items-center gap-4">
+                {/* Current Cover Image Preview */}
+                {manga.coverImageUrl && (
+                  <div className="relative w-48 h-64 group">
+                    <CldImage
+                      src={manga.coverImageUrl}
+                      width={192}
+                      height={256}
+                      alt="Current cover"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                      <p className="text-white text-sm">Current cover</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Hidden File Input */}
+                <input
+                  type="file"
+                  id="coverImage"
+                  name="coverImage"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // Optional: Preview the selected image
+                      const reader = new FileReader();
+                      reader.onload = (e) => {
+                        const preview = document.getElementById('coverPreview') as HTMLImageElement;
+                        if (preview && e.target?.result) {
+                          preview.src = e.target.result as string;
+                          preview.style.display = 'block';
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+                
+                {/* Custom Button */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    document.getElementById('coverImage')?.click();
+                  }}
+                  className="w-48"
+                >
+                  <ImageIcon className="w-4 h-4 mr-2" />
+                  Select New Cover
+                </Button>
+
+                {/* New Image Preview */}
+                <img
+                  id="coverPreview"
+                  alt="New cover preview"
+                  className="w-48 h-64 object-cover rounded-lg hidden"
+                />
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="title">Title</Label>
               <Input

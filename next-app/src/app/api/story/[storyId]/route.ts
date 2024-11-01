@@ -110,10 +110,21 @@ export async function PUT(req: NextRequest, { params }: { params: { storyId: str
         }
 
         // Step 3: Handle coverImage upload
-        let filename = ""
-        if (coverImage) {
-            filename = setStandardImageName(coverImage.name, "storyCover")
-            await uploadImage(coverImage, filename); // Upload image and get URL
+        let filename = "";
+        if (coverImage && coverImage instanceof File && coverImage.size > 0) {
+            try {
+                filename = setStandardImageName(coverImage.name, "storyCover");
+                const uploadRes = await uploadImage(coverImage, filename);
+                
+                if (!uploadRes.data?.newFilename) {
+                    throw new Error('Failed to get upload filename');
+                }
+                
+                filename = uploadRes.data.newFilename;
+            } catch (error: any) {
+                console.error('Image upload error:', error);
+                throw new Error('Failed to upload image');
+            }
         }
 
         // Parse and validate genreIds
