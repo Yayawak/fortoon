@@ -151,6 +151,12 @@ export default function CreateChapter() {
     try {
       const formData = new FormData();
       formData.append('chapterName', chapterName);
+      formData.append('priceType', priceType);
+      if (priceType === 'coin') {
+        formData.append('coinPrice', coinPrice.toString());
+      } else if (priceType === 'free') {
+        formData.append('freePrice', '0');
+      }
       
       // Update the field name to 'imageChapterFiles'
       chapterImages.forEach((image, index) => {

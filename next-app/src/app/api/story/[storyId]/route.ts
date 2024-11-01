@@ -76,6 +76,7 @@ export async function PUT(req: NextRequest, { params }: { params: { storyId: str
             return NextResponse.json(stdRes, { status: 400 });
         }
 
+
         const title = formData.get('title') as string | null;
         const introduction = formData.get('introduction') as string | null;
         const coverImage = formData.get('coverImage') as File | null; // Expecting a File for coverImage
@@ -88,6 +89,10 @@ export async function PUT(req: NextRequest, { params }: { params: { storyId: str
             genreIds
         });
         // parsed.genreIds
+
+        console.log(genreIds);
+
+        // console.log(parsed.genreIds);
 
         // Step 1: Check if the story exists and fetch the owner
         const [storyCheckRes] = await dbConnection.execute<RowDataPacket[]>(`
@@ -138,6 +143,8 @@ export async function PUT(req: NextRequest, { params }: { params: { storyId: str
                 return NextResponse.json(stdRes, { status: 400 });
             }
         }
+
+        // console.log(genreIdArray);
 
         // Start transaction for atomic updates
         await dbConnection.beginTransaction();
