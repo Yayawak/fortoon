@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
+import { CldImage } from 'next-cloudinary';
 
 // Update the UserManga type to match the response
 type UserManga = {
@@ -165,10 +166,12 @@ export default function Profile() {
                       <div className={`border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow ${
                         theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
                       }`}>
-                        <img 
-                          src={`/uploads/${manga.coverImageUrl}`}
+                        <CldImage 
+                          src={`${manga.coverImageUrl}`}
                           alt={manga.title} 
                           className="w-full h-48 object-cover"
+                          width={300}
+                          height={300}
                         />
                         <div className="p-4">
                           <h3 className={`font-bold text-lg ${
