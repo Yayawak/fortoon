@@ -79,3 +79,42 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Navbar styling */
+.navbar {
+  @apply bg-gradient-to-r from-blue-900 to-indigo-900 shadow-lg;
+  @apply h-20; /* Increased height */
+  @apply px-6;
+  @apply flex items-center justify-between;
+}
+
+/* Logo container */
+.logo-container {
+  @apply flex items-center gap-2;
+}
+
+.logo {
+  @apply h-12 w-auto; /* Larger logo */
+  @apply hover:scale-105 transition-transform;
+}
+
+/* Search bar */
+.search-input {
+  @apply w-96 px-4 py-2;
+  @apply bg-white/10 backdrop-blur-sm;
+  @apply border border-white/20;
+  @apply rounded-full;
+  @apply text-white placeholder-white/70;
+  @apply focus:outline-none focus:ring-2 focus:ring-white/30;
+  @apply transition-all;
+}
+
+/* Title styling */
+.page-title {
+  @apply text-6xl font-bold text-center;
+  @apply bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-white via-blue-200 to-white;
+  @apply animate-pulse;
+  @apply my-12;
+  @apply drop-shadow-[0_0_15px_rgba(255,255,255,0.3)];
+}
