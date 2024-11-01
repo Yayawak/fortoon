@@ -68,27 +68,40 @@ export default function EditChapter() {
   useEffect(() => {
     const fetchChapterData = async () => {
       try {
-        const response = await fetch(`/api/story/${mangaId}/chapter/${chapterId}`);
-        if (!response.ok) throw new Error('Failed to fetch chapter');
+        const response = await fetch(`/api/story/${mangaId}`);
+        if (!response.ok) throw new Error('Failed to fetch manga');
         
         const data = await response.json();
-        setChapterData(data);
+        console.log('Fetched manga data:', data); // Debug log
+        
+        // Find the specific chapter from the chapters array
+        const chapter = data.chapters.find((ch: any) => ch.cId === Number(chapterId));
+        
+        if (!chapter) {
+          throw new Error('Chapter not found');
+        }
+
+        console.log('Found chapter:', chapter); // Debug log
+        
+        setChapterData(chapter);
         
         // Set initial form values
         setEditForm({
-          name: data.name,
-          priceType: data.price > 0 ? 'coin' : 'free',
-          coinPrice: data.price || 0
+          name: chapter.name || '',
+          priceType: chapter.price > 0 ? 'coin' : 'free',
+          coinPrice: chapter.price || 0
         });
 
         // Convert existing images to FilePreview format
-        const previews = data.images.map((imageUrl: string, index: number) => ({
-          url: imageUrl,
-          name: `Image ${index + 1}`,
-        }));
-        
-        setImagePreviews(previews);
+        if (chapter.images && Array.isArray(chapter.images)) {
+          const previews = chapter.images.map((imageUrl: string, index: number) => ({
+            url: imageUrl,
+            name: `Image ${index + 1}`,
+          }));
+          setImagePreviews(previews);
+        }
       } catch (error) {
+        console.error('Error fetching chapter:', error); // Debug log
         toast({
           title: "Error",
           description: "Failed to fetch chapter data",
@@ -196,6 +209,16 @@ export default function EditChapter() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Validate chapter name
+    if (!editForm.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Chapter name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Check if there are no images, show error dialog
     if (chapterImages.length === 0) {
       setIsErrorDialogOpen(true);
@@ -209,27 +232,53 @@ export default function EditChapter() {
   // Modify handleFinish to use PUT request
   const handleFinish = async () => {
     try {
+      const chapterName = editForm.name.trim();
+      if (!chapterName) {
+        throw new Error("Chapter name is required");
+      }
+
       const formData = new FormData();
       
-      // Add chapter info
-      formData.append('name', editForm.name);
-      formData.append('price', editForm.priceType === 'free' ? '0' : editForm.coinPrice.toString());
+      // Add chapter info with explicit price handling
+      formData.append('chapterName', chapterName);
+      const finalPrice = editForm.priceType === 'free' ? 0 : editForm.coinPrice;
+      formData.append('price', finalPrice.toString());
       
-      // Add images
-      chapterImages.forEach((file, index) => {
-        formData.append('images', file);
+      // Debug log to verify price
+      console.log('Sending price:', finalPrice);
+
+      // Add new images
+      chapterImages.forEach((file) => {
+        formData.append('imageChapterFiles', file);
       });
+
+      // Add existing images if any
+      if (chapterData?.images) {
+        chapterData.images.forEach((imageUrl) => {
+          formData.append('existingImages', imageUrl);
+        });
+      }
+
+      // Debug log all form data
+      console.log('Form data contents:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0], ':', pair[1]);
+      }
 
       const response = await fetch(`/api/story/${mangaId}/chapter/${chapterId}`, {
         method: 'PUT',
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Failed to update chapter');
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(responseData.msg || 'Failed to update chapter');
+      }
 
       toast({
         title: "Success",
-        description: "Chapter updated successfully",
+        description: responseData.msg || "Chapter updated successfully",
       });
 
       router.push(`/manga/${mangaId}`);
