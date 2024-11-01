@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { Star, MessageSquare, Book, ThumbsUp, Eye, Calendar, Clock, ChevronRight, Plus, Loader2, Share2, Pencil, Trash2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -113,11 +113,15 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   const [editForm, setEditForm] = useState({
     title: '',
     introduction: '',
-    genres: [] as string[]
+    genres: [] as number[]
   });
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
   const router = useRouter();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [availableGenres, setAvailableGenres] = useState<Genre[]>([]);
+  const [isLoadingGenres, setIsLoadingGenres] = useState(true);
+  const [genreError, setGenreError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchManga = async () => {
@@ -128,23 +132,32 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       }
 
       try {
-        // First, fetch manga details
+        // Fetch manga details with chapter data
         const mangaResponse = await fetch(`/api/story/${params.sId}`);
         if (!mangaResponse.ok) {
           throw new Error('Failed to fetch manga data');
         }
         const mangaData = await mangaResponse.json();
 
-        // If user is logged in, fetch chapter access status
+        // If user is logged in, check chapter access
         if (user?.uId) {
-          const Response = await fetch(`/api/story/${params.sId}/`);
-          if (Response.ok) {
-            const Data = await Response.json();
-            // Merge access data with manga chapters
-            mangaData.chapters = mangaData.chapters.map((chapter: Chapter) => ({
-              ...chapter,
-            }));
-          }
+          // Map through chapters and check their data
+          mangaData.chapters = await Promise.all(mangaData.chapters.map(async (chapter: Chapter) => {
+            try {
+              const chapterResponse = await fetch(`/api/story/${params.sId}/chapter/${chapter.cId}`);
+              const chapterData = await chapterResponse.json();
+              
+              return {
+                ...chapter,
+                hasAccess: chapterData !== null && chapterData.data !== null
+              };
+            } catch (err) {
+              return {
+                ...chapter,
+                hasAccess: false
+              };
+            }
+          }));
         }
 
         setManga(mangaData);
@@ -397,11 +410,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
 
   const handlePurchaseChapter = async (chapterId: number, price: number) => {
     if (!user) {
-      toast({
-        title: "Error",
-        description: "Please login to purchase chapters",
-        variant: "destructive"
-      });
+      setShowAuthDialog(true);
       return;
     }
 
@@ -464,16 +473,68 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     }
   }, [user?.uId]); // Only run when user ID changes
 
-  const handleUpdateManga = async (e: React.FormEvent) => {
+  const fetchGenres = useCallback(async () => {
+    setGenreError(null);
+    setIsLoadingGenres(true);
+    try {
+      const response = await fetch('/api/genre');
+      if (!response.ok) throw new Error('Failed to fetch genres');
+      const data = await response.json();
+      setAvailableGenres(data.data || []);
+    } catch (error) {
+      console.error('Error fetching genres:', error);
+      setGenreError('Failed to load genres. Please try again later.');
+      toast({
+        title: "Error",
+        description: "Failed to load genres",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingGenres(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    if (isEditing) {
+      fetchGenres();
+    }
+  }, [isEditing, fetchGenres]);
+
+  const handleEditClick = () => {
+    if (!isEditing && manga) {
+      setEditForm({
+        title: manga.title,
+        introduction: manga.introduction,
+        genres: manga.genres?.map(g => Number(g)) || []
+      });
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const toggleGenre = (genreId: number) => {
+    setEditForm(prev => ({
+      ...prev,
+      genres: prev.genres.includes(genreId)
+        ? prev.genres.filter(id => id !== genreId)
+        : [...prev.genres, genreId]
+    }));
+  };
+
+  const handleUpdateManga = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     try {
+      const formData = new FormData(e.currentTarget);
+      
+      // Add genres to FormData
+      formData.delete('genres[]');
+      editForm.genres.forEach(genreId => {
+        formData.append('genres[]', genreId.toString());
+      });
+
       const response = await fetch(`/api/story/${params.sId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editForm),
+        body: formData,
       });
 
       if (!response.ok) throw new Error('Failed to update manga');
@@ -486,6 +547,8 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         title: "Success",
         description: "Manga updated successfully",
       });
+
+      router.refresh();
     } catch (error) {
       toast({
         title: "Error",
@@ -573,12 +636,20 @@ export default function MangaDetail({ params }: MangaDetailProps) {
             </div>
             {manga.genres && manga.genres.length > 0 && (
               <div className="mt-4">
-                <h3 className="font-semibold mb-2">Genres</h3>
+                <h3 className={`font-semibold mb-2 ${
+                  theme === "dark" ? "text-white" : "text-gray-900"
+                }`}>
+                  Genres
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {manga.genres.map((genre, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm"
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        theme === "dark" 
+                          ? "bg-blue-600 text-white" 
+                          : "bg-blue-500 text-white"
+                      }`}
                     >
                       {genre}
                     </span>
@@ -607,16 +678,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       {user?.uId === manga?.authorId && (
         <div className="container mx-auto px-4 py-4">
           <Button
-            onClick={() => {
-              if (!isEditing) {
-                setEditForm({
-                  title: manga.title,
-                  introduction: manga.introduction,
-                  genres: manga.genres || []
-                });
-              }
-              setIsEditing(!isEditing);
-            }}
+            onClick={handleEditClick}
             variant={isEditing ? "destructive" : "default"}
             className="mb-4"
           >
@@ -692,7 +754,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                                 </Button>
                               </>
                             )}
-                            {chapter.price > 0 && !chapter.hasAccess && (
+                            {chapter.price > 0 && !chapter.hasAccess && user?.uId !== manga.authorId && (
                               <Button
                                 onClick={() => handlePurchaseChapter(chapter.cId, chapter.price)}
                                 disabled={isPurchasing}
@@ -808,18 +870,15 @@ export default function MangaDetail({ params }: MangaDetailProps) {
 
 
       {/* Edit Form */}
-      {isEditing && user?.uId === manga?.authorId ? (
+      {isEditing && user?.uId === manga?.authorId && (
         <div className="container mx-auto px-4 py-4">
-          <form onSubmit={handleUpdateManga} className="space-y-4">
+          <form onSubmit={handleUpdateManga} className="space-y-6">
             <div>
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
-                value={editForm.title}
-                onChange={(e) => setEditForm(prev => ({
-                  ...prev,
-                  title: e.target.value
-                }))}
+                name="title"
+                defaultValue={editForm.title}
                 className={theme === "dark" ? "bg-gray-700" : ""}
               />
             </div>
@@ -828,38 +887,92 @@ export default function MangaDetail({ params }: MangaDetailProps) {
               <Label htmlFor="introduction">Introduction</Label>
               <Textarea
                 id="introduction"
-                value={editForm.introduction}
-                onChange={(e) => setEditForm(prev => ({
-                  ...prev,
-                  introduction: e.target.value
-                }))}
+                name="introduction"
+                defaultValue={editForm.introduction}
                 className={`min-h-[200px] ${theme === "dark" ? "bg-gray-700" : ""}`}
               />
             </div>
 
-            {/* <div>
-              <Label>Genres</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {Genre?.map((genre) => (
+            <div className="space-y-2">
+              <Label className={`block mb-3 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                Genres
+              </Label>
+              {isLoadingGenres ? (
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Loading genres...</span>
+                </div>
+              ) : genreError ? (
+                <div className="text-red-500">
+                  {genreError}
                   <Button
-                    key={genre.genreName}
-                    type="button"
-                    variant={editForm.genres.includes(genre.genreName) ? "default" : "outline"}
+                    variant="link"
                     onClick={() => {
-                      setEditForm(prev => ({
-                        ...prev,
-                        genres: prev.genres.includes(genre.genreName)
-                          ? prev.genres.filter(g => g !== genre.genreName)
-                          : [...prev.genres, genre.genreName]
-                      }));
+                      setIsLoadingGenres(true);
+                      setGenreError(null);
+                      fetchGenres();
                     }}
-                    className="h-8"
+                    className="ml-2 text-blue-500"
                   >
-                    {genre.genreName}
+                    Retry
                   </Button>
-                ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {availableGenres.map((genre) => (
+                    <div key={genre.gId} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={`genre-${genre.gId}`}
+                        checked={editForm.genres.includes(genre.gId)}
+                        onChange={() => toggleGenre(genre.gId)}
+                        className={`w-4 h-4 rounded ${
+                          theme === 'dark'
+                            ? 'bg-gray-700 border-gray-600'
+                            : 'bg-white border-gray-300'
+                        }`}
+                      />
+                      <Label 
+                        htmlFor={`genre-${genre.gId}`}
+                        className={`text-sm cursor-pointer ${
+                          theme === 'dark' ? 'text-white' : 'text-gray-900'
+                        }`}
+                      >
+                        {genre.genreName}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Preview section */}
+            {!isLoadingGenres && editForm.genres.length > 0 && (
+              <div className="mt-6 border-t pt-6">
+                <h3 className={`text-lg font-semibold mb-4 ${
+                  theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
+                  Selected Genres
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {editForm.genres.map((genreId) => {
+                    const genre = availableGenres.find(g => g.gId === genreId);
+                    return genre && (
+                      <span
+                        key={genre.gId}
+                        className={`px-3 py-1 rounded-full text-sm ${
+                          theme === 'dark' 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-blue-500 text-white'
+                        }`}
+                      >
+                        {genre.genreName}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
-            </div> */}
+            )}
 
             <div className="flex justify-end space-x-4">
               <Button
@@ -875,11 +988,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
             </div>
           </form>
         </div>
-      ) : (
-        // Your existing manga detail content
-        <div className="container mx-auto px-4 py-8">
-          {/* ... rest of your existing JSX ... */}
-        </div>
       )}
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -893,6 +1001,26 @@ export default function MangaDetail({ params }: MangaDetailProps) {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteChapter}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Authentication Required</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please login or register to purchase chapters.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Link href="/login">Login</Link>
+            </AlertDialogAction>
+            <AlertDialogAction asChild>
+              <Link href="/register">Register</Link>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
