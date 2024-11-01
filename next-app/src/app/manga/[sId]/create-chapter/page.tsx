@@ -152,12 +152,12 @@ export default function CreateChapter() {
       const formData = new FormData();
       formData.append('chapterName', chapterName);
       
-      // Append each image with a consistent field name
+      // Update the field name to 'imageChapterFiles'
       chapterImages.forEach((image, index) => {
-        formData.append('images', image);
+        formData.append('imageChapterFiles', image);
       });
 
-      const response = await fetch(`/api/manga/${mangaId}/chapters`, {
+      const response = await fetch(`/api/story/${mangaId}/chapter`, {
         method: 'POST',
         body: formData,
       });
@@ -437,7 +437,7 @@ export default function CreateChapter() {
                 <AlertDialogCancel className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>
                   Cancel
                 </AlertDialogCancel>
-                <AlertDialogAction>Create Chapter</AlertDialogAction>
+                <AlertDialogAction onClick={handleFinish}>Create Chapter</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
