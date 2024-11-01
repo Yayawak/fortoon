@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { CldImage } from 'next-cloudinary';
 
 // TypeScript type for file previews
 type FilePreview = {
@@ -68,40 +69,36 @@ export default function EditChapter() {
   useEffect(() => {
     const fetchChapterData = async () => {
       try {
-        const response = await fetch(`/api/story/${mangaId}`);
-        if (!response.ok) throw new Error('Failed to fetch manga');
+        const response = await fetch(`/api/story/${mangaId}/chapter/${chapterId}`);
+        if (!response.ok) throw new Error('Failed to fetch chapter');
         
-        const data = await response.json();
-        console.log('Fetched manga data:', data); // Debug log
+        const { data } = await response.json();
+        console.log('Fetched chapter data:', data);
         
-        // Find the specific chapter from the chapters array
-        const chapter = data.chapters.find((ch: any) => ch.cId === Number(chapterId));
-        
-        if (!chapter) {
+        if (!data) {
           throw new Error('Chapter not found');
         }
 
-        console.log('Found chapter:', chapter); // Debug log
-        
-        setChapterData(chapter);
+        // Set chapter data
+        setChapterData(data);
         
         // Set initial form values
         setEditForm({
-          name: chapter.name || '',
-          priceType: chapter.price > 0 ? 'coin' : 'free',
-          coinPrice: chapter.price || 0
+          name: data.name || '',
+          priceType: data.price > 0 ? 'coin' : 'free',
+          coinPrice: data.price || 0
         });
 
         // Convert existing images to FilePreview format
-        if (chapter.images && Array.isArray(chapter.images)) {
-          const previews = chapter.images.map((imageUrl: string, index: number) => ({
-            url: imageUrl,
-            name: `Image ${index + 1}`,
+        if (data.images && Array.isArray(data.images)) {
+          const previews = data.images.map((image: { url: string, imageSequenceNumber: number }) => ({
+            url: image.url,
+            name: `Image ${image.imageSequenceNumber}`,
           }));
           setImagePreviews(previews);
         }
       } catch (error) {
-        console.error('Error fetching chapter:', error); // Debug log
+        console.error('Error fetching chapter:', error);
         toast({
           title: "Error",
           description: "Failed to fetch chapter data",
@@ -133,6 +130,8 @@ export default function EditChapter() {
       url: URL.createObjectURL(file),
       name: file.name,
     }));
+
+  console.log(newImagePreviews)
 
     setChapterImages((prev) => [...prev, ...newImages]);
     setImagePreviews((prev) => [...prev, ...newImagePreviews]);
@@ -206,27 +205,9 @@ export default function EditChapter() {
     setDraggingIndex(null); // Reset the dragging index
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // Validate chapter name
-    if (!editForm.name.trim()) {
-      toast({
-        title: "Error",
-        description: "Chapter name is required",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Check if there are no images, show error dialog
-    if (chapterImages.length === 0) {
-      setIsErrorDialogOpen(true);
-      return;
-    }
-
-    // Open confirmation dialog before finishing
-    setIsConfirmDialogOpen(true);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault(); // Prevent default form submission
+    await handleFinish(); // Call the handleFinish function
   };
 
   // Modify handleFinish to use PUT request
@@ -289,6 +270,42 @@ export default function EditChapter() {
         description: error instanceof Error ? error.message : "Failed to update chapter",
         variant: "destructive"
       });
+    }
+  };
+
+  // Add new function to handle image insertion
+  const handleInsertImages = async (insertIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    if (files.length + imagePreviews.length > 50) {
+      setError("Total images cannot exceed 50");
+      return;
+    }
+
+    const newImagePreviews: FilePreview[] = files.map(file => ({
+      url: URL.createObjectURL(file),
+      name: file.name,
+    }));
+
+    // Insert new images at the specified index
+    const updatedPreviews = [
+      ...imagePreviews.slice(0, insertIndex),
+      ...newImagePreviews,
+      ...imagePreviews.slice(insertIndex)
+    ];
+
+    const updatedImages = [
+      ...chapterImages.slice(0, insertIndex),
+      ...files,
+      ...chapterImages.slice(insertIndex)
+    ];
+
+    setImagePreviews(updatedPreviews);
+    setChapterImages(updatedImages);
+
+    // Reset the file input
+    if (e.target) {
+      e.target.value = '';
     }
   };
 
@@ -428,30 +445,68 @@ export default function EditChapter() {
           {imagePreviews.length > 0 && (
             <div className="flex flex-col space-y-4 mt-4">
               {viewMode === 'preview' && (
-                imagePreviews.map((image, index) => (
-                  <div
-                    key={index}
-                    className="relative flex-shrink-0 w-96 h-[50vh]"
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <img
-                      src={image.url}
-                      alt={`Preview ${index + 1}`}
-                      className="object-cover w-full h-full"
-                    />
-                    <p className="text-sm text-center mt-2">{image.name}</p> {/* Display file name */}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(index)}
-                      className="absolute top-0 right-0 bg-red-600 text-white px-2 py-1 text-xs"
-                    >
-                      Remove
-                    </button>
+                <div className="space-y-4">
+                  {imagePreviews.map((image, index) => (
+                    <React.Fragment key={index}>
+                      {/* Insert button above each image - changed to gray */}
+                      <div className="flex justify-center my-2">
+                        <label className="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                          Insert Images Here
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={(e) => handleInsertImages(index, e)}
+                          />
+                        </label>
+                      </div>
+
+                      {/* Image preview - centered */}
+                      <div className="flex flex-col items-center">
+                        <div
+                          className="relative flex-shrink-0 w-96 h-[50vh]"
+                          draggable
+                          onDragStart={() => handleDragStart(index)}
+                          onDragOver={(e) => handleDragOver(e, index)}
+                          onDragEnd={handleDragEnd}
+                        >
+                          <CldImage
+                            src={image.url}
+                            alt={`Preview ${index + 1}`}
+                            className="object-cover w-full h-full"
+                            width={700}
+                            height={1000}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(index)}
+                            className="absolute top-0 right-0 bg-red-600 text-white px-2 py-1 text-xs rounded"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <p className="text-sm text-center mt-2">
+                          {`${index + 1}. ${image.name}`}
+                        </p>
+                      </div>
+                    </React.Fragment>
+                  ))}
+
+                  {/* Final insert button - changed to gray */}
+                  <div className="flex justify-center my-2">
+                    <label className="cursor-pointer bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                      Add Images at End
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => handleInsertImages(imagePreviews.length, e)}
+                      />
+                    </label>
                   </div>
-                ))
+                </div>
               )}
 
               {viewMode === 'name' && (
