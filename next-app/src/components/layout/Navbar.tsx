@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Search, LogOut, Settings, User as UserIcon, Sun, Moon, Menu } from 'lucide-react';
+import { Search, LogOut, Settings, User as UserIcon, Sun, Moon, Menu, Users, Wallet } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext'; 
 import { useSettings } from '@/contexts/SettingsContext';
 import Image from 'next/image';
@@ -116,14 +116,14 @@ export default function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link href="/community" className="flex items-center">
-                      <UserIcon className="mr-2 h-4 w-4" />
+                      <Users className="mr-2 h-4 w-4" />
                       Community
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link href="/topup" className="flex items-center">
-                      <Settings className="mr-2 h-4 w-4" />
-                      topup
+                      <Wallet className="mr-2 h-4 w-4" />
+                      Topup
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>

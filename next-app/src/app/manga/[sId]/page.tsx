@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { Star, MessageSquare, Book, ThumbsUp, Eye, Calendar, Clock, ChevronRight, Plus, Loader2, Share2 } from "lucide-react";
+import { Star, MessageSquare, Book, ThumbsUp, Eye, Calendar, Clock, ChevronRight, Plus, Loader2, Share2, Pencil, Trash2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -16,6 +16,16 @@ import { Manga, MangaDetailProps, Chapter, Review } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { Genre } from "@/lib/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Add this new component for the review card
 const ReviewCard = ({ review, onEdit, isAuthor, theme }: { 
@@ -99,6 +109,14 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     title: '',
     introduction: '',
     genres: [] as string[]
+  });
+  const [isChapterDialogOpen, setIsChapterDialogOpen] = useState(false);
+  const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [chapterToDelete, setChapterToDelete] = useState<number | null>(null);
+  const [chapterForm, setChapterForm] = useState({
+    name: '',
+    price: 0,
   });
 
   useEffect(() => {
@@ -486,6 +504,144 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     }
   };
 
+  const handleAddChapter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`/api/story/${params.sId}/chapter`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(chapterForm),
+      });
+
+      if (!response.ok) throw new Error('Failed to add chapter');
+
+      const data = await response.json();
+      setManga(prev => ({
+        ...prev!,
+        chapters: [...prev!.chapters, data.data],
+      }));
+
+      setIsChapterDialogOpen(false);
+      setChapterForm({ name: '', price: 0 });
+      
+      toast({
+        title: "Success",
+        description: "Chapter added successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add chapter",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEditChapter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingChapter) return;
+
+    try {
+      const response = await fetch(`/api/story/${params.sId}/chapter/${editingChapter.cId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(chapterForm),
+      });
+
+      if (!response.ok) throw new Error('Failed to update chapter');
+
+      const data = await response.json();
+      setManga(prev => ({
+        ...prev!,
+        chapters: prev!.chapters.map(ch => 
+          ch.cId === editingChapter.cId ? data.data : ch
+        ),
+      }));
+
+      setIsChapterDialogOpen(false);
+      setEditingChapter(null);
+      setChapterForm({ name: '', price: 0 });
+      
+      toast({
+        title: "Success",
+        description: "Chapter updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update chapter",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteChapter = async () => {
+    if (!chapterToDelete) return;
+
+    try {
+      const response = await fetch(`/api/story/${params.sId}/chapter/${chapterToDelete}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete chapter');
+
+      setManga(prev => ({
+        ...prev!,
+        chapters: prev!.chapters.filter(ch => ch.cId !== chapterToDelete),
+      }));
+
+      setIsDeleteDialogOpen(false);
+      setChapterToDelete(null);
+      
+      toast({
+        title: "Success",
+        description: "Chapter deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete chapter",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Add this component for the chapter form
+  const ChapterForm = ({ onSubmit }: { onSubmit: (e: React.FormEvent) => Promise<void> }) => (
+    <form onSubmit={onSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="name">Chapter Name</Label>
+        <Input
+          id="name"
+          value={chapterForm.name}
+          onChange={(e) => setChapterForm(prev => ({ ...prev, name: e.target.value }))}
+          className={theme === "dark" ? "bg-gray-700" : ""}
+          required
+        />
+      </div>
+      <div>
+        <Label htmlFor="price">Price</Label>
+        <Input
+          id="price"
+          type="number"
+          min="0"
+          step="0.01"
+          value={chapterForm.price}
+          onChange={(e) => setChapterForm(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
+          className={theme === "dark" ? "bg-gray-700" : ""}
+          required
+        />
+      </div>
+      <Button type="submit" className="w-full">
+        {editingChapter ? "Update Chapter" : "Add Chapter"}
+      </Button>
+    </form>
+  );
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!manga) return <div>No manga data found</div>;
@@ -566,6 +722,20 @@ export default function MangaDetail({ params }: MangaDetailProps) {
               </TabsContent>
 
               <TabsContent value="chapters" className="mt-4">
+                {user?.uId === manga.authorId && (
+                  <Button
+                    onClick={() => {
+                      setEditingChapter(null);
+                      setChapterForm({ name: '', price: 0 });
+                      setIsChapterDialogOpen(true);
+                    }}
+                    className="mb-4"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Chapter
+                  </Button>
+                )}
+                
                 <div className="space-y-4">
                   {manga.chapters &&
                     manga.chapters.map((chapter) => (
@@ -591,6 +761,34 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
+                            {user?.uId === manga.authorId && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingChapter(chapter);
+                                    setChapterForm({
+                                      name: chapter.name || '',
+                                      price: chapter.price,
+                                    });
+                                    setIsChapterDialogOpen(true);
+                                  }}
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setChapterToDelete(chapter.cId);
+                                    setIsDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </>
+                            )}
                             {chapter.price > 0 && !chapter.hasAccess && (
                               <Button
                                 onClick={() => handlePurchaseChapter(chapter.cId, chapter.price)}
@@ -799,6 +997,30 @@ export default function MangaDetail({ params }: MangaDetailProps) {
           {/* ... rest of your existing JSX ... */}
         </div>
       )}
+
+      <Dialog open={isChapterDialogOpen} onOpenChange={setIsChapterDialogOpen}>
+        <DialogContent className={theme === "dark" ? "bg-gray-800 text-white" : ""}>
+          <DialogHeader>
+            <DialogTitle>{editingChapter ? "Edit Chapter" : "Add New Chapter"}</DialogTitle>
+          </DialogHeader>
+          <ChapterForm onSubmit={editingChapter ? handleEditChapter : handleAddChapter} />
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the chapter.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteChapter}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
