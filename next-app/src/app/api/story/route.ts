@@ -231,9 +231,6 @@ export async function POST(req: NextRequest) {
             status: 500
         })
     }
-    if (!parsed) {
-        return
-    }
 
 
 
