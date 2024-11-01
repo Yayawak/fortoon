@@ -38,7 +38,6 @@ export default function ChapterPage({ params }: ChapterPageProps) {
   const { theme } = useSettings();
   const [mangaData, setMangaData] = useState<MangaData | null>(null);
   const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showNavbar, setShowNavbar] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -47,16 +46,13 @@ export default function ChapterPage({ params }: ChapterPageProps) {
   useEffect(() => {
     const fetchMangaData = async () => {
       try {
-        setLoading(true);
         const response = await fetch(`/api/story/${params.sId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch manga data');
         }
         const data = await response.json();
-        console.log(data)
         setMangaData(data);
         
-        // Find the current chapter
         const chapter = data.chapters.find(
           (ch: Chapter) => ch.cId.toString() === params.cId
         );
@@ -67,8 +63,6 @@ export default function ChapterPage({ params }: ChapterPageProps) {
         }
       } catch (err) {
         setError('Error loading manga data');
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -103,14 +97,6 @@ export default function ChapterPage({ params }: ChapterPageProps) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
-      </div>
-    );
-  }
 
   if (error || !mangaData || !currentChapter) {
     return (
@@ -193,9 +179,11 @@ export default function ChapterPage({ params }: ChapterPageProps) {
                   key={image.imageSequenceNumber}
                   src={image.url}
                   alt={`Page ${image.imageSequenceNumber}`}
-                  className="mx-auto max-w-full"
-                  width={700}
-                  height={1000}
+                  className="mx-auto w-full h-auto"
+                  width={1200}
+                  height={1800}
+                  sizes="100vw"
+                  priority={image.imageSequenceNumber === 1}
                 />
               ))
           ) : (

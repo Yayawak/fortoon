@@ -1,51 +1,30 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import Image from 'next/image';
+import { useSettings } from "@/contexts/SettingsContext";
 
-const Loading = () => {
-  const [progress, setProgress] = useState(0);
-  const [color, setColor] = useState('#3498db'); // Start with blue
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prevProgress + 1;
-      });
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    // Change color based on progress
-    if (progress < 33) {
-      setColor('#3498db'); // Blue
-    } else if (progress < 66) {
-      setColor('#e67e22'); // Orange
-    } else {
-      setColor('#2ecc71'); // Green
-    }
-  }, [progress]);
+const GlobalLoading = () => {
+  const { theme } = useSettings();
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50">
-      <div 
-        className="h-1 transition-all duration-300 ease-out"
-        style={{ 
-          width: `${progress}%`,
-          backgroundColor: color
-        }}
-      />
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-2xl font-bold animate-bounce">
-          Loading...
-        </div>
+    <div className={`
+      fixed inset-0 z-50 flex items-center justify-center
+      bg-black/50 backdrop-blur-sm transition-all
+    `}>
+      <div className={`
+        rounded-lg p-6 flex flex-col items-center gap-4
+        ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}
+      `}>
+        <Image 
+          src={theme === 'dark' ? "/dark-loading.gif" : "/light-loading.gif"}
+          alt="Loading..."
+          width={100}
+          height={100}
+          priority
+        />
       </div>
     </div>
   );
 };
 
-export default Loading;
+export default GlobalLoading;

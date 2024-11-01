@@ -100,7 +100,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
   const [manga, setManga] = useState<Manga | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
@@ -127,7 +126,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     const fetchManga = async () => {
       if (!params.sId) {
         setError('No manga ID provided');
-        setLoading(false);
         return;
       }
 
@@ -157,7 +155,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         setError('Error fetching manga data');
         console.error(err);
       } finally {
-        setLoading(false);
       }
     };
 
@@ -624,10 +621,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       });
     }
   };
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
-  if (!manga) return <div>No manga data found</div>;
 
   return (
     <div

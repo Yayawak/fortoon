@@ -96,16 +96,14 @@ export default function Home() {
 
         // Process top manga (for example, taking the first 5 with highest chapters count)
         const topManga = [...allManga]
-          .sort((a, b) => {
-            const dateA = new Date(a.postedDatetime).getTime();
-            const dateB = new Date(b.postedDatetime).getTime();
-            return dateB - dateA;
-          })
-          .slice(0, 5)
-          .map((manga) => ({
-            ...manga,
-            rating: (4.5 + Math.random() * 0.4).toFixed(1), // Add random rating between 4.5-4.9
-          }));
+        .sort((a, b) => {
+          // Sort by rating first, then by view count if ratings are equal
+          if (b.rating !== a.rating) {
+            return b.rating - a.rating;
+          }
+          return b.viewCount - a.viewCount;
+        })
+        .slice(0, 5)
 
         setTopMangaList(topManga);
       } else {
@@ -350,7 +348,7 @@ export default function Home() {
                 className={`px-4 py-2 rounded-full transition-colors ${
                   selectedGenre === null 
                     ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300'
+                    : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 text-gray-900 dark:text-white'
                 }`}
               >
                 All
@@ -362,7 +360,7 @@ export default function Home() {
                   className={`px-4 py-2 rounded-full transition-colors ${
                     selectedGenre === genre.gId 
                       ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300'
+                      : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 text-gray-900 dark:text-white'
                   }`}
                 >
                   {genre.genreName}
@@ -415,9 +413,7 @@ export default function Home() {
                       whileHover={{ y: -5 }}
                     >
                       <Link href={`/manga/${manga.sId}`}>
-                        <div
-                          className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300`}
-                        >
+                        <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300`}>
                           <div className="relative h-48 md:h-64">
                             <CldImage
                               src={manga.coverImageUrl}
@@ -426,26 +422,50 @@ export default function Home() {
                               style={{ objectFit: "cover" }}
                               className="transition-transform duration-300 hover:scale-105"
                             />
-                          </div>
-                          <div className="p-4 md:p-6">
-                            <h3 className="text-xl md:text-2xl font-semibold mb-2 dark:text-white">
-                              {manga.title}
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base mb-4">
-                              {manga.introduction.slice(0, 100)}...
-                            </p>
-                            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                              <div className="flex items-center">
-                                <MapPin className="w-4 h-4 mr-1" />
-                                <span>{manga.authorDisplayName}</span>
+                            <div className="absolute top-0 left-0 right-0 p-3 bg-gradient-to-b from-black/70 to-transparent">
+                              <div className="flex items-center space-x-2">
+                                <div className="flex items-center">
+                                  <span className="text-white text-sm font-medium">
+                                    {manga.authorDisplayName}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="flex items-center">
-                                <Clock className="w-4 h-4 mr-1" />
-                                <span>
-                                  {new Date(
-                                    manga.postedDatetime
-                                  ).toLocaleDateString()}
-                                </span>
+                            </div>
+                            <div className="absolute bottom-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-full text-sm">
+                              {manga.chapters.length} Chapters
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 md:p-6">
+                            <div className="mb-2">
+                              <h3 className="text-xl md:text-2xl font-semibold dark:text-white line-clamp-1">
+                                {manga.title}
+                              </h3>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                by {manga.authorDisplayName}
+                              </p>
+                            </div>
+
+                            <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base mb-4 line-clamp-2">
+                              {manga.introduction}
+                            </p>
+                            
+                            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center">
+                                  <Clock className="w-4 h-4 mr-1" />
+                                  <span>{formatDate(manga.postedDatetime)}</span>
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap gap-1">
+                                {manga.genres.slice(0, 2).map((genre) => (
+                                  <span 
+                                    key={genre.gId}
+                                    className="bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded-full text-xs"
+                                  >
+                                    {genre.genreName}
+                                  </span>
+                                ))}
                               </div>
                             </div>
                           </div>
@@ -486,28 +506,17 @@ export default function Home() {
             >
               Join our community and explore countless manga worlds!
             </motion.p>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white text-blue-600 px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-100 transition-colors duration-300"
-            >
-              Sign Up Now
-            </motion.button>
+            <Link href="/register">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white text-blue-600 px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-100 transition-colors duration-300"
+              >
+                Sign Up Now
+              </motion.button>
+            </Link>
           </div>
         </motion.section>
-
-        {/* Footer with Animation */}
-        <motion.footer
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="bg-gray-800 text-white py-6 md:py-8 px-4"
-        >
-          <div className="container mx-auto text-center">
-            <p>&copy; 2024 Manga Journey Quest. All rights reserved.</p>
-          </div>
-        </motion.footer>
       </motion.div>
     </AnimatePresence>
   );

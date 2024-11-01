@@ -38,7 +38,6 @@ export default function EditChapter() {
   const { theme } = useSettings();
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
 
   const [chapterImages, setChapterImages] = useState<File[]>([]); // State to hold images
   const [imagePreviews, setImagePreviews] = useState<FilePreview[]>([]); // To preview the images
@@ -107,8 +106,6 @@ export default function EditChapter() {
           description: "Failed to fetch chapter data",
           variant: "destructive"
         });
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -291,12 +288,6 @@ export default function EditChapter() {
       });
     }
   };
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-    </div>;
-  }
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>

@@ -20,7 +20,6 @@ interface Genre {
 const CreateManga: React.FC = () => {
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth(); 
   const { theme } = useSettings();
@@ -161,23 +160,6 @@ const CreateManga: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-
-  // // Show loading state while checking authentication
-  // if (isLoading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <div className="flex flex-col items-center space-y-4">
-  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-  //         <p className="text-lg">Loading...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // // If not loading and no user, the middleware will handle redirect
-  // if (!user) {
-  //   return null;
-  // }
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>

@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar"
+import Footer from "@/components/layout/Footer"
 import colors from "colors"
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { AuthProvider } from '@/contexts/AuthContext';
-// import { NavigationProvider } from '@/components/loading/NavigationProvider';
-// import ProgressProvider from '@/components/loading/ProgressProvider';
+import { Suspense } from 'react'
+import GlobalLoading from './loading'
 
 colors.enable()
 
@@ -28,25 +29,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <AuthProvider>
-          <SettingsProvider>
-        {/* <NavigationProvider>
-          <ProgressProvider> */}
-            <Navbar />
-            {children}
-          {/* </ProgressProvider>
-        </NavigationProvider> */}
-          </SettingsProvider>
-        </AuthProvider>
-           
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Suspense fallback={<GlobalLoading />}>
+          <AuthProvider>
+            <SettingsProvider>
+              <Navbar />
+              {children}
+              <Footer />
+            </SettingsProvider>
+          </AuthProvider>
+        </Suspense>
       </body>
     </html>
   );

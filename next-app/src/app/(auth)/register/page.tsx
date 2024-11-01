@@ -3,6 +3,7 @@ import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSettings } from "@/contexts/SettingsContext";
 import { Loader2 } from "lucide-react";
+import Link from 'next/link';
 import type { FormData, FormErrors } from '@/lib/types';
 
 const RegisterForm = () => {
@@ -241,6 +242,9 @@ const RegisterForm = () => {
             Register
           </button>
         </form>
+        <p className="text-center mt-4">
+          Already have an account? <Link href="/login" className="text-blue-500 hover:underline">Login</Link>
+        </p>
       </div>
     </div>
   );
