@@ -61,12 +61,16 @@ export async function PUT(req: NextRequest) {
         const profilePicFile = formData.get("profilePic") as File | null;
         const backgroundFile = formData.get("background") as File | null;
 
+        // console.log(profilePicFile)
+
         let profilePicName = "";
         let backgroundName = "";
 
         if (profilePicFile) {
             profilePicName = `profilePic-${parsedData.username || verifiedRes.data.username}-${profilePicFile.name}`;
             const uploadResult = await uploadImage(profilePicFile, profilePicName);
+            profilePicName = uploadResult.data.newFilename;
+            // uploadResult.
             if (uploadResult.status !== 200) {
                 return NextResponse.json(uploadResult, { status: uploadResult.status });
             }
@@ -75,6 +79,7 @@ export async function PUT(req: NextRequest) {
         if (backgroundFile) {
             backgroundName = `background-${parsedData.username || verifiedRes.data.username}-${backgroundFile.name}`;
             const uploadResult = await uploadImage(backgroundFile, backgroundName);
+            backgroundName = uploadResult.data.newFilename;
             if (uploadResult.status !== 200) {
                 return NextResponse.json(uploadResult, { status: uploadResult.status });
             }

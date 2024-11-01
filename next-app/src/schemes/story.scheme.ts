@@ -22,6 +22,18 @@ export const postStoryScheme = z.object({
         )
         // .optional()
         // .nullable(),
+    ,genreIds: z.preprocess((val) => {
+        // Handle string input by parsing it
+        if (typeof val === 'string') {
+            try {
+                return JSON.parse(val).map(Number);
+            } catch {
+                return [];
+            }
+        }
+        // If it's already an array, return it
+        return Array.isArray(val) ? val.map(Number) : [];
+    }, z.array(z.number()))
 })
 
 export type TPostStoryScheme = z.infer<typeof postStoryScheme>;

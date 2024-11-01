@@ -60,8 +60,8 @@ const DataPreviewDialog: React.FC<DataPreviewDialogProps> = ({
       </DialogHeader>
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
-          <ImagePreview label="Profile Picture" src={profilePicPreview || profileData?.profilePic} />
-          <ImagePreview label="Background Image" src={backgroundPreview || profileData?.background} />
+          <ImagePreview label="Profile Picture" src={profilePicPreview || profileData?.profilePic || 'profile pic'} />
+          <ImagePreview label="Background Image" src={backgroundPreview || profileData?.background || 'background'} />
         </div>
         <UserProfileDetails profileData={profileData} />
       </div>
@@ -108,6 +108,8 @@ const ProfileSettings: React.FC = () => {
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
   const [backgroundPreview, setBackgroundPreview] = useState<string | null>(null);
+  const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!user?.uId) return;
@@ -132,11 +134,13 @@ const ProfileSettings: React.FC = () => {
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>, type: 'profilePic' | 'background') => {
     const file = e.target.files?.[0];
     if (file && file.size <= 5 * 1024 * 1024) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        type === 'profilePic' ? setProfilePicPreview(reader.result as string) : setBackgroundPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      if (type === 'profilePic') {
+        setProfilePicFile(file);
+        setProfilePicPreview(URL.createObjectURL(file));
+      } else {
+        setBackgroundFile(file);
+        setBackgroundPreview(URL.createObjectURL(file));
+      }
     } else {
       toast({ title: 'Error', description: 'File size must be under 5MB', variant: 'destructive' });
     }
@@ -148,8 +152,14 @@ const ProfileSettings: React.FC = () => {
       const formData = new FormData();
       if (profileData?.username) formData.append('username', profileData.username);
       if (profileData?.displayName) formData.append('displayName', profileData.displayName);
+      if (profilePicFile) formData.append('profilePic', profilePicFile);
+      if (backgroundFile) formData.append('background', backgroundFile);
 
-      const response = await fetch('/api/user', { method: 'PUT', credentials: 'include', body: formData });
+      const response = await fetch('/api/user', {
+        method: 'PUT',
+        credentials: 'include',
+        body: formData,
+      });
       if (!response.ok) throw new Error('Failed to update profile');
 
       const updatedData = await response.json();
@@ -161,6 +171,13 @@ const ProfileSettings: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (profilePicPreview) URL.revokeObjectURL(profilePicPreview);
+      if (backgroundPreview) URL.revokeObjectURL(backgroundPreview);
+    };
+  }, [profilePicPreview, backgroundPreview]);
 
   if (!profileData) return <LoadingSpinner />;
 
@@ -190,7 +207,7 @@ const ProfileSettings: React.FC = () => {
                 profilePicPreview={profilePicPreview}
                 backgroundPreview={backgroundPreview}
                 loading={loading}
-                handleSubmit={handleSubmit} profilePicFile={null} backgroundFile={null}              />
+                handleSubmit={handleSubmit} profilePicFile={profilePicFile} backgroundFile={backgroundFile}              />
             </CardContent>
           </Card>
         </TabsContent>
