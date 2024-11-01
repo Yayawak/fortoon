@@ -94,6 +94,8 @@ export interface Post {
   children: Post[];
   postType?: string;
   parentPostId?: number | null;
+  posterPhotoURL?: string;
+  posterName?: string;
 }
 
 export interface MangaDetailProps {
@@ -154,6 +156,7 @@ export interface ReplyFormData {
 }
 // Extend Post type to include likes
 export interface EnhancedPost extends Post {
+  posterName?: string;
   likes?: number;
   isLiked?: boolean;
 }
@@ -163,14 +166,6 @@ export interface MangaFormData {
   description: string;
   genre: string;
   coverImage: File | null;
-}
-
-export interface EnhancedPost extends Post {
-  authorDisplayName?: string;
-  authorAvatarUrl?: string;
-  likeCount?: number;
-  isLiked?: boolean;
-  
 }
 
 export type Genre = {

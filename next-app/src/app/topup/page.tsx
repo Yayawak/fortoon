@@ -32,6 +32,32 @@ export default function TopUpPage() {
   const { toast } = useToast();
   const { theme } = useSettings();
   const { user, refreshUser } = useAuth();
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const response = await fetch('/api/payment/coin', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!response.ok) throw new Error('Failed to fetch balance');
+        const data = await response.json();
+        setBalance(data.data.balance);
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch current balance",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchBalance();
+  }, [toast]);
 
   const handleCustomCoinsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCustomCoins(e.target.value);
@@ -75,17 +101,17 @@ export default function TopUpPage() {
       const data = await response.json();
       
       // Update cookie with new balance
-      const cookieResponse = await fetch('/api/auth/login/updateCookie', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ credit: data.data.newBalance }),
-      });
+      // const cookieResponse = await fetch('/api/auth/login/updateCookie', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ credit: data.data.newBalance }),
+      // });
 
-      if (!cookieResponse.ok) {
-        throw new Error('Failed to update cookie');
-      }
+      // if (!cookieResponse.ok) {
+      //   throw new Error('Failed to update cookie');
+      // }
 
       // Update local state
       if (user) {
@@ -127,7 +153,7 @@ export default function TopUpPage() {
           </CardHeader>
           <CardContent>
             <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              {user?.credit || 0} coins
+              {balance} coins
             </p>
           </CardContent>
         </Card>

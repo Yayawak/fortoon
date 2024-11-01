@@ -15,6 +15,7 @@ import { Search, LogOut, Settings, User as UserIcon, Sun, Moon, Menu, Users, Wal
 import { useAuth } from '@/contexts/AuthContext'; 
 import { useSettings } from '@/contexts/SettingsContext';
 import Image from 'next/image';
+import { useToast } from "@/hooks/use-toast";
 
 export default function Navbar() {
   const { user, signOut } = useAuth(); 
@@ -22,6 +23,8 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [balance, setBalance] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     const applyTheme = (themeToApply: 'light' | 'dark') => {
@@ -31,6 +34,33 @@ export default function Navbar() {
 
     applyTheme(theme);
   }, [theme]);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const response = await fetch('/api/payment/coin', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!response.ok) throw new Error('Failed to fetch balance');
+        const data = await response.json();
+        setBalance(data.data.balance);
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch current balance",
+          variant: "destructive",
+        });
+      }
+    };
+
+    if (user) {
+      fetchBalance();
+    }
+  }, [toast, user]);
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -103,7 +133,7 @@ export default function Navbar() {
                     {/* <UserAvatar user={user} size="sm" /> */}
                     <div className="text-left">
                       <div className="font-medium">{user?.username}</div>
-                      <div className="text-xs text-muted-foreground">Credits: {user?.credit}</div>
+                      <div className="text-xs text-muted-foreground">coins: {balance}</div>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
@@ -186,7 +216,7 @@ export default function Navbar() {
                   <>
                     <li className="mb-2">
                       <div className="font-medium">{user?.username}</div>
-                      <div className="text-sm text-muted-foreground">Credits: {user?.credit}</div>
+                      <div className="text-sm text-muted-foreground">Credits: {balance}</div>
                     </li>
                     <li><Link href="/profile" className="block py-2">Profile</Link></li>
                     <li><Link href="/community" className="block py-2">community</Link></li>

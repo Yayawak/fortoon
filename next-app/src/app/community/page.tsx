@@ -29,6 +29,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from "@/hooks/use-toast";
 import { PostFormData, ReplyFormData, EnhancedPost } from '@/lib/types';
 import { user } from '@/contexts/AuthContext';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Toaster } from "@/components/ui/toaster";
 
 const PostCard: React.FC<{ 
   post: EnhancedPost; 
@@ -42,8 +52,8 @@ const PostCard: React.FC<{
   const [isReplying, setIsReplying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [likeCount, setLikeCount] = useState(post.likes || 0);
-  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.likeCount);
+  const [isLiked, setIsLiked] = useState(post.isLiked);
   const { theme } = useSettings();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -53,37 +63,6 @@ const PostCard: React.FC<{
     content: '',
     images: []
   });
-
-  // Check if user has liked the post
-  useEffect(() => {
-    const checkLikeStatus = async () => {
-      try {
-        const response = await fetch(`/api/community/post/${post.pId}/like`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include', // Important for cookies
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch like status');
-        }
-
-        const result = await response.json();
-        if (result.data) {
-          setIsLiked(result.data.isLiked);
-          setLikeCount(result.data.likeCount);
-        }
-      } catch (error) {
-        console.error('Error checking like status:', error);
-      }
-    };
-
-    if (user?.uId) {
-      checkLikeStatus();
-    }
-  }, [post.pId, user?.uId]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -144,10 +123,10 @@ const PostCard: React.FC<{
     }
   };
   
-  const isLongContent = post.content.length > 200;
+  const isLongContent = post.content?.length > 200;
   const displayContent = isLongContent && !isExpanded 
-    ? `${post.content.substring(0, 200)}...` 
-    : post.content;
+    ? `${post.content?.substring(0, 200)}...` 
+    : post.content || '';
 
   const handleLike = async () => {
     if (!user?.uId) {
@@ -161,26 +140,31 @@ const PostCard: React.FC<{
 
     try {
       const response = await fetch(`/api/community/post/${post.pId}/like`, {
-        method: 'POST',
+        method: isLiked ? 'DELETE' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Important for cookies
+        credentials: 'include',
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to update like status');
-      }
 
       const result = await response.json();
       
-      // Update local state
+      if (!response.ok) {
+        toast({
+          title: "Error",
+          description: result.msg,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Update states based on successful response
       setIsLiked(!isLiked);
       setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
 
       toast({
         title: isLiked ? "Post Unliked" : "Post Liked",
-        description: result.msg || (isLiked ? "Successfully unliked the post" : "Successfully liked the post"),
+        description: result.msg,
       });
 
     } catch (error) {
@@ -193,23 +177,36 @@ const PostCard: React.FC<{
     }
   };
 
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
   const handleDeletePost = async () => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
-    
     try {
-      const response = await fetch(`/api/community/post/${post.pId}`, {
-        method: 'DELETE',
+      const response = await fetch(`/api/community/post/${post.pId}/hide`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
       
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to delete post');
       }
-      
+
       onPostUpdate();
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+      });
+      
+      setIsDeleteDialogOpen(false);
     } catch (err) {
       console.error('Error deleting post:', err);
-      alert(err instanceof Error ? err.message : 'Failed to delete post');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err instanceof Error ? err.message : 'Failed to delete post'
+      });
     }
   };
 
@@ -278,18 +275,50 @@ const PostCard: React.FC<{
               {post.title}
             </motion.span>
             {isOwnPost && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-destructive hover:text-destructive/90 hover:rotate-12 transition-transform"
-                onClick={handleDeletePost}
-              >
-                <Trash2 className="h-5 w-5" />
-              </Button>
+              <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive/90 hover:rotate-12 transition-transform"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Delete Post</DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to delete this post? This action cannot be undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button variant="destructive" onClick={handleDeletePost}>
+                      Delete
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             )}
           </CardTitle>
           <CardDescription className="flex justify-between items-center text-gray-600 dark:text-gray-400">
-            <span className="font-medium">User ID: {post.posterId}</span>
+            <div className="flex items-center gap-2">
+              {post.posterPhotoURL && (
+                <CldImage 
+                  src={post.posterPhotoURL} 
+                  alt="Profile"
+                  width={24}
+                  height={24}
+                  className="rounded-full"
+                />
+              )}
+              <span className="font-medium">
+                {post.posterName || 'Anonymous'}
+              </span>
+            </div>
             <span className="text-muted-foreground">
               {new Date(post.createdAt).toLocaleString()}
             </span>
@@ -319,7 +348,7 @@ const PostCard: React.FC<{
           
           {post.images && post.images.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              {post.images.map((image, index) => (
+              {Array.isArray(post.images) && post.images.map((image, index) => (
                 <motion.div
                   key={index}
                   className="relative w-full h-64 overflow-hidden rounded-lg"
@@ -458,7 +487,6 @@ const PostCard: React.FC<{
                 key={childPost.pId} 
                 post={childPost} 
                 level={level + 1}
-                currentUserId={user?.uId}
                 onPostUpdate={onPostUpdate}
               />
             ))}
@@ -492,7 +520,8 @@ const CommunityPage: React.FC = () => {
         throw new Error(errorData.message || 'Failed to fetch posts');
       }
       const result = await response.json();
-      setPosts(result.data.posts);
+      const visiblePosts = result.data.posts.filter((post: Post) => !post.hidden);
+      setPosts(visiblePosts);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } 
@@ -612,8 +641,14 @@ const CommunityPage: React.FC = () => {
 
   const userPosts = posts.filter(post => post.posterId === user?.uId);
 
+  const trendingPosts = [...posts].sort((a, b) => {
+    // Sort by likeCount in descending order
+    return (b.likeCount || 0) - (a.likeCount || 0);
+  }).slice(0, 10); // Get top 10 posts
+
   return (
     <div className="container mx-auto p-4 bg-background text-foreground">
+      <Toaster />
       <Card>
         <CardHeader>
           <CardTitle>Create a New Post</CardTitle>
@@ -692,7 +727,6 @@ const CommunityPage: React.FC = () => {
               <PostCard 
                 key={post.pId} 
                 post={post}
-                currentUserId={user?.uId}
                 onPostUpdate={fetchPosts}
               />
             ))
@@ -701,7 +735,17 @@ const CommunityPage: React.FC = () => {
           )}
         </TabsContent>
         <TabsContent value="trending">
-          <p className="text-center text-muted-foreground">Trending posts will be displayed here.</p>
+          {trendingPosts.length > 0 ? (
+            trendingPosts.map(post => (
+              <PostCard 
+                key={post.pId} 
+                post={post}
+                onPostUpdate={fetchPosts}
+              />
+            ))
+          ) : (
+            <p className="text-center text-muted-foreground">No trending posts available.</p>
+          )}
         </TabsContent>
         <TabsContent value="my-posts">
           {userPosts.length > 0 ? (
@@ -709,7 +753,6 @@ const CommunityPage: React.FC = () => {
               <PostCard 
                 key={post.pId} 
                 post={post}
-                currentUserId={user?.uId}
                 onPostUpdate={fetchPosts}
               />
             ))
