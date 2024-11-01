@@ -93,11 +93,27 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-    const { id } = params;
+export async function DELETE(req: Request, { params }: TReqParams) {
+    const { storyId, chapterId } = params;
+    const stdRes: IStandardResponse = {};
 
-    // Simulate deleting the author
-    const stdRes = { message: 'Author data deleted successfully', id };
+    try {
+        const [result] = await dbConnection.query<RowDataPacket[]>(`
+            DELETE FROM Chapter 
+            WHERE cId = ? AND storyId = ?
+        `, [chapterId, storyId]);
 
-    return NextResponse.json(stdRes, { status: 200 });
+        if ((result as any).affectedRows === 0) {
+            stdRes.msg = "Chapter not found or already deleted";
+            return NextResponse.json(stdRes, { status: 404 });
+        }
+
+        stdRes.msg = "Chapter deleted successfully";
+        return NextResponse.json(stdRes, { status: 200 });
+
+    } catch (error) {
+        console.error("Error deleting chapter:", error);
+        stdRes.msg = "Error deleting chapter";
+        return NextResponse.json(stdRes, { status: 500 });
+    }
 }
