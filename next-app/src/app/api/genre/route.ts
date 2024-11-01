@@ -9,5 +9,5 @@ export const GET = async () => {
 
     stdRes.msg = "Success retrived Genres";
     stdRes.data = rs
-    return NextResponse.json(stdRes, { status: 400 });
+    return NextResponse.json(stdRes, { status: 200 });
 }
