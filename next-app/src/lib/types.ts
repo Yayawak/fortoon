@@ -59,6 +59,7 @@ export interface AuthContextType {
   signIn: (username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 export interface SettingsContextType {

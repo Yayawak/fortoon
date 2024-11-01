@@ -16,6 +16,7 @@ import {
 } from './story.id.helper';
 import { uploadImage } from '@/backend_lib/image_uploading/image_upload.lib';
 import { setStandardImageName } from '@/backend_lib/image_uploading/image_namer.lib';
+import { validateGenreIds } from '@/backend_lib/genre.lib';
 
 
 export async function GET(req: NextRequest, { params }: { params: { storyId: string } }) {
@@ -78,13 +79,15 @@ export async function PUT(req: NextRequest, { params }: { params: { storyId: str
         const title = formData.get('title') as string | null;
         const introduction = formData.get('introduction') as string | null;
         const coverImage = formData.get('coverImage') as File | null; // Expecting a File for coverImage
-
+        const genreIds = formData.get('genreIds') as string | null;
         // Validate the input using Zod, checking if coverImage is a file
-        updateStorySchema.parse({
+        const parsed = updateStorySchema.parse({
             title,
             introduction,
             coverImage, // Zod should validate this as a file (optional)
+            genreIds
         });
+        // parsed.genreIds
 
         // Step 1: Check if the story exists and fetch the owner
         const [storyCheckRes] = await dbConnection.execute<RowDataPacket[]>(`
@@ -113,12 +116,50 @@ export async function PUT(req: NextRequest, { params }: { params: { storyId: str
             await uploadImage(coverImage, filename); // Upload image and get URL
         }
 
-        // Step 4: Update story details (title, introduction, coverImageUrl)
-        await updateStoryDetails(storyIdNumber, title, introduction, filename);
+        // Parse and validate genreIds
+        let genreIdArray: number[] = [];
+        if (genreIds) {
+            genreIdArray = JSON.parse(genreIds).map(Number);
+            const validation = await validateGenreIds(genreIdArray);
+            if (!validation.valid) {
+                stdRes.msg = "Invalid genre IDs detected";
+                stdRes.msg2 = `The following genre IDs are not valid: ${validation.invalidIds.join(", ")}`;
+                return NextResponse.json(stdRes, { status: 400 });
+            }
+        }
 
-        // Step 5: Return success response
-        stdRes.msg = "Story updated successfully";
-        return NextResponse.json(stdRes, { status: 200 });
+        // Start transaction for atomic updates
+        await dbConnection.beginTransaction();
+
+        try {
+            // Update story details
+            await updateStoryDetails(storyIdNumber, title, introduction, filename);
+
+            // Update genres if provided
+            if (genreIdArray.length > 0) {
+                // Remove existing genre associations
+                await dbConnection.execute(`
+                    DELETE FROM StoryGenre 
+                    WHERE storyId = ?
+                `, [storyIdNumber]);
+
+                // Insert new genre associations
+                for (const genreId of genreIdArray) {
+                    await dbConnection.execute(`
+                        INSERT INTO StoryGenre (storyId, genreId) 
+                        VALUES (?, ?)
+                    `, [storyIdNumber, genreId]);
+                }
+            }
+
+            await dbConnection.commit();
+            stdRes.msg = "Story updated successfully";
+            return NextResponse.json(stdRes, { status: 200 });
+
+        } catch (error) {
+            await dbConnection.rollback();
+            throw error;
+        }
 
     } catch (error: any) {
         stdRes.msg = "Error updating story.";

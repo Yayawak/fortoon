@@ -45,4 +45,16 @@ export const updateStorySchema = z.object({
     coverImage: z.any().refine((file) => file instanceof File || file === null, {
         message: "coverImage must be a file or null",
     }).nullable().optional(),
+    genreIds: z.preprocess((val) => {
+        // Handle string input by parsing it
+        if (typeof val === 'string') {
+            try {
+                return JSON.parse(val).map(Number);
+            } catch {
+                return [];
+            }
+        }
+        return Array.isArray(val) ? val.map(Number) : [];
+    }, z.array(z.number())).optional().nullable(),
+    
 });
