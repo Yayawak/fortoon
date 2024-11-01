@@ -101,6 +101,21 @@ export async function POST(req: NextRequest, { params }: TReqParams ) {
         return NextResponse.json(stdRes, { status: 400 });
     }
     const images = formData.getAll("imageChapterFiles")
+
+    const price = formData.get("price")
+    if (!price) {
+        stdRes.msg = "Required price."
+        return NextResponse.json(stdRes, { status: 400 });
+    }
+    let priceNumber : Number | null
+    try {
+        priceNumber = Number(price)
+    } catch (error) {
+        stdRes.msg = "Price must be a number."
+        return NextResponse.json(stdRes, { status: 400 });        
+    }
+
+
     // images = images as File[]
     // console.log(images)
     for (let index = 0; index < images.length; index++) {
@@ -166,7 +181,7 @@ export async function POST(req: NextRequest, { params }: TReqParams ) {
                 "${chapterName}",
                 "${storyId}",
                 COALESCE(MAX(c.chapterSequence), 0) + 1,
-                ${0}
+                ${priceNumber}
             FROM Chapter c
             WHERE c.storyId = ${storyId}
         ` 
@@ -193,9 +208,11 @@ export async function POST(req: NextRequest, { params }: TReqParams ) {
 
 
             const xStdRes = await uploadImage(file, imageName)
+            const filename = xStdRes.data.newFilename
                 // (_, index) => 
 
-            return `(${chapterId}, ${index + 1}, '${imageName}')`; // Assuming uploadResult has a `url` property
+            // return `(${chapterId}, ${index + 1}, '${imageName}')`; // Assuming uploadResult has a `url` property
+            return `(${chapterId}, ${index + 1}, '${filename}')`;
         }))
     
         // Perform the batch insert

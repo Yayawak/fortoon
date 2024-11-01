@@ -33,7 +33,7 @@ export const postStoryScheme = z.object({
         }
         // If it's already an array, return it
         return Array.isArray(val) ? val.map(Number) : [];
-    }, z.array(z.number()))
+    }, z.array(z.number())),
 })
 
 export type TPostStoryScheme = z.infer<typeof postStoryScheme>;

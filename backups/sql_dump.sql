@@ -31,7 +31,7 @@ CREATE TABLE `Chapter` (
   PRIMARY KEY (`cId`),
   KEY `Chapter_Story_FK` (`storyId`),
   CONSTRAINT `Chapter_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `Chapter` (
 
 LOCK TABLES `Chapter` WRITE;
 /*!40000 ALTER TABLE `Chapter` DISABLE KEYS */;
-INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,10),('ราตรีแสนสุข',15,23,1,0),('i\'am solo',16,1,2,0),('i\'am solo',24,1,5,0);
+INSERT INTO `Chapter` VALUES ('อินโทรดักฉัน',13,1,1,10),('ราตรีแสนสุข',15,23,1,0),('i\'am solo',16,1,2,0),('i\'am solo',24,1,5,0),('Disco Usado',29,47,1,0),('Shiver',30,47,2,0);
 /*!40000 ALTER TABLE `Chapter` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -139,7 +139,7 @@ CREATE TABLE `ChapterImage` (
   KEY `ChapterImage_Chapter_FK` (`chapterId`),
   KEY `ChapterImage_ChapterImage_FK` (`imageSequenceNumber`),
   CONSTRAINT `ChapterImage_Chapter_FK` FOREIGN KEY (`chapterId`) REFERENCES `Chapter` (`cId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=213 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -148,7 +148,7 @@ CREATE TABLE `ChapterImage` (
 
 LOCK TABLES `ChapterImage` WRITE;
 /*!40000 ALTER TABLE `ChapterImage` DISABLE KEYS */;
-INSERT INTO `ChapterImage` VALUES (1,1,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(2,2,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(3,3,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(4,4,'userbg-2024-10-14T12:26:38.147Z-image.png',13);
+INSERT INTO `ChapterImage` VALUES (1,1,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(2,2,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(3,3,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(4,4,'userbg-2024-10-14T12:26:38.147Z-image.png',13),(134,1,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-01',29),(135,2,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-02',29),(136,3,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-03',29),(137,4,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-04',29),(138,5,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-05',29),(139,6,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-06',29),(140,7,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-07',29),(141,8,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-08',29),(142,9,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-09',29),(143,10,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-10',29),(144,11,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-11',29),(145,12,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-12',29),(146,13,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-13',29),(147,14,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-14',29),(148,15,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-15',29),(149,16,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-16',29),(150,17,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-17',29),(151,18,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-18',29),(152,19,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-19',29),(153,20,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-20',29),(154,21,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-21',29),(155,22,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-22',29),(156,23,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-23',29),(157,24,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-24',29),(158,25,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-25',29),(159,26,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-26',29),(160,27,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-27',29),(161,28,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-28',29),(162,29,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-29',29),(163,30,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-30',29),(164,31,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-31',29),(165,32,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-32',29),(166,33,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-33',29),(167,34,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-34',29),(168,35,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-35',29),(169,36,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-36',29),(170,37,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-37',29),(171,38,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-38',29),(172,39,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-39',29),(173,40,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-40',29),(174,41,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-41',29),(175,42,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-42',29),(176,43,'chapter-img-Fri Nov 01 2024 16:41:08 GMT+0000 (Coordinated Universal Time)-43',29),(177,1,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-01',30),(178,2,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-02',30),(179,3,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-03',30),(180,4,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-04',30),(181,5,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-05',30),(182,6,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-06',30),(183,7,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-07',30),(184,8,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-08',30),(185,9,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-09',30),(186,10,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-10',30),(187,11,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-11',30),(188,12,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-12',30),(189,13,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-13',30),(190,14,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-14',30),(191,15,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-15',30),(192,16,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-16',30),(193,17,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-17',30),(194,18,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-18',30),(195,19,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-19',30),(196,20,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-20',30),(197,21,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-21',30),(198,22,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-22',30),(199,23,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-23',30),(200,24,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-24',30),(201,25,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-25',30),(202,26,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-26',30),(203,27,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-27',30),(204,28,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-28',30),(205,29,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-29',30),(206,30,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-30',30),(207,31,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-31',30),(208,32,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-32',30),(209,33,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-33',30),(210,34,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-34',30),(211,35,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-35',30),(212,36,'chapter-img-Fri Nov 01 2024 16:46:19 GMT+0000 (Coordinated Universal Time)-36',30);
 /*!40000 ALTER TABLE `ChapterImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -227,7 +227,7 @@ CREATE TABLE `Post` (
   KEY `Post_Chapter_FK` (`refId`),
   CONSTRAINT `Post_Post_FK` FOREIGN KEY (`parentPostId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `Post_User_FK` FOREIGN KEY (`posterId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -236,7 +236,7 @@ CREATE TABLE `Post` (
 
 LOCK TABLES `Post` WRITE;
 /*!40000 ALTER TABLE `Post` DISABLE KEYS */;
-INSERT INTO `Post` VALUES ('concerto',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58',0,NULL,'story'),('where is saran',7,'5555555555555555555',NULL,2,'2024-10-16 13:56:03',0,NULL,'story'),('nepchar',8,'nlp so so end',NULL,1,'2024-10-16 15:41:04',0,NULL,'story'),('nepchar',9,'charcharset utf64',8,1,'2024-10-18 18:11:31',0,NULL,'story'),('narjar',10,'eeeeiiieieieieieieieieie',6,1,'2024-10-18 18:17:11',0,NULL,'story'),('kiki',11,'bajaha na',10,1,'2024-10-18 18:17:50',0,NULL,'story'),('kiki',12,'bajaha na',10,1,'2024-10-18 18:18:29',0,NULL,'story'),('kiki',13,'bajaha na',10,1,'2024-10-19 07:24:00',0,NULL,'story'),('nepchar',14,'charcharset utf64',NULL,1,'2024-10-19 09:04:09',0,NULL,'community'),('nepchar',17,'charcharset utf64',NULL,1,'2024-10-19 09:30:59',0,NULL,'community'),('nepchar',18,'charcharset utf64',NULL,1,'2024-10-19 09:33:39',1,1,'story');
+INSERT INTO `Post` VALUES ('concerto',6,'sarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsarannnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',NULL,2,'2024-10-16 10:01:58',0,NULL,'story'),('where is saran',7,'5555555555555555555',NULL,2,'2024-10-16 13:56:03',0,NULL,'story'),('nepchar',8,'nlp so so end',NULL,1,'2024-10-16 15:41:04',0,NULL,'story'),('nepchar',9,'charcharset utf64',8,1,'2024-10-18 18:11:31',0,NULL,'story'),('narjar',10,'eeeeiiieieieieieieieieie',6,1,'2024-10-18 18:17:11',0,NULL,'story'),('kiki',11,'bajaha na',10,1,'2024-10-18 18:17:50',0,NULL,'story'),('kiki',12,'bajaha na',10,1,'2024-10-18 18:18:29',0,NULL,'story'),('kiki',13,'bajaha na',10,1,'2024-10-19 07:24:00',0,NULL,'story'),('nepchar',14,'charcharset utf64',NULL,1,'2024-10-19 09:04:09',0,NULL,'community'),('nepchar',17,'charcharset utf64',NULL,1,'2024-10-19 09:30:59',0,NULL,'community'),('nepchar',18,'charcharset utf64',NULL,1,'2024-10-19 09:33:39',1,1,'story'),('เรื่อง หมาสู้คน',19,'สนุกจัง สนุกจังๆๆๆ',NULL,2,'2024-11-01 16:04:04',0,NULL,'community'),('5555555555',20,'santa santana',19,2,'2024-11-01 16:05:19',1,NULL,'community');
 /*!40000 ALTER TABLE `Post` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -254,7 +254,7 @@ CREATE TABLE `PostImage` (
   PRIMARY KEY (`piId`),
   KEY `ChapterImage_Chapter_FK` (`postId`) USING BTREE,
   CONSTRAINT `PostImage_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -263,7 +263,7 @@ CREATE TABLE `PostImage` (
 
 LOCK TABLES `PostImage` WRITE;
 /*!40000 ALTER TABLE `PostImage` DISABLE KEYS */;
-INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6),(14,'post-image-2024-10-16T15:41:04.018Z-02.jpg',8),(15,'post-image-2024-10-18T18:11:32.011Z-02.jpg',9),(16,'post-image-2024-10-18T18:17:50.502Z-',11),(17,'post-image-2024-10-18T18:18:29.216Z-',12),(18,'post-image-2024-10-19T07:24:00.333Z-0_png.rf.5eaf4a99d1c7643441a8015e0b01b1f2.jpg',13),(19,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.078c6d035baa4477f2ec0aa2adc39f39.jpg',13),(20,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.ab4b52897ac361aacf27bb33c18eb652.jpg',13),(21,'post-image-2024-10-19T09:04:09.511Z-02.jpg',14);
+INSERT INTO `PostImage` VALUES (13,'post-image-2024-10-16T10:22:59.420Z-dragon.jpg',6),(14,'post-image-2024-10-16T15:41:04.018Z-02.jpg',8),(15,'post-image-2024-10-18T18:11:32.011Z-02.jpg',9),(16,'post-image-2024-10-18T18:17:50.502Z-',11),(17,'post-image-2024-10-18T18:18:29.216Z-',12),(18,'post-image-2024-10-19T07:24:00.333Z-0_png.rf.5eaf4a99d1c7643441a8015e0b01b1f2.jpg',13),(19,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.078c6d035baa4477f2ec0aa2adc39f39.jpg',13),(20,'post-image-2024-10-19T07:24:00.334Z-0_png.rf.ab4b52897ac361aacf27bb33c18eb652.jpg',13),(21,'post-image-2024-10-19T09:04:09.511Z-02.jpg',14),(22,'post-image-2024-11-01T16:04:04.405Z-05.jpg',19);
 /*!40000 ALTER TABLE `PostImage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -283,7 +283,7 @@ CREATE TABLE `PostInteraction` (
   KEY `PostInteraction_User_FK` (`likerId`),
   CONSTRAINT `PostInteraction_Post_FK` FOREIGN KEY (`postId`) REFERENCES `Post` (`pId`),
   CONSTRAINT `PostInteraction_User_FK` FOREIGN KEY (`likerId`) REFERENCES `User` (`uId`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -292,7 +292,7 @@ CREATE TABLE `PostInteraction` (
 
 LOCK TABLES `PostInteraction` WRITE;
 /*!40000 ALTER TABLE `PostInteraction` DISABLE KEYS */;
-INSERT INTO `PostInteraction` VALUES (1,11,1),(3,11,2);
+INSERT INTO `PostInteraction` VALUES (1,11,1),(3,11,2),(5,17,2),(4,19,2);
 /*!40000 ALTER TABLE `PostInteraction` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -460,7 +460,7 @@ CREATE TABLE `Story` (
 
 LOCK TABLES `Story` WRITE;
 /*!40000 ALTER TABLE `Story` DISABLE KEYS */;
-INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'storyCover-Solo-Leveling-Ragnarok_Cover.png-2024-10-23T14:16:32.863Z',3.5,0),(23,'demon slayee','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'storyCover-02.jpg-2024-10-23T14:18:25.834Z',5,0),(44,'Tokyo Ghoul','TG','2024-11-01 13:05:37',2,'storyCover-Fri Nov 01 2024 13:05:36 GMT+0000 (Coordinated Universal Time)-01.jpg',0,0),(45,'A','A','2024-11-01 13:18:40',2,'storyCover-Fri Nov 01 2024 13:18:36 GMT+0000 (Coordinated Universal Time)-02.jpg',0,0),(46,'B','B','2024-11-01 13:21:28',2,'storyCover-Fri Nov 01 2024 13:21:26 GMT+0000 (Coordinated Universal Time)-01.jpg',0,0),(47,'junji ','haha','2024-11-01 15:38:22',2,'storyCover-Fri Nov 01 2024 15:38:17 GMT+0000 (Coordinated Universal Time)-01.jpg',0,0);
+INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'storyCover-Solo-Leveling-Ragnarok_Cover.png-2024-10-23T14:16:32.863Z',3.5,0),(23,'demon slayee','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'storyCover-02.jpg-2024-10-23T14:18:25.834Z',5,0),(44,'Tokyo Ghoul','ในเงามืดของโตเกียวมีสิ่งมีชีวิตน่ากลัวที่รู้จักกันในนาม “กูล” พวกมันสนองความหิวด้วยการกินมนุษย์เมื่อยามค่ำคืนมาเยือน เคน คาเนกิ นักศึกษามหาวิทยาลัยปีหนึ่งที่ไร้เดียงสา ต้องพบว่าตนเองติดอยู่ในโลกที่ก้ำกึ่งระหว่างมนุษย์และกูล เมื่อเขาพบว่าคู่เดตของเขาแท้จริงแล้วเป็นกูลที่ต้องการกินเนื้อของเขา','2024-11-01 13:05:37',2,'storyCover-Fri Nov 01 2024 13:05:36 GMT+0000 (Coordinated Universal Time)-01.jpg',0,0),(45,'A','A','2024-11-01 13:18:40',2,'storyCover-Fri Nov 01 2024 13:18:36 GMT+0000 (Coordinated Universal Time)-02.jpg',0,0),(46,'B','B','2024-11-01 13:21:28',2,'storyCover-Fri Nov 01 2024 13:21:26 GMT+0000 (Coordinated Universal Time)-01.jpg',0,0),(47,'junji ','รวมเรื่องสั้นสุดยอดโดยปรมาจารย์แห่งมังงะสยองขวัญ\n\nเล่มนี้รวบรวมเก้าเรื่องสั้นยอดเยี่ยมของจุนจิ อิโต้ที่ได้รับการคัดสรรโดยผู้แต่งเอง พร้อมด้วยบันทึกและคำอธิบายประกอบ จากหน้าต่างของหญิงสาวป่วย สายตาของคุณจดจ่อกับแขนที่เต็มไปด้วยรูเล็ก ๆ… หลังจากไอดอลคนหนึ่งแขวนคอตัวเอง ลูกโป่งที่มีใบหน้าปรากฏขึ้นบนท้องฟ้า และบางลูกก็มีใบหน้าของคุณเอง… ทีมถ่ายภาพยนตร์สมัครเล่นจ้างนางแบบที่มีสไตล์เฉพาะตัวอย่างยิ่งและต้องพบจุดจบที่นองเลือด… นำเสนอเก้าฝันร้ายใหม่ ๆ สำหรับความบันเทิงของแฟน ๆ สยองขวัญ','2024-11-01 15:38:22',2,'storyCover-Fri Nov 01 2024 15:38:17 GMT+0000 (Coordinated Universal Time)-01.jpg',0,0);
 /*!40000 ALTER TABLE `Story` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -554,7 +554,7 @@ CREATE TABLE `User` (
 
 LOCK TABLES `User` WRITE;
 /*!40000 ALTER TABLE `User` DISABLE KEYS */;
-INSERT INTO `User` VALUES (1,22,'m',10,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',20,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-yone','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image\n',NULL),(10,8,'m',0,1,'rakan88888','rakan','rakan@lover.th','2024-10-15 13:07:25','rakan','user-Tue Oct 15 2024 13:07:23 GMT+0000 (Coordinated Universal Time)-02',NULL);
+INSERT INTO `User` VALUES (1,22,'m',10,1,'kayn','kayn','mailser','2024-09-20 15:12:45','kayn','user-2024-10-14T10:55:10.410Z-image','userbg-2024-10-14T12:26:38.147Z-image.png'),(2,22,'m',20,1,'yone','yone','mailser','2024-09-20 15:12:45','yoNeeeeeee','profilePic-yone-01','background-yone-6.jpg'),(7,8,'f',0,1,'teemoteemo','teemo','teemo@km.ac.th','2024-10-14 10:01:43','teemo','user-Mon Oct 14 2024 10:01:42 GMT+0000 (Coordinated Universal Time)-image\n',NULL),(10,8,'m',0,1,'rakan88888','rakan','rakan@lover.th','2024-10-15 13:07:25','rakan','user-Tue Oct 15 2024 13:07:23 GMT+0000 (Coordinated Universal Time)-02',NULL);
 /*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -567,4 +567,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-01 15:39:00
+-- Dump completed on 2024-11-01 17:34:24
