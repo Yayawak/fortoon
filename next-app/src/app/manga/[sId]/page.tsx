@@ -139,24 +139,21 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         }
         const mangaData = await mangaResponse.json();
 
-        // If user is logged in, check chapter access
-        if (user?.uId) {
-          // Map through chapters and check their data
-          mangaData.chapters = await Promise.all(mangaData.chapters.map(async (chapter: Chapter) => {
-            try {
-              const chapterResponse = await fetch(`/api/story/${params.sId}/chapter/${chapter.cId}`);
-              const chapterData = await chapterResponse.json();
-              
-              return {
-                ...chapter,
-                hasAccess: chapterData !== null && chapterData.data !== null
-              };
-            } catch (err) {
-              return {
-                ...chapter,
-                hasAccess: false
-              };
-            }
+        // Only check access if user is logged in AND is not the author
+        if (user?.uId && user.uId !== mangaData.authorId) {
+          // Check chapter access only for this story
+          const chapterResponse = await fetch(`/api/story/${params.sId}`);
+          const accessData = await chapterResponse.json();
+          
+          mangaData.chapters = mangaData.chapters.map((chapter: Chapter) => ({
+            ...chapter,
+            hasAccess: accessData.includes(chapter.cId)
+          }));
+        } else {
+          // If user is author or not logged in, set hasAccess accordingly
+          mangaData.chapters = mangaData.chapters.map((chapter: Chapter) => ({
+            ...chapter,
+            hasAccess: user?.uId === mangaData.authorId || chapter.price === 0
           }));
         }
 
@@ -502,10 +499,15 @@ export default function MangaDetail({ params }: MangaDetailProps) {
 
   const handleEditClick = () => {
     if (!isEditing && manga) {
+      // Convert manga genres to array of gIds
+      const currentGenreIds = manga.genres.map((genre: any) => 
+        typeof genre === 'object' ? genre.gId : genre
+      );
+      
       setEditForm({
         title: manga.title,
         introduction: manga.introduction,
-        genres: manga.genres?.map(g => Number(g)) || []
+        genres: currentGenreIds
       });
     }
     setIsEditing(!isEditing);
@@ -526,8 +528,10 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     try {
       const formData = new FormData(e.currentTarget);
       
-      // Add genres to FormData
-      formData.delete('genres[]');
+      // Clear any existing genres from FormData
+      formData.delete('genres');
+      
+      // Add each genre ID as a separate entry
       editForm.genres.forEach(genreId => {
         formData.append('genres[]', genreId.toString());
       });
@@ -642,7 +646,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                   Genres
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {manga.genres.map((genre, index) => (
+                  {manga.genres.map((genre: any, index: number) => (
                     <span
                       key={index}
                       className={`px-3 py-1 rounded-full text-sm ${
@@ -651,7 +655,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                           : "bg-blue-500 text-white"
                       }`}
                     >
-                      {genre}
+                      {typeof genre === 'object' ? genre.genreName : genre}
                     </span>
                   ))}
                 </div>
