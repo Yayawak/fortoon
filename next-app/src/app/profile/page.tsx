@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRefresh } from '@/lib/hooks/useUserRefresh';
 
 // Update the UserManga type to match the response
 type UserManga = {
@@ -57,6 +58,7 @@ export default function Profile() {
   const [userManga, setUserManga] = useState<UserManga[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { refreshUser } = useUserRefresh();
 
   // Update the fetch function to filter by authorId
   const fetchUserManga = useCallback(async () => {
@@ -85,6 +87,10 @@ export default function Profile() {
     console.log(user?.profilePicUrl)
   }, [fetchUserManga]);
 
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
+
   const handleDelete = async (sId: number) => {
     try {
       const response = await fetch(`/api/story/${sId}`, {
@@ -94,7 +100,8 @@ export default function Profile() {
       if (!response.ok) throw new Error('Failed to delete manga');
       
       setUserManga(prevManga => prevManga.filter(manga => manga.sId !== sId));
-      
+      refreshUser();
+
       toast({
         title: "Success",
         description: "Manga deleted successfully",
@@ -111,17 +118,20 @@ export default function Profile() {
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className="max-w-4xl mx-auto p-4">
-        <Card className={`w-full overflow-hidden ${theme === 'dark'
-            ? 'bg-gray-800'
-            : 'bg-gray-500'
-          }`}>
-          <CldImage 
-            src={user?.bgUrl || "bgUrl"}
-            alt="bg picture" 
-            width={128}
-            height={128}
-          />
+      <div className="w-full relative h-[300px]">
+        <CldImage 
+          src={user?.bgUrl || "bgUrl"}
+          alt="bg picture" 
+          className="w-full h-full object-cover"
+          width={1920}
+          height={300}
+          priority
+        />
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
+
+      <div className="max-w-4xl mx-auto -mt-20 px-4">
+        <Card className={`w-full overflow-hidden relative`}>
           <CardHeader className="flex flex-col md:flex-row items-center justify-between p-6">
             <div className="flex flex-col md:flex-row items-center md:space-x-6 text-white">
               <div className="w-32 h-32 rounded-full bg-white p-1 mb-4 md:mb-0">
@@ -154,36 +164,36 @@ export default function Profile() {
             </div>
             <div className="flex items-center space-x-2 mt-4 md:mt-0">
               <Link href="/settings">
-                <Button variant="secondary" size="sm" className="bg-white text-purple-600 hover:bg-purple-100">
+                <Button variant="secondary" size="sm" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
                   Edit Profile
                 </Button>
               </Link>
               <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="icon" className="bg-white text-purple-600 hover:bg-purple-100">
+                  <Button variant="outline" size="icon" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
                     <Settings className="h-4 w-4" />
                   </Button>
                 </DialogTrigger>
-                <DialogContent className={`${theme === 'dark'
-                    ? 'bg-gradient-to-br from-purple-900 to-pink-900'
-                    : 'bg-gradient-to-br from-purple-100 to-pink-100'
-                  }`}>
+                <DialogContent className={`${theme === 'dark' 
+                  ? 'bg-gray-800' 
+                  : 'bg-gray-100'
+                }`}>
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-purple-800">Profile Settings</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold text-gray-800 dark:text-gray-200">Profile Settings</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-6 py-4">
                     <div className="flex items-center space-x-4">
-                      <Mail className="text-pink-500" />
+                      <Mail className="text-gray-600 dark:text-gray-400" />
                       <div>
-                        <p className="text-sm font-medium text-purple-800">User ID</p>
-                        <p className="text-sm text-purple-600">{user?.uId}</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">User ID</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{user?.uId}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <Phone className="text-pink-500" />
+                      <Phone className="text-gray-600 dark:text-gray-400" />
                       <div>
-                        <p className="text-sm font-medium text-purple-800">Username</p>
-                        <p className="text-sm text-purple-600">{user?.username}</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">Username</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{user?.username}</p>
                       </div>
                     </div>
                   </div>
@@ -196,7 +206,7 @@ export default function Profile() {
               <div className="flex flex-wrap gap-4">
                 <Link href="/mymanga">
                   <Button
-                    className="bg-gradient-to-r from-blue-500 to-teal-500 text-white hover:from-blue-600 hover:to-teal-600 transition-all duration-300"
+                    className="bg-gray-700 text-white hover:bg-gray-800 transition-all duration-300"
                   >
                     Go to Manga Dashboard
                   </Button>
@@ -204,7 +214,7 @@ export default function Profile() {
 
                 <Link href="/create-manga">
                   <Button
-                    className="bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600 transition-all duration-300"
+                    className="bg-gray-700 text-white hover:bg-gray-800 transition-all duration-300"
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Create New Manga
@@ -225,7 +235,7 @@ export default function Profile() {
                           <Button
                             variant="destructive"
                             size="icon"
-                            className="absolute top-2 right-2 z-10"
+                            className="absolute top-2 right-2 z-10 bg-gray-700 hover:bg-gray-800"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -241,7 +251,7 @@ export default function Profile() {
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDelete(manga.sId)}
-                              className="bg-red-500 hover:bg-red-600"
+                              className="bg-gray-700 hover:bg-gray-800"
                             >
                               Delete
                             </AlertDialogAction>

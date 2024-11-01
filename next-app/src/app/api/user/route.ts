@@ -1,3 +1,4 @@
+import { setJwtTokenCookie } from '@/backend_lib/auth/login.lib';
 import { dbConnection } from "@/db/dbConnector";
 import { uploadImage } from "@/backend_lib/image_uploading/image_upload.lib";
 import { formDataToJsonObject } from "@/backend_lib/parsers";
@@ -12,25 +13,42 @@ import { verifyToken } from "@/backend_lib/auth/auth.cookie";
 import { z } from 'zod';
 import { userSettingsSchema } from "@/schemes/user.scheme";
 
-
-export async function GET(req: Request) {
-    const [results, fs] = await dbConnection.query<GenericRowDataPacket<IUser>[]>(`select * from User`)
-
-
-    const stdRes: IStandardResponse = {
-        data: results
+export async function GET(req: NextRequest) {
+    // Verify the user token
+    const verifiedRes = await verifyToken(req);
+    if (verifiedRes.status !== 200) {
+        return NextResponse.json({ msg: verifiedRes.msg }, { status: verifiedRes.status });
     }
-    return NextResponse.json(stdRes, {
-        status: 200
-    })
+
+    try {
+        // Get updated user data from database
+        const [results] = await dbConnection.query<GenericRowDataPacket<IUser>[]>(
+            'SELECT * FROM User WHERE uId = ?',
+            [verifiedRes.data.uId]
+        );
+
+        if (!results.length) {
+            return NextResponse.json({ msg: "User not found" }, { status: 404 });
+        }
+
+        const userData = results[0];
+        let response = NextResponse.json({ 
+            message: `You're welcome ${userData.username} :D ( you are up to date.)`,
+            data: userData,
+            status: 200
+        });
+        response = setJwtTokenCookie(userData, response);
+
+        return response;
+
+    } catch (error: any) {
+        return NextResponse.json(
+            { msg: "Error fetching user data", error: error.message },
+            { status: 500 }
+        );
+    }
 }
 
-
-
-// const ReqPostUser : IUser = {
-//     uId: 0,
-//     username: 'username',
-// }
 
 
 
