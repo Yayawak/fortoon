@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, Star, TrendingUp, Clock, MapPin } from "lucide-react";
+import { Star, TrendingUp, Clock, MapPin } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import Slider from "react-slick";
 import { CldImage } from "next-cloudinary";
@@ -62,7 +62,6 @@ export default function Home() {
   const [filteredMangaList, setFilteredMangaList] = useState<MangaItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<number | null>(null);
@@ -130,22 +129,6 @@ export default function Home() {
 
   // console.log("Rendering component. mangaList:", mangaList);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = event.target.value.toLowerCase();
-    setSearchTerm(newSearchTerm);
-
-    if (newSearchTerm === "") {
-      setFilteredMangaList(mangaList);
-    } else {
-      const filtered = mangaList.filter(
-        (manga) => manga.title.toLowerCase().includes(newSearchTerm)
-        // ||
-        // manga.authorDisplayName.toLowerCase().includes(newSearchTerm)
-      );
-      setFilteredMangaList(filtered);
-    }
-  };
-
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -209,12 +192,6 @@ export default function Home() {
   useEffect(() => {
     let filtered = mangaList;
     
-    if (searchTerm) {
-      filtered = filtered.filter(manga => 
-        manga.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
     if (selectedGenre) {
       filtered = filtered.filter(manga => 
         manga.genres.some(genre => genre.gId === selectedGenre)
@@ -222,7 +199,7 @@ export default function Home() {
     }
     
     setFilteredMangaList(filtered);
-  }, [mangaList, searchTerm, selectedGenre]);
+  }, [mangaList, selectedGenre]);
 
   return (
     <AnimatePresence>
@@ -236,7 +213,7 @@ export default function Home() {
             : "bg-gray-100 text-gray-900"
         }`}
       >
-        {/* Hero Section with Enhanced Animations */}
+        {/* Hero Section */}
         <section className="h-screen w-full bg-gradient-to-b from-blue-900 to-gray-900 flex items-center justify-center">
           <div className="container mx-auto px-4 py-8 lg:py-16 text-center">
             <motion.div
@@ -302,39 +279,13 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Search Section with Animation */}
-        <motion.section
-          variants={fadeInVariants}
-          className="bg-blue-600 py-12 md:py-16"
+        {/* Explore Manga Title */}
+        <motion.h2
+          variants={itemVariants}
+          className="text-3xl md:text-4xl font-bold mt-12 mb-8 text-center"
         >
-          <div className="container mx-auto px-4">
-            <div className="max-w-2xl mx-auto">
-              <motion.h2
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                className="text-2xl md:text-3xl font-bold text-white mb-8 text-center"
-              >
-                Discover Your Next Manga Adventure
-              </motion.h2>
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                className="relative"
-              >
-                <input
-                  type="text"
-                  placeholder={t("searchPlaceholder")}
-                  value={searchTerm}
-                  onChange={handleSearch}
-                  className="w-full px-4 md:px-6 py-3 md:py-4 rounded-full bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              </motion.div>
-            </div>
-          </div>
-        </motion.section>
+          Explore Manga Worlds
+        </motion.h2>
 
         {/* Genre Filter Section */}
         <motion.section
@@ -370,7 +321,7 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* Manga List Section with Grid Animation */}
+        {/* Manga List Section */}
         <motion.section
           variants={containerVariants}
           initial="hidden"
@@ -378,32 +329,16 @@ export default function Home() {
           className="py-12 md:py-20 px-4"
         >
           <div className="container mx-auto">
-            <motion.h2
-              variants={itemVariants}
-              className="text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center"
-            >
-              Explore Manga Worlds
-            </motion.h2>
-
             {isLoading ? (
-              <motion.div
-                variants={fadeInVariants}
-                className="text-center py-8"
-              >
+              <motion.div variants={fadeInVariants} className="text-center py-8">
                 Loading...
               </motion.div>
             ) : error ? (
-              <motion.div
-                variants={fadeInVariants}
-                className="text-center py-8 text-red-500"
-              >
+              <motion.div variants={fadeInVariants} className="text-center py-8 text-red-500">
                 {error}
               </motion.div>
             ) : (
-              <motion.div
-                variants={containerVariants}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8"
-              >
+              <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
                 <AnimatePresence>
                   {filteredMangaList.map((manga) => (
                     <motion.div
@@ -479,7 +414,7 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* Call to Action with Animation */}
+        {/* Call to Action Section */}
         <motion.section
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
