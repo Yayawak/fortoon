@@ -47,6 +47,7 @@ export interface User {
   credit: number;
   age: number;
   displayName: string;
+  profilePicUrl: string
 }
 
 export interface AuthContextType {

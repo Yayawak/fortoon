@@ -11,11 +11,12 @@ cloudinary.config({
 
 export const uploadImage = async (file: File, filename: string): Promise<IStandardResponse> => {
     let stdRes: IStandardResponse = {};
+    // console.log(file)
 
     try {
           // Remove file extension from filename
         // const filenameWithoutExtension = filename.replace(/\.[^/.]+$/, "");
-        const exts = ['jpg', 'png', 'jpeg', 'avif', 'webp']
+        const exts = ['jpg', 'png', 'jpeg', 'avif', 'webp', 'jpeg']
         exts.forEach(ext => {
             filename = filename.replace(`.${ext}`, '')
         });
@@ -32,6 +33,9 @@ export const uploadImage = async (file: File, filename: string): Promise<IStanda
         let msg = `Successfully uploaded image named [${filename}] to Cloudinary`.green;
         stdRes.status = 200;
         stdRes.msg = msg;
+        stdRes.data = {
+            newFilename: filename
+        };
         console.log(msg);
         console.log(uploadResult);
     } catch (error) {
