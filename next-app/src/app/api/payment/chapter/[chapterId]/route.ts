@@ -22,8 +22,9 @@ export async function POST(req: NextRequest, { params }: { params: { chapterId: 
         const [chapterResult] = await dbConnection.query<RowDataPacket[]>(`
             SELECT price, storyId FROM Chapter WHERE cId = ?
         `, [chapterId]);
+        // console.log(chapterResult)
 
-        if (!chapterResult.length) {
+        if (chapterResult.length == 0) {
             return NextResponse.json({ msg: "Chapter not found" }, { status: 404 });
         }
 
@@ -48,7 +49,8 @@ export async function POST(req: NextRequest, { params }: { params: { chapterId: 
             SELECT * FROM StoryChapterPermission WHERE chapterId = ? AND userId = ?
         `, [chapterId, userId]);
 
-        if (permissionResult.length) {
+        if (permissionResult.length > 0) {
+            // console.log(permissionResult)
             return NextResponse.json({ msg: "Chapter already purchased or accessible" }, { status: 400 });
         }
 

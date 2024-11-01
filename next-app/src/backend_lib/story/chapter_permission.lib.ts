@@ -3,11 +3,13 @@ import { RowDataPacket } from 'mysql2';
 
 export async function hasReadPermission(readerId: string, chapterId: string): Promise<boolean> {
     // First, check if the chapter is free
+    // console.log(chapterId)
     const [chapterResult] = await dbConnection.query<RowDataPacket[]>(`
         SELECT price FROM Chapter 
         WHERE cId = ?
     `, [chapterId]);
 
+    // console.log(chapterResult)
     // If chapter not found, return false
     if (chapterResult.length === 0) {
         return false; 
