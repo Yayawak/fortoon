@@ -2,23 +2,28 @@ import { dbConnection } from '@/db/dbConnector';
 import { RowDataPacket } from 'mysql2';
 
 export async function hasReadPermission(readerId: string, chapterId: string): Promise<boolean> {
-    // First, check if the chapter is free
-    // console.log(chapterId)
+    // First, check if the chapter is free or if reader is the owner
     const [chapterResult] = await dbConnection.query<RowDataPacket[]>(`
-        SELECT price FROM Chapter 
-        WHERE cId = ?
+        SELECT c.price, s.authorId 
+        FROM Chapter c
+        JOIN Story s ON c.storyId = s.sId
+        WHERE c.cId = ?
     `, [chapterId]);
 
-    // console.log(chapterResult)
     // If chapter not found, return false
     if (chapterResult.length === 0) {
         return false; 
     }
 
-    const chapterPrice = chapterResult[0].price;
+    const { price, authorId } = chapterResult[0];
+
+    // If reader is the author, grant permission
+    if (authorId === readerId) {
+        return true;
+    }
 
     // If the chapter is free, grant permission
-    if (chapterPrice === 0) {
+    if (price === 0) {
         return true;
     }
 
