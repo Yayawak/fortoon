@@ -15,10 +15,10 @@ export const uploadImage = async (file: File, filename: string): Promise<IStanda
     try {
           // Remove file extension from filename
         // const filenameWithoutExtension = filename.replace(/\.[^/.]+$/, "");
-        // const exts = ['jpg', 'png', 'jpeg', 'avif', 'webp']
-        // exts.forEach(ext => {
-        //     filename = filename.replace(`.${ext}`, '')
-        // });
+        const exts = ['jpg', 'png', 'jpeg', 'avif', 'webp']
+        exts.forEach(ext => {
+            filename = filename.replace(`.${ext}`, '')
+        });
 
         // Convert file to base64 for uploading
         const buffer = Buffer.from(await file.arrayBuffer());

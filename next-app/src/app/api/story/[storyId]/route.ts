@@ -11,7 +11,8 @@ import {
     fetchStoryChapters, 
     fetchStoryGenres, 
     processChaptersWithImages, 
-    updateStoryDetails
+    updateStoryDetails,
+    checkStoryOwnership
 } from './story.id.helper';
 import { uploadImage } from '@/backend_lib/image_uploading/image_upload.lib';
 import { setStandardImageName } from '@/backend_lib/image_uploading/image_namer.lib';
@@ -123,6 +124,42 @@ export async function PUT(req: NextRequest, { params }: { params: { storyId: str
         stdRes.msg = "Error updating story.";
         stdRes.msg2 = error.message;
         console.log(stdRes);
+        return NextResponse.json(stdRes, { status: 500 });
+    }
+}
+
+// delete story
+export async function DELETE(req: NextRequest, { params }: { params: { storyId: string } }) {
+    const { storyId } = params;
+    const storyIdNumber = Number(storyId);
+    const stdRes: IStandardResponse = {};
+
+    // Verify the user's token
+    const verifiedRes = await verifyToken(req);
+    if (verifiedRes.status !== 200) {
+        return NextResponse.json(verifiedRes, { status: verifiedRes.status });
+    }
+
+    const userId = verifiedRes.data.uId;
+
+    try {
+        const isOwner = await checkStoryOwnership(storyIdNumber, userId);
+        if (!isOwner) {
+            stdRes.msg = "Story not found or you don't have permission to delete it.";
+            return NextResponse.json(stdRes, { status: 403 });
+        }
+
+        await dbConnection.execute(`
+            DELETE FROM Story WHERE sId = ?
+        `, [storyIdNumber]);
+
+        stdRes.msg = "Story deleted successfully";
+        return NextResponse.json(stdRes, { status: 200 });
+
+    } catch (error: any) {
+        stdRes.msg = "Error deleting story.";
+        stdRes.msg2 = error.message;
+        console.error(error);
         return NextResponse.json(stdRes, { status: 500 });
     }
 }

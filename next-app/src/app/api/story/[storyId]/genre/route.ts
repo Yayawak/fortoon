@@ -1,6 +1,6 @@
 import { dbConnection } from "@/db/dbConnector";
 import { verifyToken } from "@/backend_lib/auth/auth.cookie";
-import { genreUpdateSchema } from "@/backend_lib/genre.lib";
+import { genreUpdateSchema, validateGenreIds } from "@/backend_lib/genre.lib";
 import { IStandardResponse } from "@/types/IApiCommunication";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -54,23 +54,15 @@ export async function PUT(req: NextRequest, { params }: { params: { storyId: str
         }
 
         // Step 4: Validate that the provided genreIds exist in the Genre table
-        if (newGenreIds.length > 0) {
-            const [validGenresRs] = await dbConnection.query<any[]>(
-                `SELECT gId FROM Genre WHERE gId IN (?)`,
-                [newGenreIds]
-            );
-
-            const validGenreIds = validGenresRs.map(row => row.gId);
-            const invalidGenreIds = newGenreIds.filter(id => !validGenreIds.includes(id));
-
-            if (invalidGenreIds.length > 0) {
-                stdRes = {
-                    msg: "Invalid genre IDs detected",
-                    msg2: `The following genre IDs are not valid and do not exist in the Genre table: ${invalidGenreIds.join(", ")}`
-                };
-                return NextResponse.json(stdRes, { status: 400 });
-            }
+        const validation = await validateGenreIds(newGenreIds);
+        if (!validation.valid) {
+            stdRes = {
+                msg: "Invalid genre IDs detected",
+                msg2: `The following genre IDs are not valid and do not exist in the Genre table: ${validation.invalidIds.join(", ")}`
+            };
+            return NextResponse.json(stdRes, { status: 400 });
         }
+
         // Step 5: Retrieve the current genre IDs for the story
         const [currentGenresRs] = await dbConnection.query<any[]>(
             `SELECT genreId FROM StoryGenre WHERE storyId = ?`,

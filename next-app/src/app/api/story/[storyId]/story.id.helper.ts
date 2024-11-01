@@ -104,4 +104,12 @@ export async function processChaptersWithImages(chapters: RowDataPacket[], isAno
     }));
 }
 
+export async function checkStoryOwnership(storyId: number, userId: string) {
+    const [ownershipCheckRes] = await dbConnection.execute<RowDataPacket[]>(`
+        SELECT * FROM Story WHERE sId = ? AND authorId = ?
+    `, [storyId, userId]);
+
+    return ownershipCheckRes.length > 0;
+}
+
 

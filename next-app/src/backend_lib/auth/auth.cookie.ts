@@ -30,7 +30,7 @@ export async function verifyToken(req: NextRequest): Promise<IStandardResponse> 
         // Verify the token
         // const  payload = jwt.verify(cookie, JWT_SECRET);
         const payload = verifyByTokenValue(cookie)
-        console.log(payload)
+        // console.log(payload)
         return {
             status: 200,
             msg: 'Token verified successfully',

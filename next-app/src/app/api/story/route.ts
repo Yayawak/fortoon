@@ -10,6 +10,7 @@ import { RowDataPacket } from "mysql2";
 import { NextApiRequest } from "next";
 import { NextRequest, NextResponse } from "next/server";
 import { uploadImage } from "@/backend_lib/image_uploading/image_upload.lib";
+import { genreUpdateSchema, validateGenreIds } from "@/backend_lib/genre.lib";
 
 
 
@@ -78,12 +79,14 @@ export async function POST(req: NextRequest) {
     }
 
     const verifiedRes = await verifyToken(req);
+    // console.log(verifiedRes)
     if (verifiedRes.status !== 200) {
         return NextResponse.json({
             msg: verifiedRes.msg
         }, { status: verifiedRes.status });
     }
     const authorId = verifiedRes.data.uId
+
 
     let parsed = null
     let formData: FormData
@@ -98,51 +101,101 @@ export async function POST(req: NextRequest) {
                 status: 400
             })
         }
-        // console.log(typeof formData)
+        // console.log(typeof formData
         // console.log(formData)
         // console.log(formData.get("age"))
         const jsonObject = formDataToJsonObject(formData)
-        console.log(jsonObject)
-        parsed = postStoryScheme.parse(jsonObject)
-        // const coverImageFile = formData.get("coverImage") as File
+        
+        // Parse genreIds from FormData
+        const genreIdsStr = formData.get("genreIds") as string
+        if (genreIdsStr) {
+            jsonObject.genreIds = JSON.parse(genreIdsStr).map(Number)
+        }
 
-        // console.log("cover image")
-        // console.log(coverImageFile)
+        // console.log(jsonObject)
+        
+        parsed = postStoryScheme.safeParse(jsonObject)
+        // console.log(parsed.data?.genreIds)
 
-        // let filename = coverImageFile.name
-        // const file: File = parsed.profilePic as unknown as File;
         const coverImage = formData.get("coverImage") as File
         const curr = new Date()
         const filename = `storyCover-${curr.toString()}-${coverImage.name}`
         console.log("**************")
         console.log(`${filename}`.bgRed)
 
+        if (!parsed.success) {
+            stdRes = {
+                msg: "Invalid parsing data",
+                msg2: parsed.error.issues
+            };
+            // console.log(parsed.error)
+            // console.log("ready to return")
+            return NextResponse.json(stdRes, { status: 400 });
+        }
+
+        const newGenreIds = parsed.data.genreIds;
+        console.log(newGenreIds)
+        // Step 4: Validate that the provided genreIds exist in the Genre table
+        const validation = await validateGenreIds(newGenreIds);
+        console.log(validation)
+
+        if (!validation.valid) {
+            stdRes = {
+                msg: "Invalid genre IDs detected",
+                msg2: `The following genre IDs are not valid and do not exist in the Genre table: ${validation.invalidIds.join(", ")}`
+            };
+            return NextResponse.json(stdRes, { status: 400 });
+        }
+
         await uploadImage(coverImage, filename)
 
+        console.log("ready to insert".america)
+
         try {
-            await dbConnection.execute(`
-                insert into Story (
+            // Start a transaction
+            await dbConnection.beginTransaction();
+
+            // Insert the story
+            const [result] = await dbConnection.execute(`
+                INSERT INTO Story (
                     authorId,
                     title,
                     introduction,
                     coverImageUrl
                 )
-                    values
-                (
-                    '${authorId}',
-                    '${parsed.title}',
-                    '${parsed.introduction}',
-                    '${filename}'
-                );
-            `)
+                VALUES (?, ?, ?, ?)
+            `, [authorId, parsed.data.title, parsed.data.introduction, filename]);
+
+            // console.log(result)
+            // Get the newly inserted story ID
+            const storyId = (result as any).insertId;
+
+
+            // If we have valid genres, insert them
+            const genreIds = parsed.data.genreIds;
+            // Insert genre relationships
+            for (const genreId of genreIds) {
+                await dbConnection.execute(`
+                        INSERT INTO StoryGenre (storyId, genreId)
+                        VALUES (?, ?)
+                    `, [storyId, genreId]);
+            }
+
+            // Commit the transaction
+            await dbConnection.commit();
+
             stdRes = {
-                msg: "successly created a story.",
+                msg: "Successfully created a story with genres.",
+                data: { storyId }
             }
             return NextResponse.json(stdRes, {
                 status: 200
             })
 
         } catch (error: any) {
+            // Rollback the transaction in case of error
+            await dbConnection.rollback();
+
             console.error(`${error}`.bgRed)
             stdRes = {
                 msg: "error creating new Story",
