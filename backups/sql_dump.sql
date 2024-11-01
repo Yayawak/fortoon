@@ -460,7 +460,7 @@ CREATE TABLE `Story` (
 
 LOCK TABLES `Story` WRITE;
 /*!40000 ALTER TABLE `Story` DISABLE KEYS */;
-INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'storyCover-Solo-Leveling-Ragnarok_Cover.png-2024-10-23T14:16:32.863Z',3.5,0),(23,'demon slayee','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'storyCover-yone-2024-11-02T02-43-37-655Z',5,0),(44,'Tokyo Ghoul','ในเงามืดของโตเกียวมีสิ่งมีชีวิตน่ากลัวที่รู้จักกันในนาม “กูล” พวกมันสนองความหิวด้วยการกินมนุษย์เมื่อยามค่ำคืนมาเยือน เคน คาเนกิ นักศึกษามหาวิทยาลัยปีหนึ่งที่ไร้เดียงสา ต้องพบว่าตนเองติดอยู่ในโลกที่ก้ำกึ่งระหว่างมนุษย์และกูล เมื่อเขาพบว่าคู่เดตของเขาแท้จริงแล้วเป็นกูลที่ต้องการกินเนื้อของเขา','2024-11-01 13:05:37',2,'storyCover-Fri Nov 01 2024 13:05:36 GMT+0000 (Coordinated Universal Time)-01.jpg',0,0),(45,'A','A','2024-11-01 13:18:40',2,'storyCover-Fri Nov 01 2024 13:18:36 GMT+0000 (Coordinated Universal Time)-02.jpg',0,0),(47,'junji ','รวมเรื่องสั้นสุดยอดโดยปรมาจารย์แห่งมังงะสยองขวัญ\n\nเล่มนี้รวบรวมเก้าเรื่องสั้นยอดเยี่ยมของจุนจิ อิโต้ที่ได้รับการคัดสรรโดยผู้แต่งเอง พร้อมด้วยบันทึกและคำอธิบายประกอบ จากหน้าต่างของหญิงสาวป่วย สายตาของคุณจดจ่อกับแขนที่เต็มไปด้วยรูเล็ก ๆ… หลังจากไอดอลคนหนึ่งแขวนคอตัวเอง ลูกโป่งที่มีใบหน้าปรากฏขึ้นบนท้องฟ้า และบางลูกก็มีใบหน้าของคุณเอง… ทีมถ่ายภาพยนตร์สมัครเล่นจ้างนางแบบที่มีสไตล์เฉพาะตัวอย่างยิ่งและต้องพบจุดจบที่นองเลือด… นำเสนอเก้าฝันร้ายใหม่ ๆ สำหรับความบันเทิงของแฟน ๆ สยองขวัญ','2024-11-01 15:38:22',2,'storyCover-Fri Nov 01 2024 15:38:17 GMT+0000 (Coordinated Universal Time)-01.jpg',0,0);
+INSERT INTO `Story` VALUES (1,'Solo Leveling Ragnarok','[จากสตูดิโอ Redice ผู้สร้าง !] การดำรงอยู่ของโลกกำลังตกอยู่ในอันตรายอีกครั้ง เมื่ออิทาริมเทพเจ้าจากจักรวาลอื่น พยายามจะเติมเต็มความว่างเปล่าที่สิ่งมีชีวิตสมบูรณ์ทิ้งไว้ ซองจินอูไม่มีทางเลือกอื่นนอกจากต้องส่งเบรู ราชามดเงา ไปปลุกพลังของลูกชายของเขาและเริ่มต้นการเดินทางที่เขาเคยย่ำมาก่อน ซูโฮต้องพิชิตดันเจี้ยนเงาและพิสูจน์ตัวเองในโลกแห่งฮันเตอร์ในขณะที่เขาเดินทางผ่านโลกใหม่เพื่อต่อสู้กับปีศาจร้ายตัวใหม่ที่ต้องการกลืนกินโลกทั้งใบ','2024-09-26 15:19:00',1,'storyCover-Solo-Leveling-Ragnarok_Cover.png-2024-10-23T14:16:32.863Z',3.5,0),(23,'demon slayer','Learning to destroy demons won’t be easy, and Tanjiro barely knows where to start. The surprise appearance of another boy named Giyu, who seems to know what’s going on, might provide some answers?but only if Tanjiro can stop Giyu from killing his sister first!','2024-10-12 10:29:55',2,'storyCover-02-2024-11-02T03-18-58-988Z',5,0),(44,'Tokyo Ghoul','ในเงามืดของโตเกียวมีสิ่งมีชีวิตน่ากลัวที่รู้จักกันในนาม “กูล” พวกมันสนองความหิวด้วยการกินมนุษย์เมื่อยามค่ำคืนมาเยือน เคน คาเนกิ นักศึกษามหาวิทยาลัยปีหนึ่งที่ไร้เดียงสา ต้องพบว่าตนเองติดอยู่ในโลกที่ก้ำกึ่งระหว่างมนุษย์และกูล เมื่อเขาพบว่าคู่เดตของเขาแท้จริงแล้วเป็นกูลที่ต้องการกินเนื้อของเขา','2024-11-01 13:05:37',2,'storyCover-Fri Nov 01 2024 13:05:36 GMT+0000 (Coordinated Universal Time)-01.jpg',0,0),(45,'A','A','2024-11-01 13:18:40',2,'storyCover-Fri Nov 01 2024 13:18:36 GMT+0000 (Coordinated Universal Time)-02.jpg',0,0),(47,'junji ','รวมเรื่องสั้นสุดยอดโดยปรมาจารย์แห่งมังงะสยองขวัญ\n\nเล่มนี้รวบรวมเก้าเรื่องสั้นยอดเยี่ยมของจุนจิ อิโต้ที่ได้รับการคัดสรรโดยผู้แต่งเอง พร้อมด้วยบันทึกและคำอธิบายประกอบ จากหน้าต่างของหญิงสาวป่วย สายตาของคุณจดจ่อกับแขนที่เต็มไปด้วยรูเล็ก ๆ… หลังจากไอดอลคนหนึ่งแขวนคอตัวเอง ลูกโป่งที่มีใบหน้าปรากฏขึ้นบนท้องฟ้า และบางลูกก็มีใบหน้าของคุณเอง… ทีมถ่ายภาพยนตร์สมัครเล่นจ้างนางแบบที่มีสไตล์เฉพาะตัวอย่างยิ่งและต้องพบจุดจบที่นองเลือด… นำเสนอเก้าฝันร้ายใหม่ ๆ สำหรับความบันเทิงของแฟน ๆ สยองขวัญ','2024-11-01 15:38:22',2,'storyCover-Fri Nov 01 2024 15:38:17 GMT+0000 (Coordinated Universal Time)-01.jpg',0,0);
 /*!40000 ALTER TABLE `Story` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -509,7 +509,7 @@ CREATE TABLE `StoryGenre` (
   KEY `StoryGenre_Genre_FK` (`genreId`),
   CONSTRAINT `StoryGenre_Genre_FK` FOREIGN KEY (`genreId`) REFERENCES `Genre` (`gId`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `StoryGenre_Story_FK` FOREIGN KEY (`storyId`) REFERENCES `Story` (`sId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -518,7 +518,7 @@ CREATE TABLE `StoryGenre` (
 
 LOCK TABLES `StoryGenre` WRITE;
 /*!40000 ALTER TABLE `StoryGenre` DISABLE KEYS */;
-INSERT INTO `StoryGenre` VALUES (6,23,1),(7,23,2),(8,23,4);
+INSERT INTO `StoryGenre` VALUES (30,23,1),(31,23,2),(32,23,4),(33,23,3),(34,23,14);
 /*!40000 ALTER TABLE `StoryGenre` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -568,4 +568,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-01 20:01:41
+-- Dump completed on 2024-11-01 20:21:41

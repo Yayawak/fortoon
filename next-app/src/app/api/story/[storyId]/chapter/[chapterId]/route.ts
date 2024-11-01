@@ -51,6 +51,16 @@ export async function PUT(req: NextRequest, { params }: { params: { chapterId: s
     // Get and validate form data
     const images = formData.getAll("imageChapterFiles");
     const chapterName = formData.get("chapterName");
+    const price = formData.get("price")
+
+    let priceNumber : Number | null = null;
+    if (price) {
+        try {
+            priceNumber = Number(price);
+        } catch (error) {
+            priceNumber = 0
+        }
+    }
 
     if (!chapterName) {
         stdRes.msg = "Chapter name is required";
@@ -75,9 +85,10 @@ export async function PUT(req: NextRequest, { params }: { params: { chapterId: s
         // Update chapter name
         await dbConnection.query<ResultSetHeader>(`
             UPDATE Chapter 
-            SET name = ?
+            SET name = ?,
+                price = ?
             WHERE cId = ?
-        `, [chapterName, chapterId]);
+        `, [chapterName, priceNumber, chapterId]);
 
         // Handle image updates if provided
         if (images.length > 0) {
