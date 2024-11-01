@@ -244,8 +244,8 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               className="mb-8 lg:mb-12"
             >
-              <h1 className="text-5xl lg:text-4xl font-bold text-white">
-                การ์ตูนยอดนิยม
+              <h1 className="text-6xl  font-bold text-white">
+                Hot Manga 🔥
               </h1>
             </motion.div>
 

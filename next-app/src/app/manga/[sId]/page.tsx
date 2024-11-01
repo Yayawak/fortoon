@@ -29,9 +29,9 @@ import {
 import { useRouter } from 'next/navigation';
 
 // Add this new component for the review card
-const ReviewCard = ({ review, onEdit, isAuthor, theme }: {
-  review: Review;
-  onEdit: () => void;
+const ReviewCard = ({ review, onEdit, isAuthor, theme }: { 
+  review: Review; 
+  onEdit: () => void; 
   isAuthor: boolean;
   theme: string;
 }) => (
@@ -55,8 +55,9 @@ const ReviewCard = ({ review, onEdit, isAuthor, theme }: {
               {[...Array(5)].map((_, index) => (
                 <Star
                   key={index}
-                  className={`w-4 h-4 ${index < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
-                    }`}
+                  className={`w-4 h-4 ${
+                    index < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
+                  }`}
                 />
               ))}
             </div>
@@ -73,8 +74,8 @@ const ReviewCard = ({ review, onEdit, isAuthor, theme }: {
           onClick={onEdit}
           className={`
             hover:text-white
-            ${theme === "dark"
-              ? "hover:bg-gray-700 text-white"
+            ${theme === "dark" 
+              ? "hover:bg-gray-700 text-white" 
               : "hover:bg-blue-500 text-gray-900"
             }
           `}
@@ -83,8 +84,9 @@ const ReviewCard = ({ review, onEdit, isAuthor, theme }: {
         </Button>
       )}
     </div>
-    <p className={`mt-4 ${theme === "dark" ? "text-gray-300" : "text-gray-600"
-      }`}>
+    <p className={`mt-4 ${
+      theme === "dark" ? "text-gray-300" : "text-gray-600"
+    }`}>
       {review.review}
     </p>
   </div>
@@ -141,9 +143,9 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         // 3. Chapter has images (meaning it's purchased)
         mangaData.chapters = mangaData.chapters.map((chapter: Chapter) => ({
           ...chapter,
-          hasAccess:
-            user?.uId === mangaData.authorId ||
-            chapter.price === 0 ||
+          hasAccess: 
+            user?.uId === mangaData.authorId || 
+            chapter.price === 0 || 
             (chapter.images && chapter.images.length > 0)
         }));
 
@@ -300,9 +302,9 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     }
   };
 
-  const ReviewForm = ({ onSubmit, initialData = null }: {
-    onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>,
-    initialData?: Review | null
+  const ReviewForm = ({ onSubmit, initialData = null }: { 
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>, 
+    initialData?: Review | null 
   }) => (
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
@@ -349,8 +351,8 @@ export default function MangaDetail({ params }: MangaDetailProps) {
           )}
         </div>
       </div>
-      <Button
-        type="submit"
+      <Button 
+        type="submit" 
         disabled={isSubmitting}
         className="w-full"
       >
@@ -367,37 +369,30 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   );
 
   // Helper function to extract error message from API response
-  const getErrorMessage = (error: unknown): string => {
+  const getErrorMessage = (error: any): string => {
     if (typeof error === 'string') return error;
-
-    if (error && typeof error === 'object' && 'msg' in error) {
-      const errorObj = error as { msg: string };
-      switch (errorObj.msg) {
+    
+    // Handle specific API error messages
+    if (error.msg) {
+      switch (error.msg) {
         case "You cannot review your own story.":
           return "You cannot review your own story";
         case "You have already reviewed this story.":
           return "You have already reviewed this story";
         default:
-          return errorObj.msg;
+          return error.msg;
       }
     }
-
+    
     // Handle ZodError
-    if (
-      error && 
-      typeof error === 'object' && 
-      'name' in error && 
-      'issues' in error && 
-      Array.isArray(error.issues) && 
-      error.issues.length > 0
-    ) {
+    if (error.name === 'ZodError' && error.issues?.length > 0) {
       const firstIssue = error.issues[0];
       if (firstIssue.code === 'too_small' && firstIssue.type === 'string') {
         return `Review must be at least ${firstIssue.minimum} characters long`;
       }
       return firstIssue.message || 'Invalid input provided';
     }
-
+    
     return 'An unexpected error occurred';
   };
 
@@ -425,7 +420,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
             if (!prev) return prev;
             return {
               ...prev,
-              chapters: prev.chapters.map(ch =>
+              chapters: prev.chapters.map(ch => 
                 ch.cId === chapterId ? { ...ch, hasAccess: true } : ch
               )
             };
@@ -445,7 +440,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         if (!prev) return prev;
         return {
           ...prev,
-          chapters: prev.chapters.map(ch =>
+          chapters: prev.chapters.map(ch => 
             ch.cId === chapterId ? { ...ch, hasAccess: true } : ch
           )
         };
@@ -509,10 +504,10 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   const handleEditClick = () => {
     if (!isEditing && manga) {
       // Convert manga genres to array of gIds
-      const currentGenreIds = manga.genres.map((genre: any) =>
+      const currentGenreIds = manga.genres.map((genre: any) => 
         typeof genre === 'object' ? genre.gId : genre
       );
-
+      
       setEditForm({
         title: manga.title,
         introduction: manga.introduction,
@@ -533,17 +528,16 @@ export default function MangaDetail({ params }: MangaDetailProps) {
 
   const handleUpdateManga = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    
     try {
+      // First update the basic manga details
       const formData = new FormData(e.currentTarget);
-
+      
       // Clear any existing genres from FormData
       formData.delete('genres');
-
-      // Add each genre ID as a separate entry
-      editForm.genres.forEach(genreId => {
-        formData.append('genreIds', genreId.toString());
-      });
+      
+      // Add genres as a string array
+      formData.append('genreIds', `[${editForm.genres.join(',')}]`);
 
       // Handle cover image
       const coverImageInput = e.currentTarget.querySelector('input[name="coverImage"]') as HTMLInputElement;
@@ -557,22 +551,41 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Failed to update manga');
+      if (!response.ok) throw new Error('Failed to update manga details');
 
-      const updatedManga = await response.json();
-      setManga(updatedManga.data);
+      // Update genres using JSON
+      const genreResponse = await fetch(`/api/story/${params.sId}/genre`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          genreIds: editForm.genres.map(Number)  // Ensure all IDs are numbers
+        }),
+      });
+
+      if (!genreResponse.ok) {
+        const errorData = await genreResponse.json();
+        throw new Error(errorData.msg || 'Failed to update genres');
+      }
+
+      // Fetch the updated manga data
+      const updatedMangaResponse = await fetch(`/api/story/${params.sId}`);
+      const updatedMangaData = await updatedMangaResponse.json();
+      setManga(updatedMangaData);
+      
       setIsEditing(false);
-
+      
       toast({
         title: "Success",
         description: "Manga updated successfully",
       });
 
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to update manga",
+        description: error.message || "Failed to update manga",
         variant: "destructive"
       });
     }
@@ -595,7 +608,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
 
       setIsDeleteDialogOpen(false);
       setChapterToDelete(null);
-
+      
       toast({
         title: "Success",
         description: "Chapter deleted successfully",
@@ -610,477 +623,521 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   };
 
   return (
-    <div
-      className={`min-h-screen ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
-        }`}
-    >
-      <div className="container mx-auto px-4 py-8">
-        {manga && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left Panel */}
-            <div className="space-y-4">
-              {/* Manga Cover Image */}
-              <div className="bg-white rounded-lg shadow-md p-4">
-                {manga?.coverImageUrl && (
-                  <CldImage
-                    src={manga.coverImageUrl}
-                    width={300}
-                    height={400}
-                    alt={manga.title}
-                    className="w-full h-auto"
-                  />
-                )}
-              </div>
-
-              {/* Date and Author Info */}
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-5 h-5 text-gray-400 mr-2" />
-                  <span className="font-semibold">
-                    {new Date(manga.postedDatetime).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex items-center text-sm text-gray-500">
-                  <Book className="w-4 h-4 mr-2" />
-                  <span>{manga.authorDisplayName}</span>
-                </div>
-
-                {/* Buttons Container */}
-                <div className="flex flex-col space-y-2 mt-4">
-                  <button
-                    onClick={() => router.push(`/manga/${params.sId}/chapter/1`)}
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                  >
-                    Start Reading
-                  </button>
-                  
-                  {user?.uId == manga.authorId && (
-                    <button
-                      onClick={() => router.push(`/manga/${params.sId}/edit`)}
-                      className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
-                    >
-                      Edit Manga
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Middle Panel */}
-            <div className="md:w-2/3">
-              <h1 className="text-4xl font-bold mb-2">{manga.title}</h1>
-              <p className="text-gray-500 mb-6">by {manga.authorDisplayName}</p>
-
-              <Tabs defaultValue="description" className="w-full">
-                <TabsList>
-                  <TabsTrigger value="description">Description</TabsTrigger>
-                  <TabsTrigger value="chapters">Chapters</TabsTrigger>
-                  <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="description" className="mt-4">
-                  <p className="text-lg leading-relaxed whitespace-pre-line">
-                    {manga.introduction}
-                  </p>
-                </TabsContent>
-
-                <TabsContent value="chapters" className="mt-4">
-                  {user?.uId === manga.authorId && (
-                    <Button
-                      onClick={() => {
-                        router.push(`/manga/${manga.sId}/create-chapter`);
-                      }}
-                      className="mb-4"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Chapter
-                    </Button>
-                  )}
-
-                  <div className="space-y-4">
-                    {manga.chapters &&
-                      manga.chapters.map((chapter) => (
-                        <div
-                          key={chapter.cId}
-                          className={`p-4 rounded-lg transition-colors ${theme === "dark" ? "bg-gray-800/50" : "bg-white"
-                            } shadow-md`}
-                        >
-                          <div className="flex justify-between items-center">
-                            <div className="flex-1">
-                              <h3 className="text-xl font-semibold">
-                                Chapter {chapter.chapterSequence}: {chapter.name || "Untitled"}
-                              </h3>
-                              <div className="flex items-center mt-2 space-x-4 text-sm">
-                                {chapter.price > 0 ? (
-                                  <span className="font-bold text-green-500">
-                                    ${chapter.price.toFixed(2)}
-                                  </span>
-                                ) : (
-                                  <span className="text-green-500">Free</span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {user?.uId === manga.authorId && (
-                                <>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      console.log("Edit button clicked");
-                                      console.log("Chapter ID:", chapter.cId);
-                                      console.log("Manga ID:", manga.sId);
-                                      const editUrl = `/manga/${manga.sId}/chapter/${chapter.cId}/edit-chapter`;
-                                      console.log("Navigation URL:", editUrl);
-                                      router.push(editUrl);
-                                    }}
-                                  >
-                                    <Pencil className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      setChapterToDelete(chapter.cId);
-                                      setIsDeleteDialogOpen(true);
-                                    }}
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </>
-                              )}
-                              {chapter.price > 0 && !chapter.hasAccess && user?.uId !== manga.authorId && (
-                                <Button
-                                  onClick={() => handlePurchaseChapter(chapter.cId, chapter.price)}
-                                  disabled={isPurchasing}
-                                  variant="secondary"
-                                  className="flex items-center gap-2"
-                                >
-                                  {isPurchasing ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : null}
-                                  Purchase
-                                </Button>
-                              )}
-                              {(chapter.price === 0 || chapter.hasAccess) && (
-                                <Button asChild>
-                                  <Link href={`/manga/${manga.sId}/chapter/${chapter.cId}`}>
-                                    Read Now
-                                    <ChevronRight className="w-5 h-5 ml-1" />
-                                  </Link>
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="reviews" className="mt-4">
-                  <div className="space-y-8">
-                    <div className={`
-                      p-6 rounded-lg shadow-md
-                      ${theme === "dark" ? "bg-gray-800/50" : "bg-white"}
-                    `}>
-                      <div className="flex items-center justify-between mb-6">
-                        <div>
-                          <h2 className="text-2xl font-bold">Reviews</h2>
-                          <p className={`mt-1 ${theme === "dark" ? "text-gray-400" : "text-gray-500"
-                            }`}>
-                            Share your thoughts about this story
-                          </p>
-                        </div>
-                        {/* Only show review button if user is logged in AND not the author */}
-                        {user && user.uId !== manga.authorId && (
-                          <Dialog
-                            open={isReviewDialogOpen}
-                            onOpenChange={setIsReviewDialogOpen}
-                          >
-                            <DialogTrigger asChild>
-                              <Button className="flex items-center space-x-2">
-                                <Plus className="w-4 h-4" />
-                                <span>Write a Review</span>
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className={`
-                              ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white"}
-                            `}>
-                              <DialogHeader>
-                                <DialogTitle className={theme === "dark" ? "text-white" : "text-gray-900"}>
-                                  {editingReview ? "Edit Review" : "Write a Review"}
-                                </DialogTitle>
-                                <DialogDescription className={
-                                  theme === "dark" ? "text-gray-400" : "text-gray-500"
-                                }>
-                                  {editingReview
-                                    ? "Update your review"
-                                    : `Share your thoughts about ${manga.title}`}
-                                </DialogDescription>
-                              </DialogHeader>
-                              <ReviewForm
-                                onSubmit={editingReview ? handleReviewUpdate : handleReviewSubmit}
-                                initialData={editingReview}
-                              />
-                            </DialogContent>
-                          </Dialog>
-                        )}
-                      </div>
-
-                      {/* Reviews list */}
-                      <div className="space-y-6">
-                        {reviews.length === 0 ? (
-                          <div className={`
-                            text-center py-12
-                            ${theme === "dark" ? "text-gray-400" : "text-gray-500"}
-                          `}>
-                            <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                            <p className="text-lg font-medium">No reviews yet</p>
-                            <p className="mt-1">Be the first to share your thoughts!</p>
-                          </div>
-                        ) : (
-                          reviews.map((review) => (
-                            <ReviewCard
-                              key={review.rsId}
-                              review={review}
-                              onEdit={() => {
-                                setEditingReview(review);
-                                setIsReviewDialogOpen(true);
-                              }}
-                              isAuthor={review.reviewerId === user?.uId}
-                              theme={theme}
-                            />
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </div>
-          </div>
-        )}
-      </div>
-
-
-
-      {/* Edit Form */}
-      {isEditing && user?.uId === manga?.authorId && (
-        <div className="container mx-auto px-4 py-4">
-          <form onSubmit={handleUpdateManga} className="space-y-6">
-            {/* Cover Image Selection */}
-            <div className="space-y-4">
-              <Label htmlFor="coverImage">Cover Image</Label>
-              <div className="flex flex-col items-center gap-4">
-                {/* Current Cover Image Preview */}
-                {manga!.coverImageUrl && (
-                  <div className="relative w-48 h-64 group">
-                    <CldImage
-                      src={manga!.coverImageUrl}
-                      width={192}
-                      height={256}
-                      alt="Current cover"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
-                      <p className="text-white text-sm">Current cover</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Hidden File Input */}
-                <input
-                  type="file"
-                  id="coverImage"
-                  name="coverImage"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      // Optional: Preview the selected image
-                      const reader = new FileReader();
-                      reader.onload = (e) => {
-                        const preview = document.getElementById('coverPreview') as HTMLImageElement;
-                        if (preview && e.target?.result) {
-                          preview.src = e.target.result as string;
-                          preview.style.display = 'block';
-                        }
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-
-                {/* Custom Button */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    document.getElementById('coverImage')?.click();
-                  }}
-                  className="w-48"
-                >
-                  <ImageIcon className="w-4 h-4 mr-2" />
-                  Select New Cover
-                </Button>
-
-                {/* New Image Preview */}
-                <img
-                  id="coverPreview"
-                  alt="New cover preview"
-                  className="w-48 h-64 object-cover rounded-lg hidden"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                name="title"
-                defaultValue={editForm.title}
-                className={theme === "dark" ? "bg-gray-700" : ""}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="introduction">Introduction</Label>
-              <Textarea
-                id="introduction"
-                name="introduction"
-                defaultValue={editForm.introduction}
-                className={`min-h-[200px] ${theme === "dark" ? "bg-gray-700" : ""}`}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className={`block mb-3 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                Genres
-              </Label>
-              {isLoadingGenres ? (
-                <div className="flex items-center space-x-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Loading genres...</span>
-                </div>
-              ) : genreError ? (
-                <div className="text-red-500">
-                  {genreError}
-                  <Button
-                    variant="link"
-                    onClick={() => {
-                      setIsLoadingGenres(true);
-                      setGenreError(null);
-                      fetchGenres();
-                    }}
-                    className="ml-2 text-blue-500"
-                  >
-                    Retry
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {availableGenres.map((genre) => (
-                    <div key={genre.gId} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id={`genre-${genre.gId}`}
-                        checked={editForm.genres.includes(genre.gId)}
-                        onChange={() => toggleGenre(genre.gId)}
-                        className={`w-4 h-4 rounded ${theme === 'dark'
-                            ? 'bg-gray-700 border-gray-600'
-                            : 'bg-white border-gray-300'
-                          }`}
-                      />
-                      <Label
-                        htmlFor={`genre-${genre.gId}`}
-                        className={`text-sm cursor-pointer ${theme === 'dark' ? 'text-white' : 'text-gray-900'
-                          }`}
-                      >
-                        {genre.genreName}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Preview section */}
-            {!isLoadingGenres && editForm.genres.length > 0 && (
-              <div className="mt-6 border-t pt-6">
-                <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'
-                  }`}>
-                  Selected Genres
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {editForm.genres.map((genreId) => {
-                    const genre = availableGenres.find(g => g.gId === genreId);
-                    return genre && (
-                      <span
-                        key={genre.gId}
-                        className={`px-3 py-1 rounded-full text-sm ${theme === 'dark'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-blue-500 text-white'
-                          }`}
-                      >
-                        {genre.genreName}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsEditing(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit">
-                Save Changes
-              </Button>
-            </div>
-          </form>
+    <div className="min-h-screen relative">
+      {/* Background Image with Gradient */}
+      {manga?.coverImageUrl && (
+        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/50 z-10" />
+          <CldImage
+            src={manga.coverImageUrl}
+            width={1920}
+            height={1080}
+            alt="background"
+            className="w-full h-full object-cover blur-md"
+          />
         </div>
       )}
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the chapter.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteChapter}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Content */}
+      <div className={`relative z-10 ${
+        theme === "dark" ? "bg-gray-900/80 text-white" : "bg-gray-50/80 text-gray-900"
+      }`}>
+        {manga ? (
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="md:w-1/3">
+                {manga.coverImageUrl && (
+                  <CldImage
+                    src={manga.coverImageUrl}
+                    width={500}
+                    height={700}
+                    alt={manga.title}
+                    className="w-full rounded-lg shadow-lg"
+                  />
+                )}
+                <div className="mt-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Calendar className="w-5 h-5 text-gray-400 mr-2" />
+                      <span className="font-semibold">
+                        {new Date(manga.postedDatetime).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {manga.chapters && manga.chapters.length > 0 && (
+                      <Button asChild>
+                        <Link
+                          href={`/manga/${manga.sId}/chapter/${manga.chapters[0].cId}`}
+                        >
+                          Start Reading
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Book className="w-4 h-4 mr-2" />
+                    <span>{manga.authorDisplayName}</span>
+                  </div>
+                </div>
+                {manga.genres && manga.genres.length > 0 && (
+                  <div className="mt-4">
+                    <h3 className={`font-semibold mb-2 ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}>
+                      Genres
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {manga.genres.map((genre: any, index: number) => (
+                        <span
+                          key={index}
+                          className={`px-3 py-1 rounded-full text-sm ${
+                            theme === "dark" 
+                              ? "bg-blue-600 text-white" 
+                              : "bg-blue-500 text-white"
+                          }`}
+                        >
+                          {typeof genre === 'object' ? genre.genreName : genre}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-      <AlertDialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Authentication Required</AlertDialogTitle>
-            <AlertDialogDescription>
-              Please login or register to purchase chapters.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Link href="/login">Login</Link>
-            </AlertDialogAction>
-            <AlertDialogAction asChild>
-              <Link href="/register">Register</Link>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <div className="md:w-2/3">
+                <h1 className="text-4xl font-bold mb-2">{manga.title}</h1>
+                <p className="text-gray-500 mb-6">by {manga.authorDisplayName}</p>
+
+                <Tabs defaultValue="description" className="w-full">
+                  <TabsList>
+                    <TabsTrigger value="description">Description</TabsTrigger>
+                    <TabsTrigger value="chapters">Chapters</TabsTrigger>
+                    <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="description" className="mt-4">
+                    <p className="text-lg leading-relaxed whitespace-pre-line">
+                      {manga.introduction}
+                    </p>
+                        {/* Author Edit Section */}
+      {user?.uId === manga?.authorId && (
+        <div className="container mx-auto px-4 py-4">
+          <Button
+            onClick={handleEditClick}
+            variant={isEditing ? "destructive" : "default"}
+            className="mb-4"
+          >
+            {isEditing ? "Cancel Edit" : "Edit Manga"}
+          </Button>
+        </div>
+      )}
+                  </TabsContent>
+
+                  <TabsContent value="chapters" className="mt-4">
+                    {user?.uId === manga.authorId && (
+                      <Button
+                        onClick={() => {
+                          router.push(`/manga/${manga.sId}/create-chapter`);
+                        }}
+                        className="mb-4"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Chapter
+                      </Button>
+                    )}
+                    
+                    <div className="space-y-4">
+                      {manga.chapters &&
+                        manga.chapters.map((chapter) => (
+                          <div
+                            key={chapter.cId}
+                            className={`p-4 rounded-lg transition-colors ${
+                              theme === "dark" ? "bg-gray-800/50" : "bg-white"
+                            } shadow-md`}
+                          >
+                            <div className="flex justify-between items-center">
+                              <div className="flex-1">
+                                <h3 className="text-xl font-semibold">
+                                  Chapter {chapter.chapterSequence}: {chapter.name || "Untitled"}
+                                </h3>
+                                <div className="flex items-center mt-2 space-x-4 text-sm">
+                                  {chapter.price > 0 ? (
+                                    <span className="font-bold text-green-500">
+                                      ${chapter.price.toFixed(2)}
+                                    </span>
+                                  ) : (
+                                    <span className="text-green-500">Free</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {user?.uId === manga.authorId && (
+                                  <>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        console.log("Edit button clicked");
+                                        console.log("Chapter ID:", chapter.cId);
+                                        console.log("Manga ID:", manga.sId);
+                                        const editUrl = `/manga/${manga.sId}/chapter/${chapter.cId}/edit-chapter`;
+                                        console.log("Navigation URL:", editUrl);
+                                        router.push(editUrl);
+                                      }}
+                                    >
+                                      <Pencil className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        setChapterToDelete(chapter.cId);
+                                        setIsDeleteDialogOpen(true);
+                                      }}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </>
+                                )}
+                                {chapter.price > 0 && !chapter.hasAccess && user?.uId !== manga.authorId && (
+                                  <Button
+                                    onClick={() => handlePurchaseChapter(chapter.cId, chapter.price)}
+                                    disabled={isPurchasing}
+                                    variant="secondary"
+                                    className="flex items-center gap-2"
+                                  >
+                                    {isPurchasing ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : null}
+                                    Purchase
+                                  </Button>
+                                )}
+                                {(chapter.price === 0 || chapter.hasAccess) && (
+                                  <Button asChild>
+                                    <Link href={`/manga/${manga.sId}/chapter/${chapter.cId}`}>
+                                      Read Now
+                                      <ChevronRight className="w-5 h-5 ml-1" />
+                                    </Link>
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="reviews" className="mt-4">
+                    <div className="space-y-8">
+                      <div className={`
+                        p-6 rounded-lg shadow-md
+                        ${theme === "dark" ? "bg-gray-800/50" : "bg-white"}
+                      `}>
+                        <div className="flex items-center justify-between mb-6">
+                          <div>
+                            <h2 className="text-2xl font-bold">Reviews</h2>
+                            <p className={`mt-1 ${
+                              theme === "dark" ? "text-gray-400" : "text-gray-500"
+                            }`}>
+                              Share your thoughts about this story
+                            </p>
+                          </div>
+                          {/* Only show review button if user is logged in AND not the author */}
+                          {user && user.uId !== manga.authorId && (
+                            <Dialog
+                              open={isReviewDialogOpen}
+                              onOpenChange={setIsReviewDialogOpen}
+                            >
+                              <DialogTrigger asChild>
+                                <Button className="flex items-center space-x-2">
+                                  <Plus className="w-4 h-4" />
+                                  <span>Write a Review</span>
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className={`
+                                ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white"}
+                              `}>
+                                <DialogHeader>
+                                  <DialogTitle className={theme === "dark" ? "text-white" : "text-gray-900"}>
+                                    {editingReview ? "Edit Review" : "Write a Review"}
+                                  </DialogTitle>
+                                  <DialogDescription className={
+                                    theme === "dark" ? "text-gray-400" : "text-gray-500"
+                                  }>
+                                    {editingReview
+                                      ? "Update your review"
+                                      : `Share your thoughts about ${manga.title}`}
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <ReviewForm
+                                  onSubmit={editingReview ? handleReviewUpdate : handleReviewSubmit}
+                                  initialData={editingReview}
+                                />
+                              </DialogContent>
+                            </Dialog>
+                          )}
+                        </div>
+
+                        {/* Reviews list */}
+                        <div className="space-y-6">
+                          {reviews.length === 0 ? (
+                            <div className={`
+                              text-center py-12
+                              ${theme === "dark" ? "text-gray-400" : "text-gray-500"}
+                            `}>
+                              <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                              <p className="text-lg font-medium">No reviews yet</p>
+                              <p className="mt-1">Be the first to share your thoughts!</p>
+                            </div>
+                          ) : (
+                            reviews.map((review) => (
+                              <ReviewCard
+                                key={review.rsId}
+                                review={review}
+                                onEdit={() => {
+                                  setEditingReview(review);
+                                  setIsReviewDialogOpen(true);
+                                }}
+                                isAuthor={review.reviewerId === user?.uId}
+                                theme={theme}
+                              />
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="container mx-auto px-4 py-8">
+            <p>Loading...</p>
+          </div>
+        )}
+
+        {/* Edit Form */}
+        {isEditing && user?.uId === manga?.authorId && (
+          <div className="container mx-auto px-4 py-4">
+            <form onSubmit={handleUpdateManga} className="space-y-6">
+              {/* Cover Image Selection */}
+              <div className="space-y-4">
+                <Label htmlFor="coverImage">Cover Image</Label>
+                <div className="flex flex-col items-center gap-4">
+                  {/* Current Cover Image Preview */}
+                  {manga ? manga?.coverImageUrl && (
+                    <div className="relative w-48 h-64 group">
+                      <CldImage
+                        src={manga.coverImageUrl}
+                        width={192}
+                        height={256}
+                        alt="Current cover"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                        <p className="text-white text-sm">Current cover</p>
+                      </div>
+                    </div>
+                  ) : null}
+                  
+                  {/* Hidden File Input */}
+                  <input
+                    type="file"
+                    id="coverImage"
+                    name="coverImage"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        // Optional: Preview the selected image
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                          const preview = document.getElementById('coverPreview') as HTMLImageElement;
+                          if (preview && e.target?.result) {
+                            preview.src = e.target.result as string;
+                            preview.style.display = 'block';
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  
+                  {/* Custom Button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      document.getElementById('coverImage')?.click();
+                    }}
+                    className="w-48"
+                  >
+                    <ImageIcon className="w-4 h-4 mr-2" />
+                    Select New Cover
+                  </Button>
+
+                  {/* New Image Preview */}
+                  <img
+                    id="coverPreview"
+                    alt="New cover preview"
+                    className="w-48 h-64 object-cover rounded-lg hidden"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  name="title"
+                  defaultValue={editForm.title}
+                  className={theme === "dark" ? "bg-gray-700" : ""}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="introduction">Introduction</Label>
+                <Textarea
+                  id="introduction"
+                  name="introduction"
+                  defaultValue={editForm.introduction}
+                  className={`min-h-[200px] ${theme === "dark" ? "bg-gray-700" : ""}`}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className={`block mb-3 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  Genres
+                </Label>
+                {isLoadingGenres ? (
+                  <div className="flex items-center space-x-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Loading genres...</span>
+                  </div>
+                ) : genreError ? (
+                  <div className="text-red-500">
+                    {genreError}
+                    <Button
+                      variant="link"
+                      onClick={() => {
+                        setIsLoadingGenres(true);
+                        setGenreError(null);
+                        fetchGenres();
+                      }}
+                      className="ml-2 text-blue-500"
+                    >
+                      Retry
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {availableGenres.map((genre) => (
+                      <div key={genre.gId} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={`genre-${genre.gId}`}
+                          checked={editForm.genres.includes(genre.gId)}
+                          onChange={() => toggleGenre(genre.gId)}
+                          className={`w-4 h-4 rounded ${
+                            theme === 'dark'
+                              ? 'bg-gray-700 border-gray-600'
+                              : 'bg-white border-gray-300'
+                          }`}
+                        />
+                        <Label 
+                          htmlFor={`genre-${genre.gId}`}
+                          className={`text-sm cursor-pointer ${
+                            theme === 'dark' ? 'text-white' : 'text-gray-900'
+                          }`}
+                        >
+                          {genre.genreName}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Preview section */}
+              {!isLoadingGenres && editForm.genres.length > 0 && (
+                <div className="mt-6 border-t pt-6">
+                  <h3 className={`text-lg font-semibold mb-4 ${
+                    theme === 'dark' ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    Selected Genres
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {editForm.genres.map((genreId) => {
+                      const genre = availableGenres.find(g => g.gId === genreId);
+                      return genre && (
+                        <span
+                          key={genre.gId}
+                          className={`px-3 py-1 rounded-full text-sm ${
+                            theme === 'dark' 
+                              ? 'bg-blue-600 text-white' 
+                              : 'bg-blue-500 text-white'
+                          }`}
+                        >
+                          {genre.genreName}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the chapter.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteChapter}>Delete</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Authentication Required</AlertDialogTitle>
+              <AlertDialogDescription>
+                Please login or register to purchase chapters.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction asChild>
+                <Link href="/login">Login</Link>
+              </AlertDialogAction>
+              <AlertDialogAction asChild>
+                <Link href="/register">Register</Link>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </div>
   );
 }
