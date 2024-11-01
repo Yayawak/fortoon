@@ -37,10 +37,15 @@ export default function TopUpPage() {
   useEffect(() => {
     const fetchBalance = async () => {
       try {
-        const response = await fetch('/api/payment/coin');
+        const response = await fetch('/api/payment/coin', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
         if (!response.ok) throw new Error('Failed to fetch balance');
         const data = await response.json();
-        setBalance(data.balance);
+        setBalance(data.data.balance);
       } catch (error) {
         console.error('Error fetching balance:', error);
         toast({
@@ -104,9 +109,9 @@ export default function TopUpPage() {
       //   body: JSON.stringify({ credit: data.data.newBalance }),
       // });
 
-      if (!cookieResponse.ok) {
-        throw new Error('Failed to update cookie');
-      }
+      // if (!cookieResponse.ok) {
+      //   throw new Error('Failed to update cookie');
+      // }
 
       // Update local state
       if (user) {
