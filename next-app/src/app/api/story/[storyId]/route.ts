@@ -128,6 +128,8 @@ export async function PUT(req: NextRequest, { params }: { params: { storyId: str
     }
 }
 
+
+
 // delete story
 export async function DELETE(req: NextRequest, { params }: { params: { storyId: string } }) {
     const { storyId } = params;
@@ -149,12 +151,30 @@ export async function DELETE(req: NextRequest, { params }: { params: { storyId: 
             return NextResponse.json(stdRes, { status: 403 });
         }
 
-        await dbConnection.execute(`
-            DELETE FROM Story WHERE sId = ?
-        `, [storyIdNumber]);
+        // Start a transaction
+        // await dbConnection.beginTransaction();
 
-        stdRes.msg = "Story deleted successfully";
-        return NextResponse.json(stdRes, { status: 200 });
+        try {
+            // First delete from StoryGenre table
+            // await dbConnection.execute(`
+            //     DELETE FROM StoryGenre WHERE storyId = ?
+            // `, [storyIdNumber]);
+
+            // Then delete the story
+            await dbConnection.execute(`
+                DELETE FROM Story WHERE sId = ?
+            `, [storyIdNumber]);
+
+            // Commit the transaction
+            // await dbConnection.commit();
+
+            stdRes.msg = "Story deleted successfully";
+            return NextResponse.json(stdRes, { status: 200 });
+        } catch (error) {
+            // If anything goes wrong, rollback the changes
+            // await dbConnection.rollback();
+            throw error;
+        }
 
     } catch (error: any) {
         stdRes.msg = "Error deleting story.";
