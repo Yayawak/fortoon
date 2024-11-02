@@ -9,6 +9,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { Suspense } from 'react'
 import GlobalLoading from './loading'
 import { Quicksand, Noto_Sans_Thai_Looped } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 
 colors.enable()
 
@@ -51,6 +52,7 @@ export default function RootLayout({
         <Suspense fallback={<GlobalLoading />}>
           <AuthProvider>
             <SettingsProvider>
+              <Toaster />
               <Navbar />
               {children}
               <Footer />

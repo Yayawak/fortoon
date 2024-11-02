@@ -17,6 +17,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
+import { CldImage } from 'next-cloudinary';
 
 export default function Navbar() {
   const { user, signOut } = useAuth(); 
@@ -270,9 +271,26 @@ export default function Navbar() {
               <ul>
                 {user ? (
                   <>
-                    <li className="mb-2">
-                      <div className="font-medium">{user?.username}</div>
-                      <div className="text-sm text-muted-foreground">Credits: {balance}</div>
+                    <li className="mb-4 flex items-center space-x-3">
+                      <div className="relative h-12 w-12 rounded-full overflow-hidden">
+                        {user.profilePicUrl ? (
+                          <CldImage
+                            src={user.profilePicUrl}
+                            alt={`${user.username}'s profile`}
+                            width={48}
+                            height={48}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-muted flex items-center justify-center">
+                            <UserIcon className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-medium">{user?.username}</div>
+                        <div className="text-sm text-muted-foreground">Credits: {balance}</div>
+                      </div>
                     </li>
                     <li><Link href="/profile" className="block py-2">Profile</Link></li>
                     <li><Link href="/community" className="block py-2">community</Link></li>
