@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const { user, signOut } = useAuth(); 
@@ -24,7 +25,10 @@ export default function Navbar() {
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [balance, setBalance] = useState(0);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const applyTheme = (themeToApply: 'light' | 'dark') => {
@@ -60,7 +64,7 @@ export default function Navbar() {
     if (user) {
       fetchBalance();
     }
-  }, [user]);
+  }, [toast, user]);
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -76,6 +80,46 @@ export default function Navbar() {
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSearchTerm = e.target.value;
+    setSearchQuery(newSearchTerm);
+
+    if (newSearchTerm.trim()) {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/story', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch stories');
+        }
+
+        const data = await response.json();
+        const filteredResults = data.data.filter((story: any) => 
+          story.title.toLowerCase().includes(newSearchTerm.toLowerCase())
+        );
+        setSearchResults(filteredResults);
+        router.push(`/search?q=${encodeURIComponent(newSearchTerm)}`);
+      } catch (error) {
+        console.error('Error fetching stories:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch stories",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setSearchResults([]);
+      router.push('/');
+    }
   };
 
   return (
@@ -107,10 +151,16 @@ export default function Navbar() {
               <Input
                 type="search"
                 placeholder="Search manga..."
-                className="w-full pl-10"
+                className={`w-full pl-10 ${isLoading ? 'opacity-50' : ''}`}
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearch}
+                disabled={isLoading}
               />
+              {isLoading && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -197,10 +247,16 @@ export default function Navbar() {
             <Input
               type="search"
               placeholder="Search manga..."
-              className="w-full"
+              className={`w-full ${isLoading ? 'opacity-50' : ''}`}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearch}
+              disabled={isLoading}
             />
+            {isLoading && (
+              <div className="absolute right-12 top-1/2 -translate-y-1/2">
+                <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+              </div>
+            )}
           </div>
         </div>
       )}
