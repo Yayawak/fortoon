@@ -87,6 +87,7 @@ export interface FormErrors {
 }
 
 export interface Post {
+  hidden: number;
   pId: string;
   title: string;
   content: string;
@@ -98,6 +99,7 @@ export interface Post {
   parentPostId?: number | null;
   posterPhotoURL?: string;
   posterName?: string;
+  likeCount: number;
 }
 
 export interface MangaDetailProps {
@@ -158,9 +160,11 @@ export interface ReplyFormData {
 }
 // Extend Post type to include likes
 export interface EnhancedPost extends Post {
+  likeCount: number;
   posterName?: string;
   likes?: number;
   isLiked?: boolean;
+  hidden: number;
 }
 
 export interface MangaFormData {

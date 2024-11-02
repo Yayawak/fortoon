@@ -28,7 +28,6 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from "@/hooks/use-toast";
 import { PostFormData, ReplyFormData, EnhancedPost } from '@/lib/types';
-import { user } from '@/contexts/AuthContext';
 import {
   Dialog,
   DialogContent,
@@ -39,11 +38,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Toaster } from "@/components/ui/toaster";
-
-interface UserData {
-  displayName: string;
-  photoURL?: string;
-}
 
 const PostCard: React.FC<{ 
   post: EnhancedPost; 
@@ -525,7 +519,7 @@ const CommunityPage: React.FC = () => {
         throw new Error(errorData.message || 'Failed to fetch posts');
       }
       const result = await response.json();
-      const visiblePosts = result.data.posts.filter((post: Post) => !post.hidden);
+      const visiblePosts = result.data.posts.filter((post: Post) => post.hidden === 0);
       setPosts(visiblePosts);
     } catch (err) {
       toast({
