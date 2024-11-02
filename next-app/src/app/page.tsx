@@ -215,7 +215,7 @@ export default function Home() {
         }`}
       >
         {/* Hero Section */}
-        <section className="h-[80vh] w-full bg-gradient-to-b from-blue-900 to-gray-900 flex items-center justify-center">
+        <section className="h-[100vh] w-full bg-gradient-to-b from-blue-900 to-gray-900 flex items-center justify-center">
           <div className="container mx-auto px-4 py-8 lg:py-16 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -291,7 +291,7 @@ export default function Home() {
         {/* Genre Filter Section */}
         <motion.section
           variants={fadeInVariants}
-          className="py-8 bg-gray-50 dark:bg-gray-800"
+          className="py-8"
         >
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap gap-2 justify-center">
@@ -300,7 +300,7 @@ export default function Home() {
                 className={`px-4 py-2 rounded-full transition-colors ${
                   selectedGenre === null 
                     ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 text-gray-900 dark:text-white'
+                    : 'bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 text-gray-900 dark:text-white'
                 }`}
               >
                 All
@@ -312,7 +312,7 @@ export default function Home() {
                   className={`px-4 py-2 rounded-full transition-colors ${
                     selectedGenre === genre.gId 
                       ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 text-gray-900 dark:text-white'
+                      : 'bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 text-gray-900 dark:text-white'
                   }`}
                 >
                   {genre.genreName}
@@ -377,9 +377,9 @@ export default function Home() {
                               <h3 className="text-xl md:text-2xl font-semibold dark:text-white line-clamp-1">
                                 {manga.title}
                               </h3>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {/* <p className="text-sm text-gray-500 dark:text-gray-400">
                                 by {manga.authorDisplayName}
-                              </p>
+                              </p> */}
                             </div>
 
                             <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base mb-4 line-clamp-2">
