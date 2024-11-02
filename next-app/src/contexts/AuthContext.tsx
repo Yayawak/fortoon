@@ -3,6 +3,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, AuthContextType } from '@/lib/types';
+import { toast } from 'react-hot-toast';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -97,13 +98,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         setUser(null);
         setLoginSuccess(false);
-        router.push('/login');
+        router.push('/');
+        toast.success('Successfully logged out');
       } else {
         setError('Logout failed');
+        toast.error('Failed to log out');
       }
     } catch (error) {
       console.error('Sign out failed:', error);
       setError('An error occurred during sign out');
+      toast.error('An error occurred while logging out');
     } finally {
       setLoading(false);
     }

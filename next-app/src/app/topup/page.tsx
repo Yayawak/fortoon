@@ -48,11 +48,11 @@ export default function TopUpPage() {
         setBalance(data.data.balance);
       } catch (error) {
         console.error('Error fetching balance:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch current balance",
-          variant: "destructive",
-        });
+        // toast({
+        //   title: "Error",
+        //   description: "Failed to fetch current balance",
+        //   variant: "destructive",
+        // });
       }
     };
 
