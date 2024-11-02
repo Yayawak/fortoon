@@ -29,9 +29,9 @@ import {
 import { useRouter } from 'next/navigation';
 
 // Add this new component for the review card
-const ReviewCard = ({ review, onEdit, isAuthor, theme }: { 
-  review: Review; 
-  onEdit: () => void; 
+const ReviewCard = ({ review, onEdit, isAuthor, theme }: {
+  review: Review;
+  onEdit: () => void;
   isAuthor: boolean;
   theme: string;
 }) => (
@@ -55,9 +55,8 @@ const ReviewCard = ({ review, onEdit, isAuthor, theme }: {
               {[...Array(5)].map((_, index) => (
                 <Star
                   key={index}
-                  className={`w-4 h-4 ${
-                    index < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
-                  }`}
+                  className={`w-4 h-4 ${index < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
+                    }`}
                 />
               ))}
             </div>
@@ -74,8 +73,8 @@ const ReviewCard = ({ review, onEdit, isAuthor, theme }: {
           onClick={onEdit}
           className={`
             hover:text-white
-            ${theme === "dark" 
-              ? "hover:bg-gray-700 text-white" 
+            ${theme === "dark"
+              ? "hover:bg-gray-700 text-white"
               : "hover:bg-blue-500 text-gray-900"
             }
           `}
@@ -84,9 +83,8 @@ const ReviewCard = ({ review, onEdit, isAuthor, theme }: {
         </Button>
       )}
     </div>
-    <p className={`mt-4 ${
-      theme === "dark" ? "text-gray-300" : "text-gray-600"
-    }`}>
+    <p className={`mt-4 ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+      }`}>
       {review.review}
     </p>
   </div>
@@ -145,9 +143,9 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         // 3. Chapter has images (meaning it's purchased)
         mangaData.chapters = mangaData.chapters.map((chapter: Chapter) => ({
           ...chapter,
-          hasAccess: 
-            user?.uId === mangaData.authorId || 
-            chapter.price === 0 || 
+          hasAccess:
+            user?.uId === mangaData.authorId ||
+            chapter.price === 0 ||
             (chapter.images && chapter.images.length > 0)
         }));
 
@@ -305,9 +303,9 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     }
   };
 
-  const ReviewForm = ({ onSubmit, initialData = null }: { 
-    onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>, 
-    initialData?: Review | null 
+  const ReviewForm = ({ onSubmit, initialData = null }: {
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>,
+    initialData?: Review | null
   }) => (
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
@@ -354,8 +352,8 @@ export default function MangaDetail({ params }: MangaDetailProps) {
           )}
         </div>
       </div>
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         disabled={isSubmitting}
         className="w-full"
       >
@@ -374,7 +372,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   // Helper function to extract error message from API response
   const getErrorMessage = (error: any): string => {
     if (typeof error === 'string') return error;
-    
+
     // Handle specific API error messages
     if (error.msg) {
       switch (error.msg) {
@@ -386,7 +384,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
           return error.msg;
       }
     }
-    
+
     // Handle ZodError
     if (error.name === 'ZodError' && error.issues?.length > 0) {
       const firstIssue = error.issues[0];
@@ -395,7 +393,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       }
       return firstIssue.message || 'Invalid input provided';
     }
-    
+
     return 'An unexpected error occurred';
   };
 
@@ -423,7 +421,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
             if (!prev) return prev;
             return {
               ...prev,
-              chapters: prev.chapters.map(ch => 
+              chapters: prev.chapters.map(ch =>
                 ch.cId === chapterId ? { ...ch, hasAccess: true } : ch
               )
             };
@@ -443,7 +441,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
         if (!prev) return prev;
         return {
           ...prev,
-          chapters: prev.chapters.map(ch => 
+          chapters: prev.chapters.map(ch =>
             ch.cId === chapterId ? { ...ch, hasAccess: true } : ch
           )
         };
@@ -507,10 +505,10 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   const handleEditClick = () => {
     if (!isEditing && manga) {
       // Convert manga genres to array of gIds
-      const currentGenreIds = manga.genres.map((genre: any) => 
+      const currentGenreIds = manga.genres.map((genre: any) =>
         typeof genre === 'object' ? genre.gId : genre
       );
-      
+
       setEditForm({
         title: manga.title,
         introduction: manga.introduction,
@@ -531,14 +529,14 @@ export default function MangaDetail({ params }: MangaDetailProps) {
 
   const handleUpdateManga = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     try {
       // First update the basic manga details
       const formData = new FormData(e.currentTarget);
-      
+
       // Clear any existing genres from FormData
       formData.delete('genres');
-      
+
       // Add genres as a string array
       formData.append('genreIds', `[${editForm.genres.join(',')}]`);
 
@@ -576,9 +574,9 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       const updatedMangaResponse = await fetch(`/api/story/${params.sId}`);
       const updatedMangaData = await updatedMangaResponse.json();
       setManga(updatedMangaData);
-      
+
       setIsEditing(false);
-      
+
       toast({
         title: "Success",
         description: "Manga updated successfully",
@@ -611,7 +609,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
 
       setIsDeleteDialogOpen(false);
       setChapterToDelete(null);
-      
+
       toast({
         title: "Success",
         description: "Chapter deleted successfully",
@@ -631,9 +629,8 @@ export default function MangaDetail({ params }: MangaDetailProps) {
 
   return (
     <div
-      className={`min-h-screen ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
-      }`}
+      className={`min-h-screen ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        }`}
     >
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8">
@@ -655,15 +652,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                     {new Date(manga.postedDatetime).toLocaleDateString()}
                   </span>
                 </div>
-                {manga.chapters && manga.chapters.length > 0 && (
-                  <Button asChild>
-                    <Link
-                      href={`/manga/${manga.sId}/chapter/${manga.chapters[0].cId}`}
-                    >
-                      Start Reading
-                    </Link>
-                  </Button>
-                )}
               </div>
               <div className="flex items-center text-sm text-gray-500">
                 <Book className="w-4 h-4 mr-2" />
@@ -672,20 +660,18 @@ export default function MangaDetail({ params }: MangaDetailProps) {
             </div>
             {manga.genres && manga.genres.length > 0 && (
               <div className="mt-4">
-                <h3 className={`font-semibold mb-2 ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}>
+                <h3 className={`font-semibold mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"
+                  }`}>
                   Genres
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {manga.genres.map((genre: any, index: number) => (
                     <span
                       key={index}
-                      className={`px-3 py-1 rounded-full text-sm ${
-                        theme === "dark" 
-                          ? "bg-blue-600 text-white" 
-                          : "bg-blue-500 text-white"
-                      }`}
+                      className={`px-3 py-1 rounded-full text-sm ${theme === "dark"
+                        ? "bg-blue-600 text-white"
+                        : "bg-blue-500 text-white"
+                        }`}
                     >
                       {typeof genre === 'object' ? genre.genreName : genre}
                     </span>
@@ -693,6 +679,32 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                 </div>
               </div>
             )}
+            <div className="mt-4">
+              {manga.chapters && manga.chapters.length > 0 && (
+                <Button asChild>
+                  <Link
+                    href={`/manga/${manga.sId}/chapter/${manga.chapters[0].cId}`}
+                  >
+                    Start Reading
+                  </Link>
+                </Button>
+              )}
+            </div>
+            <div className="mt-4">
+
+              {/* Author Edit Section */}
+              {user?.uId === manga?.authorId && (
+                <div className="container py-4">
+                  <Button
+                    onClick={handleEditClick}
+                    variant={isEditing ? "destructive" : "default"}
+                    className="mb-4"
+                  >
+                    {isEditing ? "Cancel Edit" : "Edit Manga"}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="md:w-2/3">
@@ -710,18 +722,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                 <p className="text-lg leading-relaxed whitespace-pre-line">
                   {manga.introduction}
                 </p>
-                      {/* Author Edit Section */}
-      {user?.uId === manga?.authorId && (
-        <div className="container mx-auto px-4 py-4">
-          <Button
-            onClick={handleEditClick}
-            variant={isEditing ? "destructive" : "default"}
-            className="mb-4"
-          >
-            {isEditing ? "Cancel Edit" : "Edit Manga"}
-          </Button>
-        </div>
-      )}
               </TabsContent>
 
               <TabsContent value="chapters" className="mt-4">
@@ -736,15 +736,14 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                     Add Chapter
                   </Button>
                 )}
-                
+
                 <div className="space-y-4">
                   {manga.chapters &&
                     manga.chapters.map((chapter) => (
                       <div
                         key={chapter.cId}
-                        className={`p-4 rounded-lg transition-colors ${
-                          theme === "dark" ? "bg-gray-800/50" : "bg-white"
-                        } shadow-md`}
+                        className={`p-4 rounded-lg transition-colors ${theme === "dark" ? "bg-gray-800/50" : "bg-white"
+                          } shadow-md`}
                       >
                         <div className="flex justify-between items-center">
                           <div className="flex-1">
@@ -827,9 +826,8 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                     <div className="flex items-center justify-between mb-6">
                       <div>
                         <h2 className="text-2xl font-bold">Reviews</h2>
-                        <p className={`mt-1 ${
-                          theme === "dark" ? "text-gray-400" : "text-gray-500"
-                        }`}>
+                        <p className={`mt-1 ${theme === "dark" ? "text-gray-400" : "text-gray-500"
+                          }`}>
                           Share your thoughts about this story
                         </p>
                       </div>
@@ -928,7 +926,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Hidden File Input */}
                 <input
                   type="file"
@@ -952,7 +950,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                     }
                   }}
                 />
-                
+
                 {/* Custom Button */}
                 <Button
                   type="button"
@@ -1028,17 +1026,15 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                         id={`genre-${genre.gId}`}
                         checked={editForm.genres.includes(genre.gId)}
                         onChange={() => toggleGenre(genre.gId)}
-                        className={`w-4 h-4 rounded ${
-                          theme === 'dark'
-                            ? 'bg-gray-700 border-gray-600'
-                            : 'bg-white border-gray-300'
-                        }`}
+                        className={`w-4 h-4 rounded ${theme === 'dark'
+                          ? 'bg-gray-700 border-gray-600'
+                          : 'bg-white border-gray-300'
+                          }`}
                       />
-                      <Label 
+                      <Label
                         htmlFor={`genre-${genre.gId}`}
-                        className={`text-sm cursor-pointer ${
-                          theme === 'dark' ? 'text-white' : 'text-gray-900'
-                        }`}
+                        className={`text-sm cursor-pointer ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                          }`}
                       >
                         {genre.genreName}
                       </Label>
@@ -1051,9 +1047,8 @@ export default function MangaDetail({ params }: MangaDetailProps) {
             {/* Preview section */}
             {!isLoadingGenres && editForm.genres.length > 0 && (
               <div className="mt-6 border-t pt-6">
-                <h3 className={`text-lg font-semibold mb-4 ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>
+                <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'
+                  }`}>
                   Selected Genres
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -1062,11 +1057,10 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                     return genre && (
                       <span
                         key={genre.gId}
-                        className={`px-3 py-1 rounded-full text-sm ${
-                          theme === 'dark' 
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-blue-500 text-white'
-                        }`}
+                        className={`px-3 py-1 rounded-full text-sm ${theme === 'dark'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-blue-500 text-white'
+                          }`}
                       >
                         {genre.genreName}
                       </span>

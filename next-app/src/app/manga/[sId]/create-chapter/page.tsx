@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from 'next/image';
+import { useToast } from '@/hooks/use-toast';
 
 // TypeScript type for file previews
 type FilePreview = {
@@ -33,6 +34,7 @@ export default function CreateChapter() {
   const [coinPrice, setCoinPrice] = useState<number>(0);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Reference to the file input
+  const { toast } = useToast(); // Add this hook
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []) as File[]; // Ensure that files are typed as File[]
@@ -158,7 +160,6 @@ export default function CreateChapter() {
         formData.append('price', '0');
       }
       
-      // Update the field name to 'imageChapterFiles'
       chapterImages.forEach((image, index) => {
         formData.append('imageChapterFiles', image);
       });
@@ -173,11 +174,28 @@ export default function CreateChapter() {
       }
 
       const data = await response.json();
-      router.push(`/manga/${mangaId}`); // Navigate back to manga page on success
+      
+      // Show success toast
+      toast({
+        title: "Success!",
+        description: "Chapter created successfully",
+        variant: "default",
+        duration: 3000,
+      });
+
+      router.push(`/manga/${mangaId}`);
     } catch (error) {
       setError('Failed to create chapter. Please try again.');
       setIsConfirmDialogOpen(false);
       console.error('Error creating chapter:', error);
+      
+      // Show error toast
+      toast({
+        title: "Error",
+        description: "Failed to create chapter. Please try again.",
+        variant: "destructive",
+        duration: 5000,
+      });
     }
   };
 
