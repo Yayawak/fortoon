@@ -176,11 +176,11 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       setReviews(data.data || []);
     } catch (err) {
       console.error('Error fetching reviews:', err);
-      toast({
-        title: "Error",
-        description: getErrorMessage(err),
-        variant: "destructive"
-      });
+      // toast({
+      //   title: "Error",
+      //   description: getErrorMessage(err),
+      //   variant: "destructive"
+      // });
       setReviews([]);
     }
   };
