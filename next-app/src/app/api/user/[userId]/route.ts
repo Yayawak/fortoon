@@ -1,6 +1,6 @@
 import { dbConnection } from "@/db/dbConnector";
 import { IStandardResponse } from "@/types/IApiCommunication";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { RowDataPacket } from "mysql2";
 import { verifyToken } from "@/backend_lib/auth/auth.cookie";
 
