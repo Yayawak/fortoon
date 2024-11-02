@@ -27,7 +27,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useRouter } from 'next/navigation';
-
 // Add this new component for the review card
 const ReviewCard = ({ review, onEdit, isAuthor, theme }: {
   review: Review;

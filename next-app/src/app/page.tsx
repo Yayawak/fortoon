@@ -5,11 +5,12 @@ import Link from "next/link";
 import { Star, TrendingUp, Clock, MapPin } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import Slider from "react-slick";
-import { CldImage } from "next-cloudinary";
+import Image from 'next/image';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { Genre } from "@/lib/types";
+import { CldImage } from "next-cloudinary";
 
 type MangaItem = {
   sId: number;
