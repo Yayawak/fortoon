@@ -138,6 +138,7 @@ export interface Manga {
   authorDisplayName: string;
   chapters: Chapter[];
   genres: string[];
+  rating: number;
 }
 
 export interface PostCardProps {
@@ -170,7 +171,7 @@ export interface EnhancedPost extends Post {
 export interface MangaFormData {
   title: string;
   description: string;
-  genre: string;
+  genre: number[];
   coverImage: File | null;
 }
 

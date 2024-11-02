@@ -25,7 +25,7 @@ const coinPackages = [
 ];
 
 export default function TopUpPage() {
-  const [selectedPackage, setSelectedPackage] = useState(coinPackages[0]);
+  const [selectedPackage, setSelectedPackage] = useState<{ coins: number; price: number; } | null>(coinPackages[0]);
   const [customCoins, setCustomCoins] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -64,7 +64,7 @@ export default function TopUpPage() {
     setSelectedPackage(null);
   };
 
-  const handlePackageSelect = (pkg) => {
+  const handlePackageSelect = (pkg: { coins: number; price: number }) => {
     setSelectedPackage(pkg);
     setCustomCoins('');
   };
