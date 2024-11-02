@@ -153,7 +153,7 @@ export default function Profile() {
                 </div>
               </div>
               <div className="text-center md:text-left">
-                <h2 className="text-3xl font-bold">{user?.displayName || 'Anonymous'}</h2>
+                <h2 className="text-3xl font-bold  g-gray-100 text-gray-700 hover:bg-gray-200">{user?.displayName || 'Anonymous'}</h2>
                 {/* <p className="text-xl">Software Developer & Manga Artist</p>
                 <div className="flex justify-center md:justify-start space-x-4 mt-4">
                   <Link href="#"><Github className="hover:text-yellow-300 transition-colors" /></Link>
