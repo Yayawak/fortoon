@@ -622,10 +622,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
-  if (!manga) return <div>No manga data found</div>;
-
   return (
     <div
       className={`min-h-screen ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
@@ -634,7 +630,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-1/3">
-            {manga.coverImageUrl && (
+            {manga?.coverImageUrl && (
               <CldImage
                 src={manga.coverImageUrl}
                 width={500}
@@ -648,23 +644,37 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                 <div className="flex items-center">
                   <Calendar className="w-5 h-5 text-gray-400 mr-2" />
                   <span className="font-semibold">
-                    {new Date(manga.postedDatetime).toLocaleDateString()}
+                    {new Date(manga?.postedDatetime || '').toLocaleDateString()}
                   </span>
                 </div>
+                {manga?.chapters && manga?.chapters.length > 0 && (
+                  <Button asChild>
+                    <Link
+                      href={`/manga/${manga.sId}/chapter/${manga.chapters[0].cId}`}
+                    >
+                      Start Reading
+                    </Link>
+                  </Button>
+                )}
               </div>
               <div className="flex items-center text-sm text-gray-500">
                 <Book className="w-4 h-4 mr-2" />
-                <span>{manga.authorDisplayName}</span>
+                <Link 
+                  href={`/profile/${manga?.authorId}`}
+                  className="hover:underline hover:text-blue-500 transition-colors"
+                >
+                  {manga?.authorDisplayName}
+                </Link>
               </div>
             </div>
-            {manga.genres && manga.genres.length > 0 && (
+            {manga?.genres && manga?.genres.length > 0 && (
               <div className="mt-4">
                 <h3 className={`font-semibold mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"
                   }`}>
                   Genres
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {manga.genres.map((genre: any, index: number) => (
+                  {manga?.genres.map((genre: any, index: number) => (
                     <span
                       key={index}
                       className={`px-3 py-1 rounded-full text-sm ${theme === "dark"
@@ -679,10 +689,10 @@ export default function MangaDetail({ params }: MangaDetailProps) {
               </div>
             )}
             <div className="mt-4">
-              {manga.chapters && manga.chapters.length > 0 && (
+              {manga?.chapters && manga.chapters.length > 0 && (
                 <Button asChild>
                   <Link
-                    href={`/manga/${manga.sId}/chapter/${manga.chapters[0].cId}`}
+                    href={`/manga/${manga?.sId}/chapter/${manga?.chapters[0].cId}`}
                   >
                     Start Reading
                   </Link>
@@ -707,8 +717,16 @@ export default function MangaDetail({ params }: MangaDetailProps) {
           </div>
 
           <div className="md:w-2/3">
-            <h1 className="text-4xl font-bold mb-2">{manga.title}</h1>
-            <p className="text-gray-500 mb-6">by {manga.authorDisplayName}</p>
+            <h1 className="text-4xl font-bold mb-2">{manga?.title}</h1>
+            <p className="text-gray-500 mb-6">
+              by{" "}
+              <Link 
+                href={`/profile/${manga?.authorId}`}
+                className="hover:underline hover:text-blue-500 transition-colors"
+              >
+                {manga?.authorDisplayName}
+              </Link>
+            </p>
 
             <Tabs defaultValue="description" className="w-full">
               <TabsList>
@@ -719,15 +737,15 @@ export default function MangaDetail({ params }: MangaDetailProps) {
 
               <TabsContent value="description" className="mt-4">
                 <p className="text-lg leading-relaxed whitespace-pre-line">
-                  {manga.introduction}
+                  {manga?.introduction}
                 </p>
               </TabsContent>
 
               <TabsContent value="chapters" className="mt-4">
-                {user?.uId === manga.authorId && (
+                {user?.uId === manga?.authorId && (
                   <Button
                     onClick={() => {
-                      router.push(`/manga/${manga.sId}/create-chapter`);
+                      router.push(`/manga/${manga?.sId}/create-chapter`);
                     }}
                     className="mb-4"
                   >
@@ -737,8 +755,8 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                 )}
 
                 <div className="space-y-4">
-                  {manga.chapters &&
-                    manga.chapters.map((chapter) => (
+                  {manga?.chapters &&
+                    manga?.chapters.map((chapter) => (
                       <div
                         key={chapter.cId}
                         className={`p-4 rounded-lg transition-colors ${theme === "dark" ? "bg-gray-800/50" : "bg-white"
@@ -760,7 +778,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            {user?.uId === manga.authorId && (
+                            {user?.uId === manga?.authorId && (
                               <>
                                 <Button
                                   variant="ghost"
@@ -768,8 +786,8 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                                   onClick={() => {
                                     console.log("Edit button clicked");
                                     console.log("Chapter ID:", chapter.cId);
-                                    console.log("Manga ID:", manga.sId);
-                                    const editUrl = `/manga/${manga.sId}/chapter/${chapter.cId}/edit-chapter`;
+                                    console.log("Manga ID:", manga?.sId);
+                                    const editUrl = `/manga/${manga?.sId}/chapter/${chapter.cId}/edit-chapter`;
                                     console.log("Navigation URL:", editUrl);
                                     router.push(editUrl);
                                   }}
@@ -788,7 +806,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                                 </Button>
                               </>
                             )}
-                            {chapter.price > 0 && !chapter.hasAccess && user?.uId !== manga.authorId && (
+                            {chapter.price > 0 && !chapter.hasAccess && user?.uId !== manga?.authorId && (
                               <Button
                                 onClick={() => handlePurchaseChapter(chapter.cId, chapter.price)}
                                 disabled={isPurchasing}
@@ -803,7 +821,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                             )}
                             {(chapter.price === 0 || chapter.hasAccess) && (
                               <Button asChild>
-                                <Link href={`/manga/${manga.sId}/chapter/${chapter.cId}`}>
+                                <Link href={`/manga/${manga?.sId}/chapter/${chapter.cId}`}>
                                   Read Now
                                   <ChevronRight className="w-5 h-5 ml-1" />
                                 </Link>
@@ -831,7 +849,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                         </p>
                       </div>
                       {/* Only show review button if user is logged in AND not the author */}
-                      {user && user.uId !== manga.authorId && (
+                      {user && user.uId !== manga?.authorId && (
                         <Dialog
                           open={isReviewDialogOpen}
                           onOpenChange={setIsReviewDialogOpen}
@@ -854,7 +872,7 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                               }>
                                 {editingReview
                                   ? "Update your review"
-                                  : `Share your thoughts about ${manga.title}`}
+                                  : `Share your thoughts about ${manga?.title}`}
                               </DialogDescription>
                             </DialogHeader>
                             <ReviewForm
@@ -911,10 +929,10 @@ export default function MangaDetail({ params }: MangaDetailProps) {
               <Label htmlFor="coverImage">Cover Image</Label>
               <div className="flex flex-col items-center gap-4">
                 {/* Current Cover Image Preview */}
-                {manga.coverImageUrl && (
+                {manga?.coverImageUrl && (
                   <div className="relative w-48 h-64 group">
                     <CldImage
-                      src={manga.coverImageUrl}
+                      src={manga?.coverImageUrl}
                       width={192}
                       height={256}
                       alt="Current cover"
