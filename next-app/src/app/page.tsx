@@ -214,7 +214,7 @@ export default function Home() {
         }`}
       >
         {/* Hero Section */}
-        <section className="h-screen w-full bg-gradient-to-b from-blue-900 to-gray-900 flex items-center justify-center">
+        <section className="h-[80vh] w-full bg-gradient-to-b from-blue-900 to-gray-900 flex items-center justify-center">
           <div className="container mx-auto px-4 py-8 lg:py-16 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -349,7 +349,7 @@ export default function Home() {
                     >
                       <Link href={`/manga/${manga.sId}`}>
                         <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300`}>
-                          <div className="relative h-48 md:h-64">
+                          <div className="relative h-72 md:h-96">
                             <CldImage
                               src={manga.coverImageUrl}
                               alt={manga.title}
