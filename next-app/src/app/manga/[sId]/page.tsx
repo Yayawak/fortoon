@@ -610,17 +610,14 @@ export default function MangaDetail({ params }: MangaDetailProps) {
   };
 
   return (
-    <div
-      className={`min-h-screen ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
-        }`}
-    >
+    <div className={`min-h-screen ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
       <div className="container mx-auto px-4 py-8">
         {manga && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left Panel */}
-            <div className="space-y-4">
-              {/* Manga Cover Image */}
-              <div className="bg-white rounded-lg shadow-md p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Panel - Cover and Info */}
+            <div className="lg:col-span-3 space-y-4">
+              {/* Cover Image Container */}
+              <div className="bg-white rounded-lg shadow-md p-4 max-w-sm mx-auto lg:mx-0">
                 {manga?.coverImageUrl && (
                   <CldImage
                     src={manga.coverImageUrl}
@@ -632,21 +629,28 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                 )}
               </div>
 
-              {/* Date and Author Info */}
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-5 h-5 text-gray-400 mr-2" />
-                  <span className="font-semibold">
-                    {new Date(manga.postedDatetime).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex items-center text-sm text-gray-500">
-                  <Book className="w-4 h-4 mr-2" />
-                  <span>{manga.authorDisplayName}</span>
+              {/* Info and Buttons - Now properly contained */}
+              <div className="space-y-4 max-w-sm mx-auto lg:mx-0">
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="w-5 h-5 text-gray-400 mr-2" />
+                    <span className="font-semibold">
+                      {new Date(manga.postedDatetime).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Book className="w-4 h-4 mr-2" />
+                    <Link 
+                      href={`/profile/${manga.authorId}`}
+                      className="hover:text-blue-500 hover:underline transition-colors"
+                    >
+                      {manga.authorDisplayName}
+                    </Link>
+                  </div>
                 </div>
 
                 {/* Buttons Container */}
-                <div className="flex flex-col space-y-2 mt-4">
+                <div className="flex flex-col space-y-2">
                   <button
                     onClick={() => router.push(`/manga/${params.sId}/chapter/1`)}
                     className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
@@ -666,10 +670,18 @@ export default function MangaDetail({ params }: MangaDetailProps) {
               </div>
             </div>
 
-            {/* Middle Panel */}
-            <div className="md:w-2/3">
-              <h1 className="text-4xl font-bold mb-2">{manga.title}</h1>
-              <p className="text-gray-500 mb-6">by {manga.authorDisplayName}</p>
+            {/* Middle Panel - Main Content */}
+            <div className="lg:col-span-9">
+              <h1 className="text-2xl md:text-4xl font-bold mb-2">{manga.title}</h1>
+              <p className="text-gray-500 mb-6">
+                by{" "}
+                <Link 
+                  href={`/profile/${manga.authorId}`}
+                  className="hover:text-blue-500 hover:underline transition-colors"
+                >
+                  {manga.authorDisplayName}
+                </Link>
+              </p>
 
               <Tabs defaultValue="description" className="w-full">
                 <TabsList>
@@ -679,181 +691,104 @@ export default function MangaDetail({ params }: MangaDetailProps) {
                 </TabsList>
 
                 <TabsContent value="description" className="mt-4">
-                  <p className="text-lg leading-relaxed whitespace-pre-line">
+                  <p className="text-base md:text-lg leading-relaxed whitespace-pre-line">
                     {manga.introduction}
                   </p>
                 </TabsContent>
 
                 <TabsContent value="chapters" className="mt-4">
-                  {user?.uId === manga.authorId && (
-                    <Button
-                      onClick={() => {
-                        router.push(`/manga/${manga.sId}/create-chapter`);
-                      }}
-                      className="mb-4"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Chapter
-                    </Button>
-                  )}
-
+                  {/* Chapter items - Make them more responsive */}
                   <div className="space-y-4">
-                    {manga.chapters &&
-                      manga.chapters.map((chapter) => (
-                        <div
-                          key={chapter.cId}
-                          className={`p-4 rounded-lg transition-colors ${theme === "dark" ? "bg-gray-800/50" : "bg-white"
-                            } shadow-md`}
-                        >
-                          <div className="flex justify-between items-center">
-                            <div className="flex-1">
-                              <h3 className="text-xl font-semibold">
-                                Chapter {chapter.chapterSequence}: {chapter.name || "Untitled"}
-                              </h3>
-                              <div className="flex items-center mt-2 space-x-4 text-sm">
-                                {chapter.price > 0 ? (
-                                  <span className="font-bold text-green-500">
-                                    ${chapter.price.toFixed(2)}
-                                  </span>
-                                ) : (
-                                  <span className="text-green-500">Free</span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {user?.uId === manga.authorId && (
-                                <>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      console.log("Edit button clicked");
-                                      console.log("Chapter ID:", chapter.cId);
-                                      console.log("Manga ID:", manga.sId);
-                                      const editUrl = `/manga/${manga.sId}/chapter/${chapter.cId}/edit-chapter`;
-                                      console.log("Navigation URL:", editUrl);
-                                      router.push(editUrl);
-                                    }}
-                                  >
-                                    <Pencil className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      setChapterToDelete(chapter.cId);
-                                      setIsDeleteDialogOpen(true);
-                                    }}
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </>
-                              )}
-                              {chapter.price > 0 && !chapter.hasAccess && user?.uId !== manga.authorId && (
-                                <Button
-                                  onClick={() => handlePurchaseChapter(chapter.cId, chapter.price)}
-                                  disabled={isPurchasing}
-                                  variant="secondary"
-                                  className="flex items-center gap-2"
-                                >
-                                  {isPurchasing ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : null}
-                                  Purchase
-                                </Button>
-                              )}
-                              {(chapter.price === 0 || chapter.hasAccess) && (
-                                <Button asChild>
-                                  <Link href={`/manga/${manga.sId}/chapter/${chapter.cId}`}>
-                                    Read Now
-                                    <ChevronRight className="w-5 h-5 ml-1" />
-                                  </Link>
-                                </Button>
+                    {manga.chapters && manga.chapters.map((chapter) => (
+                      <div key={chapter.cId} className={`p-4 rounded-lg transition-colors ${theme === "dark" ? "bg-gray-800/50" : "bg-white"} shadow-md`}>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          <div className="flex-1">
+                            <h3 className="text-lg md:text-xl font-semibold">
+                              Chapter {chapter.chapterSequence}: {chapter.name || "Untitled"}
+                            </h3>
+                            <div className="flex items-center mt-2 space-x-4 text-sm">
+                              {chapter.price > 0 ? (
+                                <span className="font-bold text-green-500">
+                                  ${chapter.price.toFixed(2)}
+                                </span>
+                              ) : (
+                                <span className="text-green-500">Free</span>
                               )}
                             </div>
                           </div>
+                          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            {user?.uId === manga.authorId && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    console.log("Edit button clicked");
+                                    console.log("Chapter ID:", chapter.cId);
+                                    console.log("Manga ID:", manga.sId);
+                                    const editUrl = `/manga/${manga.sId}/chapter/${chapter.cId}/edit-chapter`;
+                                    console.log("Navigation URL:", editUrl);
+                                    router.push(editUrl);
+                                  }}
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setChapterToDelete(chapter.cId);
+                                    setIsDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </>
+                            )}
+                            {chapter.price > 0 && !chapter.hasAccess && user?.uId !== manga.authorId && (
+                              <Button
+                                onClick={() => handlePurchaseChapter(chapter.cId, chapter.price)}
+                                disabled={isPurchasing}
+                                variant="secondary"
+                                className="flex items-center gap-2"
+                              >
+                                {isPurchasing ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : null}
+                                Purchase
+                              </Button>
+                            )}
+                            {(chapter.price === 0 || chapter.hasAccess) && (
+                              <Button asChild>
+                                <Link href={`/manga/${manga.sId}/chapter/${chapter.cId}`}>
+                                  Read Now
+                                  <ChevronRight className="w-5 h-5 ml-1" />
+                                </Link>
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                      ))}
+                      </div>
+                    ))}
                   </div>
                 </TabsContent>
 
                 <TabsContent value="reviews" className="mt-4">
-                  <div className="space-y-8">
-                    <div className={`
-                      p-6 rounded-lg shadow-md
-                      ${theme === "dark" ? "bg-gray-800/50" : "bg-white"}
-                    `}>
-                      <div className="flex items-center justify-between mb-6">
-                        <div>
-                          <h2 className="text-2xl font-bold">Reviews</h2>
-                          <p className={`mt-1 ${theme === "dark" ? "text-gray-400" : "text-gray-500"
-                            }`}>
-                            Share your thoughts about this story
-                          </p>
-                        </div>
-                        {/* Only show review button if user is logged in AND not the author */}
-                        {user && user.uId !== manga.authorId && (
-                          <Dialog
-                            open={isReviewDialogOpen}
-                            onOpenChange={setIsReviewDialogOpen}
-                          >
-                            <DialogTrigger asChild>
-                              <Button className="flex items-center space-x-2">
-                                <Plus className="w-4 h-4" />
-                                <span>Write a Review</span>
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className={`
-                              ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white"}
-                            `}>
-                              <DialogHeader>
-                                <DialogTitle className={theme === "dark" ? "text-white" : "text-gray-900"}>
-                                  {editingReview ? "Edit Review" : "Write a Review"}
-                                </DialogTitle>
-                                <DialogDescription className={
-                                  theme === "dark" ? "text-gray-400" : "text-gray-500"
-                                }>
-                                  {editingReview
-                                    ? "Update your review"
-                                    : `Share your thoughts about ${manga.title}`}
-                                </DialogDescription>
-                              </DialogHeader>
-                              <ReviewForm
-                                onSubmit={editingReview ? handleReviewUpdate : handleReviewSubmit}
-                                initialData={editingReview}
-                              />
-                            </DialogContent>
-                          </Dialog>
-                        )}
+                  {/* Make review cards more responsive */}
+                  <div className="space-y-6">
+                    {reviews.map((review) => (
+                      <div key={review.rsId} className="w-full">
+                        <ReviewCard
+                          review={review}
+                          onEdit={() => {
+                            setEditingReview(review);
+                            setIsReviewDialogOpen(true);
+                          }}
+                          isAuthor={review.reviewerId === user?.uId}
+                          theme={theme}
+                        />
                       </div>
-
-                      {/* Reviews list */}
-                      <div className="space-y-6">
-                        {reviews.length === 0 ? (
-                          <div className={`
-                            text-center py-12
-                            ${theme === "dark" ? "text-gray-400" : "text-gray-500"}
-                          `}>
-                            <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                            <p className="text-lg font-medium">No reviews yet</p>
-                            <p className="mt-1">Be the first to share your thoughts!</p>
-                          </div>
-                        ) : (
-                          reviews.map((review) => (
-                            <ReviewCard
-                              key={review.rsId}
-                              review={review}
-                              onEdit={() => {
-                                setEditingReview(review);
-                                setIsReviewDialogOpen(true);
-                              }}
-                              isAuthor={review.reviewerId === user?.uId}
-                              theme={theme}
-                            />
-                          ))
-                        )}
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </TabsContent>
               </Tabs>
@@ -861,8 +796,6 @@ export default function MangaDetail({ params }: MangaDetailProps) {
           </div>
         )}
       </div>
-
-
 
       {/* Edit Form */}
       {isEditing && user?.uId === manga?.authorId && (
