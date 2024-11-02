@@ -244,7 +244,7 @@ export default function Home() {
                           fill
                           className="object-cover transition-transform duration-300"
                         />
-                        <div className="absolute inset-0 flex flex-col justify-between p-4">
+                        <div className="absolute inset-0 flex flex-col justify-between">
                           <div className="flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-2 rounded-t-lg">
                             <div className="flex items-center bg-yellow-500 rounded-full px-2 py-1">
                               <Star className="w-4 h-4 text-white" />
