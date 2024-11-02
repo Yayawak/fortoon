@@ -363,7 +363,9 @@ const PostCard: React.FC<{
                   <CldImage
                     src={image}
                     alt={`Post image ${index + 1}`}
-                    fill
+                    // fill
+                    width={400}
+                    height={400}
                     style={{objectFit: "cover"}}
                     className="transition-transform duration-300 hover:scale-105 rounded-lg"
                   />

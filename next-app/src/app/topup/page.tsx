@@ -100,27 +100,16 @@ export default function TopUpPage() {
 
       const data = await response.json();
       
-      // Update cookie with new balance
-      // const cookieResponse = await fetch('/api/auth/login/updateCookie', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ credit: data.data.newBalance }),
-      // });
-
-      // if (!cookieResponse.ok) {
-      //   throw new Error('Failed to update cookie');
-      // }
-
       // Update local state
       if (user) {
         user.credit = data.data.newBalance;
       }
+      setBalance(data.data.newBalance);
       
       toast({
-        title: "Top Up Successful",
-        description: `Added ${coinsToAdd} coins to your balance!`,
+        title: "Success!",
+        description: `Successfully added ${coinsToAdd} coins to your balance!`,
+        variant: "default"
       });
       setShowConfirmDialog(false);
     } catch (error) {

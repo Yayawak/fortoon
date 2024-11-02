@@ -245,11 +245,11 @@ export default function MangaDetail({ params }: MangaDetailProps) {
       setIsReviewDialogOpen(false);
       form.reset();
     } catch (err: any) {
-      toast({
-        title: "Error",
-        description: getErrorMessage(err),
-        variant: "destructive"
-      });
+      // toast({
+      //   title: "Error",
+      //   description: getErrorMessage(err),
+      //   variant: "destructive"
+      // });
     } finally {
       setIsSubmitting(false);
     }
