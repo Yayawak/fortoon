@@ -49,16 +49,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${quicksand.variable} ${notoSansThai.variable}`}>
       <body className="font-quicksand [&:lang(th)]:font-noto-thai">
-        <Suspense fallback={<GlobalLoading />}>
+        
           <AuthProvider>
             <SettingsProvider>
+              <Suspense fallback={<GlobalLoading />}>
               <Toaster />
               <Navbar />
               {children}
               <Footer />
+              </Suspense>
             </SettingsProvider>
           </AuthProvider>
-        </Suspense>
+        
       </body>
     </html>
   );
