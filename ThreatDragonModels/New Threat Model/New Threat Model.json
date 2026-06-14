@@ -1,0 +1,71 @@
+{
+  "version": "2.6.2",
+  "summary": {
+    "title": "New Threat Model",
+    "owner": "",
+    "description": "",
+    "id": 0
+  },
+  "detail": {
+    "contributors": [],
+    "diagrams": [
+      {
+        "id": 0,
+        "title": "New STRIDE diagram",
+        "diagramType": "STRIDE",
+        "placeholder": "New STRIDE diagram description",
+        "thumbnail": "./public/content/images/thumbnail.stride.jpg",
+        "version": "2.6.2",
+        "cells": []
+      },
+      {
+        "id": 1,
+        "title": "New CIA diagram",
+        "diagramType": "CIA",
+        "placeholder": "New CIA diagram description",
+        "thumbnail": "./public/content/images/thumbnail.cia.jpg",
+        "version": "2.6.2",
+        "cells": []
+      },
+      {
+        "id": 2,
+        "title": "New CIA-DIE diagram",
+        "diagramType": "CIADIE",
+        "placeholder": "New CIA-DIE diagram description",
+        "thumbnail": "./public/content/images/thumbnail.die.jpg",
+        "version": "2.6.2",
+        "cells": []
+      },
+      {
+        "id": 3,
+        "title": "New PLOT4ai diagram",
+        "diagramType": "PLOT4ai",
+        "placeholder": "New PLOT4ai diagram description",
+        "thumbnail": "./public/content/images/thumbnail.plot4ai.jpg",
+        "version": "2.6.2",
+        "cells": []
+      },
+      {
+        "id": 4,
+        "title": "New EoP games diagram",
+        "diagramType": "EOP",
+        "placeholder": "New EoP games diagram description",
+        "thumbnail": "./public/content/images/thumbnail.eop.jpg",
+        "version": "2.6.2",
+        "cells": []
+      },
+      {
+        "id": 5,
+        "title": "New generic diagram",
+        "diagramType": "Generic",
+        "placeholder": "New generic diagram description",
+        "thumbnail": "./public/content/images/thumbnail.jpg",
+        "version": "2.6.2",
+        "cells": []
+      }
+    ],
+    "diagramTop": 6,
+    "reviewer": "",
+    "threatTop": 0
+  }
+}
